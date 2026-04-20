@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.pearadmin.modules.report.mapper.ReportAutoCreateInfoMapper">
+
+
+    <select id="getListByTime" resultType="com.pearadmin.modules.report.domain.ReportAutoCreateInfo">
+        <![CDATA[
+        select t.* from report_auto_create_info t
+        where
+            STR_TO_DATE(t.send_time , '%H:%i') <= #{endTime}
+            and STR_TO_DATE(t.send_time , '%H:%i') > #{startTime}
+            and t.state = '0'
+        ]]>
+
+    </select>
+
+    <select id="getListByWhere" resultType="com.pearadmin.modules.report.domain.ReportAutoCreateInfo">
+        select t.*,s.real_name create_user_name,s2.real_name appro_person_name
+         from report_auto_create_info t
+             left join sys_user s on s.user_id =t.create_user_id
+             left join sys_user s2 on s2.user_id =t.appro_person_id
+        where 1=1
+        <if test="loginUserId != null and loginUserId != ''">
+            and t.create_user_id = #{loginUserId}
+        </if>
+
+        <if test="reportAutoCreateInfo.reportName != null and reportAutoCreateInfo.reportName != ''">
+            and t.report_name like concat('%',#{reportAutoCreateInfo.reportName},'%')
+        </if>
+
+        order by t.create_time desc
+
+    </select>
+
+</mapper>

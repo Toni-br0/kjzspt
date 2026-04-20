@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.pearadmin.modules.report.mapper.ReportIndexWarningLogMapper">
+
+    <select id="getListByWhere" resultType="com.pearadmin.modules.report.domain.ReportIndexWarningLog">
+
+        select riw.*, s.real_name,ri.index_name,ipom.push_object_name push_object_name,s3.real_name appr_person_name
+        from report_index_warning_log riw
+        left join sys_user s on s.user_id =riw.create_user_id
+        left join report_index ri on ri.index_id = riw.warning_index_id
+        left join im_push_object_manage ipom on ipom.manage_id = riw.push_object_id
+        left join sys_user s3 on s3.user_id = riw.appr_person_id
+        where 1=1
+
+        <if test="loginUserId != null and loginUserId != ''">
+            and riw.create_user_id = #{loginUserId}
+        </if>
+
+        <if test="reportIndexWarningLog.indexName != null and reportIndexWarningLog.indexName != ''">
+            and ri.index_name like concat('%',#{reportIndexWarningLog.indexName},'%')
+        </if>
+
+        <if test="reportIndexWarningLog.warningName != null and reportIndexWarningLog.warningName != ''">
+            and riw.warning_name like concat('%',#{reportIndexWarningLog.warningName},'%')
+        </if>
+
+        order by riw.create_time desc
+
+    </select>
+
+</mapper>

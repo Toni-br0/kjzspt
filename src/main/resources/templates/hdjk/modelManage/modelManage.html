@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('日报活动监控模板管理')"/>
+</head>
+<body class="pear-container" >
+<div class="layui-card">
+    <div class="layui-card-body">
+        <form action="" class="layui-form">
+            <div class="layui-form-item">
+
+                <label class="layui-form-label">模板名称：</label>
+                <div class="layui-input-inline">
+                    <input class="layui-input" name="modelName" placeholder="" type="text">
+                </div>
+                <label class="layui-form-label">上传人：</label>
+                <div class="layui-input-inline">
+                    <input class="layui-input" name="createUserName" placeholder="" type="text">
+                </div>
+                <button class="pear-btn pear-btn-md pear-btn-primary" lay-filter="file-query" lay-submit>
+                    <i class="layui-icon layui-icon-search"></i>
+                    查询
+                </button>
+                <button class="pear-btn pear-btn-md" type="reset">
+                    <i class="layui-icon layui-icon-refresh"></i>
+                    重置
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="layui-card">
+    <div id="card-body-div" class="layui-card-body" style="background-color: #FFFFFF;">
+        <table id="file-table" lay-filter="file-table"></table>
+    </div>
+</div>
+
+</body>
+
+<script id="role-toolbar" type="text/html">
+    <button class="pear-btn pear-btn-primary pear-btn-md" lay-event="add">
+        <i class="layui-icon layui-icon-add-1"></i>
+        上传
+    </button>
+    <button class="pear-btn pear-btn-primary pear-btn-sm" lay-event="batchCreateFile">
+        <i class="pear-icon pear-icon-file-add"></i>
+        生成文件
+    </button>
+    <button class="pear-btn pear-btn-md" lay-event="batchRemove">
+        <i class="layui-icon layui-icon-delete"></i>
+        删除
+    </button>
+</script>
+
+<script id="role-bar" type="text/html">
+
+    <a class="pear-btn pear-btn-primary pear-btn-sm" lay-event="fileView" title="预览">
+        <i class="pear-icon pear-icon-electronics"></i>
+    </a>
+
+    <a class="pear-btn pear-btn-primary pear-btn-sm" title="下载" href="/hdjk/modelManage/downloadFile?modelId={{d.modelId}}" download="{{d.modelName}}">
+        <i class="pear-icon pear-icon-direction-down"></i>
+    </a>
+
+    <a class="pear-btn pear-btn-primary pear-btn-sm" title="生成" lay-event="createFile">
+        <i class="pear-icon pear-icon-file-add"></i>
+    </a>
+
+    <a class="pear-btn pear-btn-primary pear-btn-sm" lay-event="edit" title="修改">
+        <i class="layui-icon layui-icon-edit"></i>
+    </a>
+
+    <!--<button class="pear-btn pear-btn-danger pear-btn-sm" lay-event="download"> <i class="pear-icon pear-icon-direction-down"></i>
+    </button>-->
+    <button class="pear-btn pear-btn-danger pear-btn-sm" lay-event="remove"><i class="layui-icon layui-icon-delete"></i>
+    </button>
+</script>
+
+<script id="file-image" type="text/html">
+    <a href="javascript:void(0);" class="pear-text">查看</a>
+</script>
+
+<script id="create_time" type="text/html">
+    {{layui.util.toDateString(d.createTime,  'yyyy-MM-dd HH:mm:ss')}}
+</script>
+
+<script id="file-create_time" type="text/html">
+    {{layui.util.toDateString(d.fileCreateTime,  'yyyy-MM-dd HH:mm:ss')}}
+</script>
+
+<script id="model-type" type="text/html">
+    {{#if (d.modelType == '1') { }}
+    <span>日报</span>
+    {{# }else if(d.modelType == '2'){ }}
+    <span>月报</span>
+    {{# } }}
+</script>
+
+<script id="is_create_img" type="text/html">
+    {{#if (d.isCreateImg == '0') { }}
+    <span>否</span>
+    {{# }else if(d.isCreateImg == '1'){ }}
+    <span>是</span>
+    {{# } }}
+</script>
+
+
+<th:block th:include="include :: footer"/>
+<script th:src="@{/pagejs/hdjk/modelManage.js}" type="text/javascript"></script>
+</html>

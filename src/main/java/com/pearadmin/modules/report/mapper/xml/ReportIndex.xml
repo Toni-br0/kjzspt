@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.pearadmin.modules.report.mapper.ReportIndexMapper">
+
+
+    <select id="selIndexList" resultType="com.pearadmin.modules.report.domain.ReportIndex" parameterType="com.pearadmin.modules.report.domain.ReportIndex">
+        select
+            ri.*,su.real_name as real_name,rc.classify_name as classify_name
+            from report_index ri
+            LEFT JOIN sys_user su on ri.create_user_id = su.user_id
+            left join report_classify rc on ri.classify_id = rc.classify_id
+        where
+            1=1
+        <if test="reportIndex.indexName != null and reportIndex.indexName != ''">
+            and ri.index_name like "%"#{reportIndex.indexName}"%"
+        </if>
+
+        <if test="reportIndex.parentId != null and reportIndex.parentId != ''">
+            and (ri.parent_id =#{reportIndex.parentId})
+        </if>
+
+        <if test="reportIndex.isQuery != null and reportIndex.isQuery != ''">
+            and (ri.is_query =#{reportIndex.isQuery})
+        </if>
+
+        <if test="reportIndex.indexId != null and reportIndex.indexId != ''">
+            and (ri.index_id =#{reportIndex.indexId})
+        </if>
+
+        or ri.parent_id=0
+
+        order by ri.sort_id asc,ri.create_time desc
+
+    </select>
+
+    <select id="selSubIndexList" resultType="com.pearadmin.modules.report.domain.ReportIndex" parameterType="com.pearadmin.modules.report.domain.ReportIndex">
+        select
+        ri.*,su.real_name as real_name,rc.classify_name as classify_name
+        from report_index ri
+        LEFT JOIN sys_user su on ri.create_user_id = su.user_id
+        left join report_classify rc on ri.classify_id = rc.classify_id
+        where
+        1=1
+        <if test="reportIndex.indexName != null and reportIndex.indexName != ''">
+            and ri.index_name like "%"#{reportIndex.indexName}"%"
+        </if>
+
+        <if test="reportIndex.parentId != null and reportIndex.parentId != ''">
+            and (ri.parent_id =#{reportIndex.parentId})
+        </if>
+
+        <if test="reportIndex.isQuery != null and reportIndex.isQuery != ''">
+            and (ri.is_query =#{reportIndex.isQuery})
+        </if>
+
+        <if test="reportIndex.indexId != null and reportIndex.indexId != ''">
+            and (ri.index_id =#{reportIndex.indexId})
+        </if>
+
+        or ri.parent_id=0
+
+        order by ri.sort_id asc,ri.create_time desc
+
+    </select>
+
+    <select id="selIndexListTable" resultType="com.pearadmin.modules.report.domain.ReportIndex" parameterType="com.pearadmin.modules.report.domain.ReportIndex">
+        select
+        ri.*,su.real_name as real_name,rc.classify_name as classify_name
+        from report_index ri
+        LEFT JOIN sys_user su on ri.create_user_id = su.user_id
+        left join report_classify rc on ri.classify_id = rc.classify_id
+        where
+        1=1
+        <if test="reportIndex.indexName != null and reportIndex.indexName != ''">
+            and ri.index_name like "%"#{reportIndex.indexName}"%"
+        </if>
+
+        <if test="reportIndex.parentId != null and reportIndex.parentId != ''">
+            and (ri.parent_id =#{reportIndex.parentId})
+        </if>
+
+        <if test="reportIndex.isQuery != null and reportIndex.isQuery != ''">
+            and (ri.is_query =#{reportIndex.isQuery})
+        </if>
+
+        <if test="reportIndex.indexId != null and reportIndex.indexId != ''">
+            and (ri.index_id =#{reportIndex.indexId})
+        </if>
+
+        order by ri.sort_id asc,ri.create_time desc
+
+    </select>
+
+
+    <select id="selIndexCountByClassid" resultType="int">
+        select
+        count(*)
+        from report_index
+        where
+        1=1
+
+        <if test="list.size()>0">
+            AND classify_id IN
+            <foreach collection="list" item="classifyId" open="(" separator="," close=")">
+                #{classifyId}
+            </foreach>
+        </if>
+
+    </select>
+
+
+    <select id="selIndexListByIdType" resultType="com.pearadmin.modules.report.domain.ReportIndex">
+
+        select * from report_index ri
+        where parent_id =(
+         select ri2.index_id from report_index ri2  where ri2.parent_id ='0'
+        )
+          and ri.index_type =#{indexType} and ri.classify_id=${classifyId}
+          and ri.data_cycle =#{dateType} and ri.anal_role =#{roleType}
+        order by sort_id asc
+
+    </select>
+
+
+    <update id="updateSubIndex" parameterType="com.pearadmin.modules.report.domain.ReportIndex">
+        update report_index
+        <set>
+            <if test="reportIndex.indexType !=null">
+                index_type = #{reportIndex.indexType},
+            </if>
+            <if test="reportIndex.dataCycle !=null">
+                data_cycle = #{reportIndex.dataCycle},
+            </if>
+            <if test="reportIndex.analRole !=null">
+                anal_role = #{reportIndex.analRole},
+            </if>
+            <if test="reportIndex.isIncludeNoStand !=null">
+                is_include_no_stand = #{reportIndex.isIncludeNoStand},
+            </if>
+            <if test="reportIndex.isFiveInten !=null">
+                is_five_inten = #{reportIndex.isFiveInten},
+            </if>
+            <if test="reportIndex.tableName !=null">
+                table_name = #{reportIndex.tableName},
+            </if>
+            create_time = sysdate()
+            where parent_id = #{reportIndex.indexId}
+        </set>
+    </update>
+
+
+
+
+</mapper>

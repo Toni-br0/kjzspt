@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.pearadmin.modules.report.mapper.ReportClassifyMapper">
+
+
+    <select id="selClassList" resultType="com.pearadmin.modules.report.domain.ReportClassify" parameterType="com.pearadmin.modules.report.domain.ReportClassify">
+        select
+            rc.*,su.real_name as realName
+         from report_classify rc
+         LEFT JOIN sys_user su on rc.create_user_id = su.user_id
+         where
+             1=1
+        <if test="reportClassify.classifyCode != null and reportClassify.classifyCode != ''">
+            and rc.classify_code like "%"#{reportClassify.classifyCode}"%"
+
+        </if>
+        <if test="reportClassify.classifyName != null and reportClassify.classifyName != ''">
+            and rc.classify_name like "%"#{reportClassify.classifyName}"%"
+        </if>
+
+        order by rc.create_time desc
+
+    </select>
+
+
+
+
+</mapper>

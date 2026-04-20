@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('IM操作日志')"/>
+</head>
+<body class="pear-container" >
+<div class="layui-card">
+    <div class="layui-card-body">
+        <form action="" class="layui-form">
+            <div class="layui-form-item">
+
+                <label class="layui-form-label" style="width: 90px;">文件名：</label>
+                <div class="layui-input-inline">
+                    <input class="layui-input" name="fileName" placeholder="" type="text">
+                </div>
+                <label class="layui-form-label" style="width: 100px;">对象名称：</label>
+                <div class="layui-input-inline">
+                    <input class="layui-input" name="objectName" placeholder="" type="text">
+                </div>
+
+                <label class="layui-form-label">操作类型：</label>
+                <div class="layui-input-inline" style="width: 150px;">
+                    <!--<input name="operateType" title="全部" type="radio" value="" checked lay-filter="operateType">
+                    <input name="operateType" title="绑定" type="radio" value="bind" lay-filter="operateType">
+                    <input name="operateType" title="推送" type="radio" value="push" lay-filter="operateType">
+                    <input name="operateType" title="推送至领导" type="radio" value="pushLeader" lay-filter="operateType">
+-->
+                    <select name="operateType" id="operateType">
+                        <!--<option value="0">全疆</option>
+                        <option value="1">区县</option>-->
+                        <option value="" selected>全部</option>
+                        <option value="bind">绑定</option>
+                        <option value="push">推送</option>
+                        <option value="pushLeader">推送至领导</option>
+                    </select>
+
+                </div>
+
+                <label class="layui-form-label">操作时间:</label>
+                <div class="layui-input-inline" style="width: 150px;">
+                    <input type="text" class="layui-input" id="queryOperateTime" name="queryOperateTime">
+                </div>
+
+                <button class="pear-btn pear-btn-md pear-btn-primary" lay-filter="file-query" lay-submit>
+                    <i class="layui-icon layui-icon-search"></i>
+                    查询
+                </button>
+                <button class="pear-btn pear-btn-md" type="reset">
+                    <i class="layui-icon layui-icon-refresh"></i>
+                    重置
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="layui-card">
+    <div id="card-body-div" class="layui-card-body" style="background-color: #FFFFFF;">
+        <table id="file-table" lay-filter="file-table"></table>
+    </div>
+</div>
+
+</body>
+
+<script id="role-toolbar" type="text/html">
+    <button class="pear-btn pear-btn-primary pear-btn-md" lay-event="add">
+        <i class="layui-icon layui-icon-add-1"></i>
+        新增
+    </button>
+    <button class="pear-btn pear-btn-md" lay-event="batchRemove">
+        <i class="layui-icon layui-icon-delete"></i>
+        删除
+    </button>
+</script>
+
+<script id="role-bar" type="text/html">
+
+    <a class="pear-btn pear-btn-primary pear-btn-sm" lay-event="edit" title="修改">
+        <i class="layui-icon layui-icon-edit"></i>
+    </a>
+
+    <a class="pear-btn pear-btn-primary pear-btn-sm" lay-event="remove" title="删除">
+        <i class="layui-icon layui-icon-delete"></i>
+    </a>
+
+</script>
+
+<script id="file-image" type="text/html">
+    <a href="javascript:void(0);" class="pear-text">查看</a>
+</script>
+
+<script id="create-time" type="text/html">
+    {{layui.util.toDateString(d.createTime,  'yyyy-MM-dd HH:mm:ss')}}
+</script>
+
+<script id="operate-type" type="text/html">
+    {{#if (d.operateType == 'bind') { }}
+    <span>绑定</span>
+    {{# }else if(d.operateType == 'push'){ }}
+    <span>推送</span>
+    {{# }else if(d.operateType == 'pushLeader'){ }}
+    <span>推送至领导</span>
+    {{# }else if(d.operateType == 'upload'){ }}
+    <span>文件上传</span>
+    {{# } }}
+</script>
+
+<script id="is-success" type="text/html">
+    {{#if (d.isSuccess == '0') { }}
+    <span>成功</span>
+    {{# }else if(d.isSuccess == '-1'){ }}
+    <span>失败</span>
+    {{# }else if(d.isSuccess == '500'){ }}
+    <span>失败</span>
+    {{# } }}
+</script>
+
+
+<th:block th:include="include :: footer"/>
+<script>
+    layui.use(['table', 'form', 'jquery', 'popup', 'common','laydate'], function () {
+        let table = layui.table;
+        let form = layui.form;
+        let $ = layui.jquery;
+        let popup = layui.popup;
+        let common = layui.common;
+        var laydate = layui.laydate;
+
+        let basePath = "/im/operateLog/";
+
+        //获取页面高度
+        var pageHeight = $(document).height();
+        $('#card-body-div').height(pageHeight-148);
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#queryOperateTime' //指定元素
+        });
+
+        let cols = [
+            [
+                {title: 'ID', field: 'manageId', hide: true},
+                {title: '操作类型', field: 'operateType',templet: '#operate-type', align: 'center', width: 100},
+                {title: '模板ID', field: 'modelId', align: 'center', hide: true},
+                {title: '模板名称', field: 'modelName', align: 'center'},
+                {title: '文件名', field: 'fileName', align: 'center'},
+                {title: '对象ID', field: 'objectId', align: 'center', hide: true},
+                {title: '对象名称', field: 'objectName', align: 'center', width: 150},
+                {title: '文件生成时间', field: 'fileCreatTime', align: 'center', width: 160},
+                {title: '操作时间', field: 'operateTime', align: 'center', width: 160},
+                {title: '文件路径', field: 'filePath', align: 'center', width: 150, hide: true},
+                {title: '是否成功', field: 'isSuccess', align: 'center', width: 90,templet: '#is-success'},
+                {title: '操作人', field: 'operatePerson', align: 'center', width: 100},
+                {title: '执行结果', field: 'operateResult', align: 'center'},
+                {title: 'IM文件推送管理ID', field: 'manageId', align: 'center', hide: true}
+
+            ]
+        ]
+
+        table.render({
+            elem: '#file-table',
+            url: basePath + 'operateLogList',
+            page: true,
+            cols: cols,
+            skin: 'line',
+            //height: 'full-148',
+            //toolbar: '#role-toolbar',
+            defaultToolbar: [{
+                title: '刷新',
+                layEvent: 'refresh',
+                icon: 'layui-icon-refresh',
+            }, 'filter', 'print', 'exports']
+        });
+
+        table.on('tool(file-table)', function (obj) {
+            if (obj.event === 'remove') {
+                window.remove(obj);
+            } else if (obj.event === 'file-image') {
+                window.show(obj);
+            }else if (obj.event === 'download') {
+                window.download(obj);
+            }else if (obj.event === 'edit') {
+                window.edit(obj);
+            }else if (obj.event === 'remove') {
+                window.remove(obj);
+            }
+        });
+
+        table.on('toolbar(file-table)', function (obj) {
+            if (obj.event === 'add') {
+                window.add();
+            } else if (obj.event === 'refresh') {
+                window.refresh();
+            } else if (obj.event === 'batchRemove') {
+                window.batchRemove(obj);
+            }else if (obj.event === 'download') {
+                window.download(obj);
+            }else if (obj.event === 'edit') {
+                window.edit(obj);
+            }else if (obj.event === 'remove') {
+                window.remove(obj);
+            }
+        });
+
+        form.on('submit(file-query)', function (data) {
+            table.reload('file-table', {where: data.field})
+            return false;
+        });
+
+        window.add = function () {
+            layer.open({
+                type: 2,
+                title: '新增',
+                shade: 0.1,
+                area: ['600px', '500px'],
+                content: basePath + 'add'
+            });
+        }
+
+        window.edit = function (obj) {
+            layer.open({
+                type: 2,
+                title: '修改',
+                shade: 0.1,
+                area: ['600px', '500px'],
+                content: basePath + 'edit?manageId=' + obj.data['manageId']
+            });
+        }
+
+        window.show = function (obj) {
+            layer.photos({
+                photos: {
+                    "title": "预览图片",
+                    "start": 0,
+                    "data": [
+                        {"src": "/system/file/download/" + obj.data.id}
+                    ]
+                }
+                , anim: 5
+            });
+        }
+
+        window.remove = function (obj) {
+            layer.confirm('确定要删除该记录', {icon: 3, title: '提示'}, function (index) {
+                layer.close(index);
+                let loading = layer.load();
+                $.ajax({
+                    url: basePath + "remove/" + obj.data['manageId'],
+                    dataType: 'json',
+                    type: 'delete',
+                    success: function (result) {
+                        layer.close(loading);
+                        if (result.success) {
+                            popup.success(result.msg, function () {
+                                obj.del();
+                            });
+                        } else {
+                            popup.failure(result.msg);
+                        }
+                    }
+                })
+            });
+        }
+
+        window.batchRemove = function (obj) {
+            let manageIds = common.checkField(obj, 'manageId');
+            if (common.isEmpty(manageIds)) {
+                popup.warning("未选中数据");
+                return false;
+            }
+            layer.confirm('确定要删除选中的记录', {icon: 3, title: '提示'}, function (index) {
+                layer.close(index);
+                let loading = layer.load();
+                $.ajax({
+                    url: basePath + "batchRemove/" + manageIds,
+                    dataType: 'json',
+                    type: 'delete',
+                    success: function (result) {
+                        layer.close(loading);
+                        if (result.success) {
+                            popup.success(result.msg, function () {
+                                table.reload('file-table');
+                            });
+                        } else {
+                            popup.failure(result.msg);
+                        }
+                    }
+                })
+            });
+        }
+
+        window.refresh = function () {
+            table.reload('file-table');
+        }
+
+        window.download = function (obj) {
+           var modelId = obj.data['modelId'];
+            var modelName = obj.data['modelName'];
+            //window.open("/ppt/model/downloadFile2?fileName="+modelName+"&type=soure");
+            window.location.href = MODULEMANAGE_PATH+"downloadFile3?fileName="+modelName+"&type=soure";
+            return ;
+        }
+
+    })
+</script>
+</html>

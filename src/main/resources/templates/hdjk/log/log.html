@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('日报活动监日志')"/>
+</head>
+<body class="pear-container">
+<div class="layui-card">
+    <div class="layui-card-body">
+        <form action="" class="layui-form">
+            <div class="layui-form-item">
+
+                <label class="layui-form-label">模块名称:</label>
+                <div class="layui-input-inline">
+                    <input class="layui-input" name="modelName" placeholder="" type="text">
+                </div>
+
+                <label class="layui-form-label">开始日期:</label>
+                <div class="layui-input-inline">
+                    <input type="text" class="layui-input" id="startDate" name="startDate">
+                </div>
+                <label class="layui-form-label">结束日期:</label>
+                <div class="layui-input-inline">
+                    <input type="text" class="layui-input" id="endDate" name="endDate">
+                </div>
+                <button class="pear-btn pear-btn-md pear-btn-primary" lay-filter="file-query" lay-submit>
+                    <i class="layui-icon layui-icon-search"></i>
+                    查询
+                </button>
+                <button class="pear-btn pear-btn-md" type="reset">
+                    <i class="layui-icon layui-icon-refresh"></i>
+                    重置
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="layui-card">
+    <div id="card-body-div" class="layui-card-body" style="background-color: #FFFFFF;">
+        <table id="file-table" lay-filter="file-table"></table>
+    </div>
+</div>
+
+</body>
+
+<script id="role-toolbar" type="text/html">
+</script>
+
+
+<script id="file-image" type="text/html">
+    <a href="javascript:void(0);" class="pear-text">查看</a>
+</script>
+
+<script id="log_time" type="text/html">
+    {{layui.util.toDateString(d.logTime,  'yyyy-MM-dd HH:mm:ss')}}
+</script>
+
+<script id="file_create_time" type="text/html">
+    {{layui.util.toDateString(d.fileCreateTime,  'yyyy-MM-dd HH:mm:ss')}}
+</script>
+
+<script id="is-success" type="text/html">
+    {{#if (d.isSuccess == "0") { }}
+    <span>成功</span>
+    {{# }else if(d.isSuccess == "-1"){ }}
+    <span>失败</span>
+    {{# } }}
+</script>
+
+<script id="log_type" type="text/html">
+    {{#if (d.logType == "add") { }}
+    <span>模板上传</span>
+    {{# }else if(d.logType == "del"){ }}
+    <span>模板删除</span>
+    {{# }else if(d.logType == "create"){ }}
+    <span>文件生成</span>
+    {{# }else if(d.logType == "edit"){ }}
+    <span>模板修改</span>
+    {{# } }}
+</script>
+
+<script id="model-type" type="text/html">
+    {{#if (d.modelType == 1) { }}
+    <span>日报</span>
+    {{# } }}
+</script>
+
+
+<th:block th:include="include :: footer"/>
+<script>
+    layui.use(['table', 'form', 'jquery', 'popup', 'common','laydate'], function () {
+        let table = layui.table;
+        let form = layui.form;
+        let $ = layui.jquery;
+        let popup = layui.popup;
+        let common = layui.common;
+        var laydate = layui.laydate;
+
+        let MODULE_PATH = "/hdjk/log/";
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#startDate' //指定元素
+        });
+
+        laydate.render({
+            elem: '#endDate' //指定元素
+        });
+
+        //获取页面高度
+        var pageHeight = $(document).height();
+        $('#card-body-div').height(pageHeight-148);
+
+        let cols = [
+            [
+                {title: '模板名称', field: 'modelName', align: 'center'},
+                {title: '操作类型', field: 'logType', align: 'center',width: 100,templet: "#log_type"},
+                {title: '文件大小', field: 'fileSize', align: 'center',width: 100},
+                {title: '模板类型', field: 'modelType', align: 'center',width: 100,templet: "#model-type"},
+                {title: '所属区域', field: 'modelArea', align: 'center',width: 100},
+                {title: '操作人', field: 'createUserName', align: 'center',width: 100},
+                {title: '操作时间', field: 'logTime', align: 'center', templet: "#log_time",width: 160,sort: true},
+                {title: '表名', field: 'tableName', align: 'center',width: 150},
+                /*{title: '文件生成时间', field: 'fileCreateTime', align: 'center', templet: "#file_create_time",width: 160,sort: true},*/
+                {title: '模板参数', field: 'modelParam', align: 'center',width: 150},
+                {title: '模板路径', field: 'modelSourcePath', align: 'center',hide: true},
+                {title: '操作结果', field: 'isSuccess', align: 'center',width: 120,templet: "#is-success"},
+                {title: '日志信息', field: 'logMsg', align: 'center',width: 180}
+            ]
+        ]
+
+        table.render({
+            elem: '#file-table',
+            url: MODULE_PATH + 'logDataList',
+            page: true,
+            cols: cols,
+            skin: 'line',
+            //height: 'full-148',
+            toolbar: '#role-toolbar',
+            defaultToolbar: [{
+                title: '刷新',
+                layEvent: 'refresh',
+                icon: 'layui-icon-refresh',
+            }, 'filter', 'print', 'exports']
+        });
+
+        table.on('tool(file-table)', function (obj) {
+            if (obj.event === 'remove') {
+                window.remove(obj);
+            } else if (obj.event === 'file-image') {
+                window.show(obj);
+            }else if (obj.event === 'download') {
+                window.download(obj);
+            }
+        });
+
+        table.on('toolbar(file-table)', function (obj) {
+            if (obj.event === 'add') {
+                window.add();
+            } else if (obj.event === 'refresh') {
+                window.refresh();
+            } else if (obj.event === 'batchRemove') {
+                window.batchRemove(obj);
+            }else if (obj.event === 'download') {
+                window.download(obj);
+            }
+        });
+
+        form.on('submit(file-query)', function (data) {
+            table.reload('file-table', {where: data.field})
+            return false;
+        });
+
+        window.add = function () {
+            layer.open({
+                type: 2,
+                title: '模板上传',
+                shade: 0.1,
+                area: ['600px', '400px'],
+                content: MODULE_PATH + 'modelAdd'
+            });
+        }
+
+        window.show = function (obj) {
+            layer.photos({
+                photos: {
+                    "title": "预览图片",
+                    "start": 0,
+                    "data": [
+                        {"src": "/system/file/download/" + obj.data.id}
+                    ]
+                }
+                , anim: 5
+            });
+        }
+
+        window.remove = function (obj) {
+            layer.confirm('确定要删除该文件', {icon: 3, title: '提示'}, function (index) {
+                layer.close(index);
+                let loading = layer.load();
+                $.ajax({
+                    url: MODULE_PATH + "modelRemove/" + obj.data['modelId'],
+                    dataType: 'json',
+                    type: 'delete',
+                    success: function (result) {
+                        layer.close(loading);
+                        if (result.success) {
+                            popup.success(result.msg, function () {
+                                obj.del();
+                            });
+                        } else {
+                            popup.failure(result.msg);
+                        }
+                    }
+                })
+            });
+        }
+
+        window.batchRemove = function (obj) {
+            let modelIds = common.checkField(obj, 'modelId');
+            if (common.isEmpty(modelIds)) {
+                popup.warning("未选中数据");
+                return false;
+            }
+            layer.confirm('确定要删除选中文件', {icon: 3, title: '提示'}, function (index) {
+                layer.close(index);
+                let loading = layer.load();
+                $.ajax({
+                    url: MODULE_PATH + "batchModelRemove/" + modelIds,
+                    dataType: 'json',
+                    type: 'delete',
+                    success: function (result) {
+                        layer.close(loading);
+                        if (result.success) {
+                            popup.success(result.msg, function () {
+                                table.reload('file-table');
+                            });
+                        } else {
+                            popup.failure(result.msg);
+                        }
+                    }
+                })
+            });
+        }
+
+        window.refresh = function () {
+            table.reload('file-table');
+        }
+
+        window.download = function (obj) {
+           var modelId = obj.data['modelId'];
+            var modelName = obj.data['modelName'];
+            //window.open("/ppt/model/downloadFile2?fileName="+modelName+"&type=soure");
+            window.location.href = "/ppt/model/downloadFile3?fileName="+modelName+"&type=soure";
+            return ;
+        }
+
+    })
+</script>
+</html>

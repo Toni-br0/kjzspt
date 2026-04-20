@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.pearadmin.modules.sys.mapper.SysHx6TreeMapper">
+
+    <select id="selectHxByHxnumber" resultType="SysHx6Tree">
+        <choose>
+            <when test='hxNumber != null and hxNumber != ""'>
+                SELECT d.* FROM (
+                    SELECT @ids AS _ids,
+                ( SELECT @ids := GROUP_CONCAT( hx_number ) FROM sys_hx6_tree WHERE FIND_IN_SET( parent_hx_number, @ids ) ) AS cids,
+                @l := @l + 1 AS LEVEL
+                FROM sys_hx6_tree,
+                ( SELECT @ids := ( SELECT pu.hx_number FROM sys_hx6_tree pu WHERE pu.hx_number = '${hxNumber}' ), @l := 0 ) b
+                WHERE
+                @ids IS NOT NULL
+                ) dd,sys_hx6_tree d
+                WHERE FIND_IN_SET( d.hx_number, dd._ids )
+            </when>
+            <otherwise>
+                select * from sys_hx6_tree
+            </otherwise>
+        </choose>
+    </select>
+
+
+</mapper>

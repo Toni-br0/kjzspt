@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('文件内容搜索')"/>
+    <link rel="stylesheet" href="/search/css/search.css">
+
+</head>
+<body>
+
+
+<form class="layui-form">
+    <div class="mainBox">
+        <div class="main-container">
+            <div class="main-container" style="overflow: hidden">
+
+                <div style="display: flex;justify-content: center; width: 100%;">
+                    <div class="layui-form-item">
+                        <div class="layui-input-inline">
+                            <!--<input class="layui-input" name="keyword" id="keyword" style="width: 300px;" placeholder="请输入要搜索的内容" type="text">-->
+                            <input name="keyword" id="keyword" style="width: 400px; height: 30px;padding-left: 5px;" placeholder="请输入要搜索的内容" type="text">
+                        </div>
+
+                        <button class="pear-btn pear-btn-md pear-btn-primary" id="btnSubmit" lay-filter="user-save" style="margin-left: 225px;" lay-submit="" type="submit">
+                            搜 索
+                        </button>
+
+                        <button class="pear-btn pear-btn-md pear-btn-primary" id="btnClear" lay-filter="user-save" style="margin-left: 10px;" onclick="fileInfoClear()">
+                            清 屏
+                        </button>
+                    </div>
+                </div>
+
+
+                <div id="fileDiv" class="fileDiv">
+                    <ul class="file_list" id="file_list">
+
+                    </ul>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+</form>
+<th:block th:include="include :: footer"/>
+<script>
+
+    layui.use(['form', 'jquery', 'dtree','laydate'], function () {
+
+        let form = layui.form;
+        let $ = layui.jquery;
+        let dtree = layui.dtree;
+        var laydate = layui.laydate;
+
+        //获取页面高度
+        var pageHeight = $(document).height();
+        $('#fileDiv').height(pageHeight-145);
+
+
+        form.on('submit(user-save)', function (data) {
+            var keyword = $("#keyword").val();
+            if(keyword.trim() == ""){
+                layer.msg("搜索内容不能为空", {icon: 2, time: 2500});
+                return false;
+            }
+
+            var paramObj = {
+                keyword: keyword,
+                pageNo: 1,
+                pageSize: 10
+            };
+            var param = JSON.stringify(paramObj);
+
+            $.ajax({
+                url: '/search/fileContentSearch/searchPage',
+                data: param,
+                dataType: 'json',
+                contentType: 'application/json',
+                type: 'post',
+                success: function (result) {
+                    $('#file_list').empty();
+                    if(result.retCode == "200"){
+                        $('#file_list').append(result.retData);
+                    }
+                },
+                error: function (){
+
+                    layer.msg("搜索内容失败", {icon: 2, time: 2500});
+                }
+            })
+            return false;
+        });
+
+        function fileInfoClear(){
+            $('#file_list').empty();
+        }
+
+    })
+
+
+
+</script>
+<script>
+</script>
+</body>
+</html>

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('推送对象管理')"/>
+
+    <style>
+        .classType{
+            display: grid;
+            width: 100px;
+            height:28px;
+            border: 1px solid #e2e2e2;
+            font-size: 14px;
+            background-color: #FFFFFF;
+            color: #000000;
+            text-align: center;
+            align-items: center;
+            justify-items: center;
+            cursor: pointer;
+        }
+
+        .classTypeSel{
+            display: grid;
+            width: 100px;
+            height:28px;
+            border: 1px solid #e2e2e2;
+            font-size: 14px;
+            background-color: #1B85FF;
+            color: #FFFFFF;
+            text-align: center;
+            align-items: center;
+            justify-items: center;
+            cursor: pointer;
+        }
+
+        .dtree .dtree-node.active {
+            background-color: #1E9FFF !important; /* 选中背景色（layui主题蓝） */
+            color: #fff !important; /* 选中文字色 */
+        }
+
+        /* 节点高亮核心样式（优先级拉满） */
+        #zzWdTree .dtree-node-active {
+            background-color: #1E9FFF !important; /* layui主题蓝，和layui-bg-blue一致 */
+            color: #ffffff !important; /* 文字白色 */
+            border-radius: 4px !important; /* 可选：圆角 */
+        }
+
+        /* 鼠标悬浮样式（可选，增强体验） */
+        #zzWdTree .dtree-node:hover {
+            background-color: #f5f7fa !important;
+            color: #1E9FFF !important;
+        }
+
+        /* 高亮节点的图标颜色（可选） */
+        #zzWdTree .dtree-node-active .dtreefont {
+            color: #ffffff !important;
+        }
+
+
+    </style>
+
+</head>
+<body class="pear-container" >
+
+<!--条件查询区域开始-->
+<div class="layui-card">
+    <div class="layui-card-body">
+        <form action="" class="layui-form">
+            <div class="layui-form-item">
+
+                <label class="layui-form-label" style="width: 90px;">推送对象ID：</label>
+                <div class="layui-input-inline">
+                    <input class="layui-input" id="pushObjectId" name="pushObjectId" placeholder="" type="text">
+                </div>
+                <label class="layui-form-label" style="width: 100px;">推送对象名称：</label>
+                <div class="layui-input-inline">
+                    <input class="layui-input" id="pushObjectName" name="pushObjectName" placeholder="" type="text">
+                </div>
+
+                <label class="layui-form-label">分类类型：</label>
+                <div class="layui-input-inline" >
+                    <!--<input name="pushObjectType" title="全部" type="radio" value="" checked lay-filter="pushObjectType">
+                    <input name="pushObjectType" title="用户" type="radio" value="users" lay-filter="pushObjectType">
+                    <input name="pushObjectType" title="群" type="radio" value="group" lay-filter="pushObjectType">-->
+
+                    <select name="classType" id="classType" lay-filter="classTypeFilter">
+                        <option value="bqwd" selected>标签分组</option>
+                        <option value="zzwd" >组织维度</option>
+                    </select>
+
+                </div>
+
+                <label class="layui-form-label">对象类型：</label>
+                <div class="layui-input-inline">
+                    <select name="pushObjectType" id="pushObjectType">
+                        <option value="" selected>全部</option>
+                        <option value="users">用户</option>
+                        <option value="group">群</option>
+                    </select>
+
+                </div>
+
+            </div>
+
+            <div class="layui-form-item">
+
+                <label class="layui-form-label" style="width: 90px;">绑定状态：</label>
+                <div class="layui-input-inline" style="width: 190px;">
+                    <select name="bindState" id="bindState">
+                        <option value="" selected>全部</option>
+                        <option value="0">未绑定</option>
+                        <option value="1">已绑定</option>
+                    </select>
+
+                </div>
+
+                <!--<label class="layui-form-label" style="width: 100px;">所属维度：</label>
+                <div class="layui-input-inline" style="width: 390px;">
+                    <ul class="dtree" data-id="0" id="selectParent" name="deptId" style="overflow-x: auto;"></ul>
+                </div>-->
+
+                <button class="pear-btn pear-btn-md pear-btn-primary" lay-filter="file-query" lay-submit>
+                    <i class="layui-icon layui-icon-search"></i>
+                    查询
+                </button>
+                <button class="pear-btn pear-btn-md" type="reset">
+                    <i class="layui-icon layui-icon-refresh"></i>
+                    重置
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!--条件查询区域结束-->
+
+<!--列表区域开始-->
+<div class="layui-form-item" style="display: flex;">
+    <div id="treeDiv" class="layui-card" style="width: 20%;margin-right: 10px;padding-top: 10px;border: 0px solid blue ;">
+        <div  style="border: 0px solid green ;">
+            <div style="display: flex;width: 100%;justify-content: center;">
+                <div id="bqfzBtn" class="classTypeSel" onclick="classTypeClick('bqfz')">标签分组</div>
+                <div id="zzwdBtn" class="classType" onclick="classTypeClick('zzwd')">组织维度</div>
+            </div>
+
+            <div id="zzWdNr" style="width: 100%;border: 0px solid red ;margin-top: 10px;overflow-y: auto;display: none;">
+                <div style="width: 100%;display:flex; align-items: center;justify-content: center;">
+                    <button class="pear-btn pear-btn-primary pear-btn-md" onclick="zzwdBindingAll()" style="height: 28px;margin-right: 5px;">
+                        绑定
+                    </button>
+                </div>
+
+                <ul class="dtree" data-id="0" id="zzWdTree" name="zzWdTreeId"></ul>
+            </div>
+
+            <div id="bqFzNr" style="width: 100%;border: 0px solid red ;margin-top: 10px;">
+                <div style="width: 100%;display:flex; align-items: center;justify-content: center;">
+                    <button class="pear-btn pear-btn-primary pear-btn-md" onclick="bqfzTreeAdd()" style="height: 28px;margin-right: 5px;">
+                        新增
+                    </button>
+
+                    <button class="pear-btn pear-btn-primary pear-btn-md" onclick="bqfzEdit()" style="height: 28px;margin-right: 5px;">
+                        修改
+                    </button>
+
+                    <button class="pear-btn pear-btn-primary pear-btn-md" onclick="bqfzYjbd()" style="height: 28px;margin-right: 5px;">
+                        一键绑定
+                    </button>
+
+                    <button class="pear-btn pear-btn-primary pear-btn-md" onclick="bqfzTreeDel()" style="height: 28px;margin-right: 5px;">
+
+                        删除
+                    </button>
+                </div>
+
+                <div id="bqfzTreeDiv" style="overflow-y: auto;">
+                    <ul class="dtree" data-id="0" id="bqFzTree" name="bqWdTreeId"></ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="layui-card" style="width: 80%;">
+        <div id="card-body-div" class="layui-card-body" style="background-color: #FFFFFF;">
+            <table id="file-table" lay-filter="file-table"></table>
+        </div>
+    </div>
+</div>
+
+<!--<div class="layui-card" style="width: 70%;">
+    <div id="card-body-div" class="layui-card-body" style="background-color: #FFFFFF;">
+        <table id="file-table" lay-filter="file-table"></table>
+    </div>
+</div>-->
+
+</body>
+
+<script id="role-toolbar" type="text/html">
+    <button class="pear-btn pear-btn-primary pear-btn-md" lay-event="add">
+        <i class="layui-icon layui-icon-add-1"></i>
+        新增
+    </button>
+
+    <button class="pear-btn pear-btn-primary pear-btn-md" lay-event="batchBinding">
+        <i class="layui-icon layui-icon-senior"></i>
+        绑定
+    </button>
+
+    <!--<button class="pear-btn pear-btn-primary pear-btn-md" lay-event="batchImport">
+        <i class="layui-icon layui-icon-upload-circle"></i>
+        批量导入
+    </button>-->
+
+    <button class="pear-btn pear-btn-primary pear-btn-md" lay-event="batchRemove">
+        <i class="layui-icon layui-icon-delete"></i>
+        删除
+    </button>
+</script>
+
+<script id="zzwd-toolbar" type="text/html">
+
+    <button class="pear-btn pear-btn-primary pear-btn-md" lay-event="batchZzwdBinding">
+        <i class="layui-icon layui-icon-senior"></i>
+        绑定
+    </button>
+
+</script>
+
+<script id="role-bar" type="text/html">
+
+    <a class="pear-btn pear-btn-primary pear-btn-sm" lay-event="edit" title="修改">
+        <i class="layui-icon layui-icon-edit"></i>
+    </a>
+
+    <a class="pear-btn pear-btn-primary pear-btn-sm" lay-event="binding" title="绑定">
+        <i class="layui-icon layui-icon-senior"></i>
+    </a>
+
+    <button class="pear-btn pear-btn-danger pear-btn-sm" lay-event="remove">
+        <i class="layui-icon layui-icon-delete"></i>
+    </button>
+
+</script>
+
+<script id="zzwd-bar" type="text/html">
+
+    <a class="pear-btn pear-btn-primary pear-btn-sm" lay-event="zzwdBinding" title="绑定">
+        <i class="layui-icon layui-icon-senior"></i>
+    </a>
+
+</script>
+
+<script id="file-image" type="text/html">
+    <a href="javascript:void(0);" class="pear-text">查看</a>
+</script>
+
+<script id="create-time" type="text/html">
+    {{layui.util.toDateString(d.createTime,  'yyyy-MM-dd HH:mm:ss')}}
+</script>
+
+<script id="bind-time" type="text/html">
+    {{layui.util.toDateString(d.bindTime,  'yyyy-MM-dd HH:mm:ss')}}
+</script>
+
+<script id="push-object-type" type="text/html">
+    {{#if (d.pushObjectType == 'users') { }}
+    <span>用户</span>
+    {{# }else if(d.pushObjectType == 'group'){ }}
+    <span>群</span>
+    {{# } }}
+</script>
+
+<script id="bind-state" type="text/html">
+    {{#if (d.bindState == '1') { }}
+    <span>已绑定</span>
+    {{# }else if(d.bindState == '0'){ }}
+    <span>未绑定</span>
+    {{# } }}
+</script>
+
+<script id="class-type" type="text/html">
+    {{#if (d.classType == 'zzwd') { }}
+    <span>组织维度</span>
+    {{# }else if(d.classType == 'bqwd'){ }}
+    <span>标签维度</span>
+    {{# } }}
+</script>
+
+<!--列表区域结束-->
+
+
+<th:block th:include="include :: footer"/>
+<script th:src="@{/pagejs/im/pushObjectManage/main.js}" type="text/javascript"></script>
+</html>

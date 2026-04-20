@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<!--<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">-->
+<head>
+    <th:block th:include="include :: header('新建报表')"/>
+
+    <style>
+        /* 自定义按钮居中样式 */
+        .custom-layer .layui-layer-btn {
+            text-align: center; /* 按钮容器居中对齐 */
+            padding: 15px; /* 增加内边距，让按钮区域更美观 */
+        }
+        /* 调整按钮之间的间距 */
+        .custom-layer .layui-layer-btn a {
+            margin: 0 8px; /* 左右间距，避免按钮挤在一起 */
+        }
+        /* 自定义标题居中样式 */
+        .layer-title-center .layui-layer-title {
+            text-align: center !important; /* 核心：标题居中 */
+            padding: 0 20px; /* 可选：调整标题内边距 */
+            font-weight: 500; /* 可选：调整字体粗细 */
+        }
+    </style>
+
+</head>
+<body>
+<div style="border: solid red 0px;display: flex;justify-content: center;">
+  <div>
+      <div style="display: flex;margin-top: 20px;margin-left: 0px;">
+          <div style="margin-top: 5px; font-size: 15px;">报表名称：</div>
+          <div style="margin-top: 5px;">
+              <input class="layui-input" type="text" id="autoReportName" name="autoReportName" style="width: 310px;height: 35px;margin-left: 20px;" >
+          </div>
+      </div>
+
+      <div style="display: flex;margin-top: 20px;margin-left: 0px;">
+          <div style="font-size: 15px;">执行周期：</div>
+          <div style="margin-left: 20px; font-size: 15px; display: flex;">
+              <input type="radio" id="sendCycle" name="sendCycle" value="daily" onclick="sendCycleFilter(this)" style="width: 19px;height: 19px; margin-top: 2px;" checked /> <div style="display: flex; margin-left: 5px;">每日</div>
+          </div>
+          <div style="margin-left: 60px; font-size: 15px; display: flex;">
+              <input type="radio" id="sendCycle" name="sendCycle" value="monthly" onclick="sendCycleFilter(this)" style="width: 19px;height: 19px; margin-top: 2px;" /> <div style="display: flex; margin-left: 5px;">每月</div>
+          </div>
+      </div>
+      <div style="display: flex;margin-top: 20px;margin-left: 0px;">
+          <div style="font-size: 15px;">执行时间：</div>
+          <div id="selSendMonthDiv" style="margin-left: 20px; display: none;">
+              <select id="selSendMonth" style="width: 90px;height: 28px;border-color: #EEEEEE;">
+
+              </select>
+          </div>
+          <div style="margin-left: 20px;">
+              <select id="selSendHour" style="width: 90px;height: 28px;border-color: #EEEEEE;">
+                  <option value="00">0时</option>
+                  <option value="01">1时</option>
+                  <option value="02">2时</option>
+                  <option value="03">3时</option>
+                  <option value="04">4时</option>
+                  <option value="05">5时</option>
+                  <option value="06">6时</option>
+                  <option value="07">7时</option>
+                  <option value="08">8时</option>
+                  <option value="09">9时</option>
+                  <option value="10">10时</option>
+                  <option value="11">11时</option>
+                  <option value="12">12时</option>
+                  <option value="13">13时</option>
+                  <option value="14">14时</option>
+                  <option value="15">15时</option>
+                  <option value="16">16时</option>
+                  <option value="17">17时</option>
+                  <option value="18">18时</option>
+                  <option value="19">19时</option>
+                  <option value="20">20时</option>
+                  <option value="21">21时</option>
+                  <option value="22">22时</option>
+                  <option value="23">23时</option>
+                  <option value="24">24时</option>
+              </select>
+          </div>
+          <div style="margin-left: 20px;">
+              <select class="form-control" id="selSendMinute" style="width: 90px;height: 28px;;border-color: #EEEEEE;">
+                  <option value="00">0分</option>
+                  <option value="01">1分</option>
+                  <option value="02">2分</option>
+                  <option value="03">3分</option>
+                  <option value="04">4分</option>
+                  <option value="05">5分</option>
+                  <option value="06">6分</option>
+                  <option value="07">7分</option>
+                  <option value="08">8分</option>
+                  <option value="09">9分</option>
+                  <option value="10">10分</option>
+                  <option value="11">11分</option>
+                  <option value="12">12分</option>
+                  <option value="13">13分</option>
+                  <option value="14">14分</option>
+                  <option value="15">15分</option>
+                  <option value="16">16分</option>
+                  <option value="17">17分</option>
+                  <option value="18">18分</option>
+                  <option value="19">19分</option>
+                  <option value="20">20分</option>
+                  <option value="21">21分</option>
+                  <option value="22">22分</option>
+                  <option value="23">23分</option>
+                  <option value="24">24分</option>
+                  <option value="25">25分</option>
+                  <option value="26">26分</option>
+                  <option value="27">27分</option>
+                  <option value="28">28分</option>
+                  <option value="29">29分</option>
+                  <option value="30">30分</option>
+                  <option value="31">31分</option>
+                  <option value="32">32分</option>
+                  <option value="33">33分</option>
+                  <option value="34">34分</option>
+                  <option value="35">35分</option>
+                  <option value="36">36分</option>
+                  <option value="37">37分</option>
+                  <option value="38">38分</option>
+                  <option value="39">39分</option>
+                  <option value="40">40分</option>
+                  <option value="41">41分</option>
+                  <option value="42">42分</option>
+                  <option value="43">43分</option>
+                  <option value="44">44分</option>
+                  <option value="45">45分</option>
+                  <option value="46">46分</option>
+                  <option value="47">47分</option>
+                  <option value="48">48分</option>
+                  <option value="49">49分</option>
+                  <option value="50">50分</option>
+                  <option value="51">51分</option>
+                  <option value="52">52分</option>
+                  <option value="53">53分</option>
+                  <option value="54">54分</option>
+                  <option value="55">55分</option>
+                  <option value="56">56分</option>
+                  <option value="57">57分</option>
+                  <option value="58">58分</option>
+                  <option value="59">59分</option>
+              </select>
+          </div>
+      </div>
+      <div style="display: flex;margin-top: 20px;margin-left: 0px;">
+          <div style="margin-top: 5px; font-size: 15px;">推送对象：</div>
+          <div style="margin-left: 20px;">
+              <input class="layui-input" type="text" id="pushObjectName" name="pushObjectName" style="width: 195px;height: 35px;" readonly />
+              <input type="hidden" id="pushObjectId" name="pushObjectId" style="width: 310px;height: 28px;" readonly />
+          </div>
+          <div>
+              <!--<button >推送至</button>-->
+              <button id="autoReportBtn" class="pear-btn pear-btn-md pear-btn-primary" style="height: 33px;margin-left: 20px;" lay-filter="pust-leader" lay-submit="" type="submit">
+                  推送至
+              </button>
+              <input type="hidden" id="addPushLeaderId" name="addPushLeaderId" style="width: 310px;height: 28px;" readonly />
+              <input type="hidden" id="pushTime" name="pushTime" style="width: 310px;height: 28px;" readonly />
+          </div>
+      </div>
+  </div>
+
+
+</div>
+
+</body>
+
+<th:block th:include="include :: footer"/>
+<script>
+    layui.use(['tree', 'layer','form','laydate','table','popup'], function(){
+        var tree = layui.tree;
+        var layer = layui.layer;
+        var form = layui.form;
+        var laydate = layui.laydate;
+        let table = layui.table;
+        let popup = layui.popup;
+        form.render('radio');
+        form.render('checkbox');
+        var $ = layui.$;
+
+        //获取父页面的报表名称
+        var parentReportName = parent.$("#reportName").val();
+        $("#autoReportName").val(parentReportName);
+
+        //获取当前登录用户的IM推送对象
+        $.ajax({
+            url: "/im/pushObjectManage/getPushObjectByLogin",
+            dataType: 'json',
+            contentType: 'application/json',
+            type: 'post',
+            success: function (result) {
+                if (result.retCode == "0") {
+                    var pushObjectId = result.pushManageId;
+                    var pushObjectName = result.pushObjectName;
+
+                    $("#pushObjectId").val(pushObjectId);
+                    $("#pushObjectName").val(pushObjectName);
+
+                }
+            }
+        })
+
+        window.sendCycleFilter = function(obj) {
+            // 逻辑代码
+            var sendCycleValue = obj.value;
+            if(sendCycleValue == "daily"){ //每日
+                $("#selSendMonthDiv").hide();
+            }else{ //每月
+                var daysInMonth = getDaysInMonth();
+                // 获取下拉框元素
+                var $selSendMonth = $('#selSendMonth');
+                // 清空下拉框
+                $selSendMonth.empty();
+                // 添加天数选项
+                for (var i = 1; i <= daysInMonth; i++) {
+                    // 创建option元素并添加到下拉框
+                    if(i <10){
+                        $selSendMonth.append($('<option>', {
+                            value: '0'+i,
+                            text: i + '日'
+                        }));
+                    }else{
+                        $selSendMonth.append($('<option>', {
+                            value: i,
+                            text: i + '日'
+                        }));
+                    }
+
+                }
+
+                // 可选：设置当前日期为默认选中
+                var today = new Date();
+                var currentDay = today.getDate();
+                if(currentDay <10){
+                    currentDay = "0"+currentDay;
+                }
+                $selSendMonth.val(currentDay);
+
+                $("#selSendMonthDiv").show();
+            }
+        }
+
+        // 获取当月天数
+        function getDaysInMonth() {
+            const date = new Date(); // 当前日期
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1; // 月份从0开始，需+1
+
+            // 下个月的第0天 = 当前月的最后一天
+            return new Date(year, month, 0).getDate();
+        }
+
+
+        /**
+         * 推送至领导
+         */
+        form.on('submit(pust-leader)', function (data) {
+
+            var autoReportName = $("#autoReportName").val();
+            if(autoReportName.trim() == ""){
+                layer.alert("报表名称不能为空");
+                return;
+            }
+
+            layer.open({
+                type: 2, // 0-4 分别代表不同类型的层
+                title: '推送对象申请',
+                //content: autoContent,
+                content: '/autoData/report/selPustLeader',
+                area: ['600px', '630px'], // 宽高
+                offset: 'auto', // 位置
+                skin: 'custom-layer layer-title-center', // 应用自定义样式类
+                shadeClose: false, // 点击遮罩不关闭
+                zIndex: layer.zIndex + 100, // 确保层级最高（覆盖其他元素）
+                btn: ['确定', '取消'], // 按钮
+                yes: function(index, layero){
+                    var iframe = layero.find('iframe')[0];
+                    var addPushLeaderId = iframe.contentWindow.document.getElementById('addPushLeaderId').value;
+                    console.log(addPushLeaderId);
+                    if(addPushLeaderId == ""){
+                        layer.alert("请选择推送对象");
+                        return;
+                    }
+
+                    $("#addPushLeaderId").val(addPushLeaderId);
+                    var pustTime = iframe.contentWindow.document.getElementById('pustTime').value;
+                    $("#pushTime").val(pustTime);
+
+                    layer.close(index);
+                }
+            })
+        })
+
+    });
+
+</script>
+</html>

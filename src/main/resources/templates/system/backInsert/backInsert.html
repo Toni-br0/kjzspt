@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('导出insert语句')"/>
+    <link rel="stylesheet" href="/loading/loading.css">
+</head>
+<body>
+
+<form class="layui-form">
+    <div class="mainBox">
+        <div class="main-container">
+            <div class="main-container">
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">表名:</label>
+                    <div class="layui-input-block">
+                        <input autocomplete="off" class="layui-input" name="tableName" id="tableName" placeholder=""
+                               type="text" lay-verify="required">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">排序字段:</label>
+                    <div class="layui-input-block">
+                        <input autocomplete="off" class="layui-input" name="sort" id="sort" placeholder=""
+                               type="text">
+                    </div>
+                </div>
+
+                <div class="layui-form-item" style="margin-top:50px; display: flex; justify-content: center; align-items: center;">
+
+                        <button id="exportBtn" name="exportBtn" class="pear-btn pear-btn-primary" lay-filter="user-save" lay-submit="" type="submit">
+                            备份
+                        </button>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!--<div class="bottom">
+        <div class="button-container" >
+            <button class="pear-btn pear-btn-primary pear-btn-sm" lay-filter="user-save" lay-submit="" type="submit">
+                <i class="layui-icon layui-icon-ok"></i>
+                提交
+            </button>
+            <button class="pear-btn pear-btn-sm" type="reset">
+                <i class="layui-icon layui-icon-refresh"></i>
+                重置
+            </button>
+        </div>
+    </div>-->
+</form>
+<th:block th:include="include :: footer"/>
+<script>
+
+    layui.use(['form', 'jquery', 'dtree','laydate'], function () {
+
+        let form = layui.form;
+        let $ = layui.jquery;
+        let dtree = layui.dtree;
+        var laydate = layui.laydate;
+
+
+        $('#exportBtn').click(function () {
+
+            var tableName = $("#tableName").val();
+            var sort = $("#sort").val();
+            var url = '/ppt/convertTypeConfig/exportInsert/' + tableName + '/' + sort;
+
+            // 方法1：创建隐藏的 a 标签
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'ppt_convert_config.txt';  // 可选，服务端 Content-Disposition 优先级更高
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+        });
+
+
+
+    })
+
+</script>
+
+</body>
+</html>

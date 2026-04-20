@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <th:block th:include="include :: header('修改我的任务')"/>
+
+    <style>
+        .my-textarea {
+            height: 340px !important; /* !important 确保覆盖 Layui 默认样式 */
+        }
+    </style>
+
+</head>
+<body>
+
+<!--加载动画-->
+<div class="loading" style="display: none" id="loadDiv">
+    <span class="top"></span>
+    <span class="bottom"></span>
+</div>
+
+<!--<form class="layui-form">-->
+<div class="mainBox">
+
+    <div class="main-container">
+        <input autocomplete="off" class="layui-input" lay-verify="required" name="infoId" id="infoId" placeholder=""
+               type="hidden" th:value="${reportAutoCreateInfo.infoId}">
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">报表名称</label>
+            <div class="layui-input-block">
+                <input autocomplete="off" class="layui-input" lay-verify="required" name="autoReportName" id="autoReportName" placeholder=""
+                       type="text" th:value="${reportAutoCreateInfo.reportName}">
+            </div>
+        </div>
+
+        <div class="layui-form-item" style="display: flex;">
+            <label class="layui-form-label">SQL语句</label>
+
+            <textarea class="layui-textarea code-show my-textarea"  id="sqlContent" name="sqlContent" th:text="${reportAutoCreateInfo.sqlContent}"></textarea>
+
+
+        </div>
+
+
+        <div class="layui-form-item" style="margin-top:50px; display: flex; justify-content: center; align-items: center;">
+
+            <button id="btnSubmit" class="pear-btn pear-btn-sm" lay-filter="user-save" lay-submit="" type="submit" style="margin-top: 30px;">
+                <!--<i class="layui-icon layui-icon-ok"></i>-->
+                <i class="layui-icon layui-icon-ok"></i>
+                提交
+            </button>
+
+            &nbsp;&nbsp;
+            <button id="btnReset" class="pear-btn pear-btn-sm" type="submit" lay-submit="" lay-filter="form-close" style="margin-top: 30px;">
+                <i class="layui-icon layui-icon-close"></i>
+                关闭
+            </button>
+        </div>
+
+    </div>
+</div>
+<!--<div class="bottom">
+    <div class="button-container" >
+        <button class="pear-btn pear-btn-primary pear-btn-sm" lay-filter="user-save" lay-submit="" type="submit">
+            <i class="layui-icon layui-icon-ok"></i>
+            提交
+        </button>
+        <button class="pear-btn pear-btn-sm" type="reset">
+            <i class="layui-icon layui-icon-refresh"></i>
+            重置
+        </button>
+    </div>
+</div>-->
+<!--</form>-->
+<th:block th:include="include :: footer"/>
+<script>
+
+    layui.use(['tree', 'layer','form','laydate','table','popup','element'], function () {
+
+        let form = layui.form;
+        let $ = layui.jquery;
+        let dtree = layui.dtree;
+        var layer = layui.layer;
+        var tree = layui.tree;
+        var laydate = layui.laydate;
+        let table = layui.table;
+        let popup = layui.popup;
+        var element = layui.element;
+
+
+        //保存提交事件
+        form.on('submit(user-save)', function (data) {
+
+
+            var infoId = $("#infoId").val();
+            var sqlContent = $("#sqlContent").val();
+
+            var paramObject = new Object();
+            paramObject.infoId = infoId;
+            paramObject.sqlContent = sqlContent;
+
+            var param = JSON.stringify(paramObject);
+
+            //data.field.modelId = data.field.select;
+
+            $("#loadDiv").show();
+            $("#btnSubmit").prop("disabled", true);
+
+            $.ajax({
+                url: '/autoData/myTask/updateSqlContentInfo',
+                data: param,
+                dataType: 'json',
+                contentType: 'application/json',
+                type: 'post',
+                success: function (result) {
+
+                    $("#loadDiv").hide();
+                    $("#btnSubmit").prop("disabled", false);
+
+                    if (result.success) {
+                        layer.msg(result.msg, {icon: 1, time: 2000}, function () {
+                            parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+                            parent.layui.table.reload("file-table");
+                        });
+                    } else {
+                        layer.msg(result.msg, {icon: 2, time: 2000});
+                    }
+                }
+            })
+            return false;
+        });
+
+        /**
+         * 关闭
+         */
+        form.on('submit(form-close)', function (data) {
+            parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+        })
+
+
+    })
+
+
+
+</script>
+<script>
+</script>
+</body>
+</html>

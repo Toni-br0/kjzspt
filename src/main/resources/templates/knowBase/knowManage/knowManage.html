@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('知识管理')"/>
+    <link rel="stylesheet" th:href="@{/knowbase/css/knowManage.css}" />
+</head>
+<body class="pear-container" >
+<div class="layui-card">
+    <div class="layui-card-body">
+        <form action="" class="layui-form">
+
+            <div style="margin-left: 20px;margin-bottom: 10px;">
+                <div class="fwzs-div">
+                    <div style="display: flex">
+                        <img src="../../knowbase/images/zsfb.png" alt="" style="width: 30px;height: 20px;">
+                    </div>
+                    <div style="margin-left: 10px;">知识管理</div>
+                    <div style="margin-left: 50px;" id="yfb-div" name="yfb-div" class="title-div2" lay-filter="yfb-query-div" lay-submit>已发布</div>
+                    <div style="margin-left: 20px;" id="yxj-div" name="yxj-div" class="title-div" lay-filter="yxj-query-div" lay-submit>已下架</div>
+                    <div style="margin-left: 20px;" id="cgx-div" name="cgx-div" class="title-div" lay-filter="cgx-query-div" lay-submit>草稿箱</div>
+                </div>
+                <div class="div-line-top"></div>
+            </div>
+
+            <div class="layui-form-item">
+
+                <label class="layui-form-label">类别：</label>
+                <div class="layui-input-inline" style="width: 350px;">
+                    <div id="knowClassSel" class="xm-select-demo"></div>
+                    <input class="layui-input" name="knowClass" id="knowClass" type="hidden" />
+
+                </div>
+
+                <label class="layui-form-label">发布时间：</label>
+                <div class="layui-input-inline" style="width: 280px;">
+                    <input type="text" class="layui-input" id="queryDate" name="queryDate" placeholder="请选择发布时间" readonly>
+                </div>
+
+                <label class="layui-form-label">作者:</label>
+                <div class="layui-input-inline" style="width: 250px;">
+                    <input autocomplete="off" class="layui-input" name="createUserName" id="createUserName" placeholder="" type="text">
+                </div>
+
+                <label class="layui-form-label">所属类型:</label>
+                <div class="layui-input-inline" style="width: 250px;">
+                    <select id="knowType" name="knowType">
+                        <option value="" selected></option>
+                        <option value="tw">图文</option>
+                        <option value="wd">文档</option>
+                        <option value="sp">视频</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <div class="layui-form-item">
+
+                    <label class="layui-form-label">文章：</label>
+                    <div class="layui-input-inline" style="width: 352px;">
+                        <input autocomplete="off" class="layui-input" name="knowTitle" id="knowTitle" placeholder="" type="text">
+                    </div>
+
+                    <button class="pear-btn pear-btn-md pear-btn-primary" lay-filter="file-query" lay-submit style="margin-left: 20px;">
+                        <i class="layui-icon layui-icon-search"></i>
+                        查询
+                    </button>
+                    <button class="pear-btn pear-btn-md pear-btn-primary" type="reset" style="margin-left: 10px;">
+                        <i class="layui-icon layui-icon-refresh"></i>
+                        重置
+                    </button>
+
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<div class="layui-card">
+    <div id="card-body-div" class="layui-card-body" style="background-color: #FFFFFF;">
+        <table id="file-table" lay-filter="file-table"></table>
+    </div>
+</div>
+
+</body>
+
+<script id="role-toolbar" type="text/html">
+    <button class="pear-btn pear-btn-primary pear-btn-md" lay-event="add">
+        <i class="layui-icon layui-icon-add-1"></i>
+        上传
+    </button>
+    <button class="pear-btn pear-btn-md" lay-event="batchRemove">
+        <i class="layui-icon layui-icon-delete"></i>
+        删除
+    </button>
+</script>
+
+<script id="yfb-bar" type="text/html">
+
+    <button class="pear-btn pear-btn-danger pear-btn-sm" lay-event="remove" style="font-size: 12px !important; background-color: #1e88e5 !important;">
+        <!--<i class="layui-icon layui-icon-delete"></i>-->
+        预 览
+    </button>
+
+    <button class="pear-btn pear-btn-danger pear-btn-sm" lay-event="edit" style="font-size: 12px !important; background-color: #5cb85c !important;">
+        <!--<i class="layui-icon layui-icon-delete"></i>-->
+        编 辑
+    </button>
+
+    <button class="pear-btn pear-btn-danger pear-btn-sm" lay-event="undercarr" style="font-size: 12px !important;">
+        <!--<i class="layui-icon layui-icon-delete"></i>-->
+        下 架
+    </button>
+</script>
+
+<script id="yxj-bar" type="text/html">
+
+    <button class="pear-btn pear-btn-danger pear-btn-sm" lay-event="remove" style="font-size: 12px !important; background-color: #1e88e5 !important;">
+        <!--<i class="layui-icon layui-icon-delete"></i>-->
+        预 览
+    </button>
+
+    <button class="pear-btn pear-btn-danger pear-btn-sm" lay-event="edit" style="font-size: 12px !important; background-color: #5cb85c !important;">
+        <!--<i class="layui-icon layui-icon-delete"></i>-->
+        编 辑
+    </button>
+
+    <button class="pear-btn pear-btn-danger pear-btn-sm" lay-event="uppercarr" style="font-size: 12px !important;">
+        <!--<i class="layui-icon layui-icon-delete"></i>-->
+        上 架
+    </button>
+</script>
+
+<script id="cgx-bar" type="text/html">
+
+    <button class="pear-btn pear-btn-danger pear-btn-sm" lay-event="remove" style="font-size: 12px !important; background-color: #1e88e5 !important;">
+        <!--<i class="layui-icon layui-icon-delete"></i>-->
+        预 览
+    </button>
+
+    <button class="pear-btn pear-btn-danger pear-btn-sm" lay-event="edit" style="font-size: 12px !important; background-color: #5cb85c !important;">
+        <!--<i class="layui-icon layui-icon-delete"></i>-->
+        编 辑
+    </button>
+
+    <button class="pear-btn pear-btn-danger pear-btn-sm" lay-event="uppercarr" style="font-size: 12px !important;">
+        <!--<i class="layui-icon layui-icon-delete"></i>-->
+        上 架
+    </button>
+
+    <button class="pear-btn pear-btn-danger pear-btn-sm" lay-event="remove" style="font-size: 12px !important; background-color: red !important;">
+        <!--<i class="layui-icon layui-icon-delete"></i>-->
+        删 除
+    </button>
+</script>
+
+
+<script id="file-image" type="text/html">
+    <a href="javascript:void(0);" class="pear-text">查看</a>
+</script>
+
+<script id="file-createTime" type="text/html">
+    {{layui.util.toDateString(d.createTime,  'yyyy-MM-dd HH:mm:ss')}}
+</script>
+
+<script id="know-type" type="text/html">
+    {{#if (d.knowType == 'tw') { }}
+    <span>图文</span>
+    {{# }else if(d.knowType == 'wd'){ }}
+    <span>文档</span>
+    {{# }else if(d.knowType == 'sp'){ }}
+    <span>视频</span>
+    {{# } }}
+</script>
+
+
+<th:block th:include="include :: footer"/>
+<script>
+    layui.use(['table', 'form', 'jquery', 'popup', 'common','laydate'], function () {
+        let table = layui.table;
+        let form = layui.form;
+        let $ = layui.jquery;
+        let popup = layui.popup;
+        let common = layui.common;
+        var laydate = layui.laydate;
+
+        let MODULEMANAGE_PATH = "/knowBase/knowManage/";
+
+        //获取页面高度
+        var pageHeight = $(document).height();
+        $('#card-body-div').height(pageHeight-240);
+
+        var queryType ="yfb";
+
+        //获取类别下拉树
+        $.ajax({
+            url: '/knowBase/classManage/getClassSelect',
+            dataType: 'json',
+            contentType: 'application/json',
+            type: 'get',
+            success: function (result) {
+
+                var demo1 = xmSelect.render({
+                    el: '#knowClassSel',
+                    theme: {
+                        color: '#287ED8',
+                    },
+                    toolbar: {
+                        show: true,
+                        showIcon: false,
+                    },
+                    filterable: true,
+                    paging: true,
+                    pageSize: 10,
+                    height: "500px",
+                    radio: true,
+                    on: function(data){
+                        //arr:  当前多选已选中的数据
+                        var arr = data.arr;
+                        var dataLength = arr.length;
+                        if(dataLength >0) {
+                            var selClassCode = arr[0].value;
+                            $("#knowClass").val(selClassCode);
+
+                        }else{
+                            $("#knowClass").val("");
+                        }
+                    },
+
+                    data: result
+                });
+            }
+        });
+
+        //日期控件
+        laydate.render({
+            elem: '#queryDate', //指定元素
+            type: 'date',
+            format: 'yyyy-MM-dd',
+            max: 0,
+            lang:'cn'
+        });
+
+
+        let yfbCols = [
+            [
+                /*{type: 'checkbox'},*/
+                {title: 'ID', field: 'infoId', align: 'center', width: 0, hide: true},
+                {title: '发布时间', field: 'createTime', align: 'center',sort: true},
+                {title: '标题', field: 'knowTitle', align: 'center'},
+                {title: '所属类型', field: 'knowType', align: 'center', templet: '#know-type'},
+                {title: '类别', field: 'knowClassName', align: 'center'},
+                {title: '作者', field: 'createUserName', align: 'center'},
+                {title: '点赞量', field: 'dzCount', align: 'center',sort: true},
+                {title: '收藏量', field: 'scCount', align: 'center',sort: true},
+                {title: '访问量', field: 'fwCount', align: 'center',sort: true},
+                {title: '操作', toolbar: '#yfb-bar', align: 'center', width: 200}
+            ]
+        ]
+
+
+        let yxjCols = [
+            [
+                /*{type: 'checkbox'},*/
+                {title: 'ID', field: 'infoId', align: 'center', width: 0, hide: true},
+                {title: '发布时间', field: 'createTime', align: 'center',sort: true},
+                {title: '标题', field: 'knowTitle', align: 'center'},
+                {title: '所属类型', field: 'knowType', align: 'center', templet: '#know-type'},
+                {title: '类别', field: 'knowClassName', align: 'center'},
+                {title: '作者', field: 'createUserName', align: 'center'},
+                {title: '点赞量', field: 'dzCount', align: 'center',sort: true},
+                {title: '收藏量', field: 'scCount', align: 'center',sort: true},
+                {title: '访问量', field: 'fwCount', align: 'center',sort: true},
+                {title: '操作', toolbar: '#yxj-bar', align: 'center', width: 200}
+            ]
+        ];
+
+        let cgxCols = [
+            [
+                /*{type: 'checkbox'},*/
+                {title: 'ID', field: 'infoId', align: 'center', width: 0, hide: true},
+                {title: '发布时间', field: 'createTime', align: 'center',sort: true},
+                {title: '标题', field: 'knowTitle', align: 'center'},
+                {title: '所属类型', field: 'knowType', align: 'center', templet: '#know-type'},
+                {title: '类别', field: 'knowClassName', align: 'center'},
+                {title: '作者', field: 'createUserName', align: 'center'},
+                {title: '点赞量', field: 'dzCount', align: 'center',sort: true},
+                {title: '收藏量', field: 'scCount', align: 'center',sort: true},
+                {title: '访问量', field: 'fwCount', align: 'center',sort: true},
+                {title: '操作', toolbar: '#cgx-bar', align: 'center', width: 240}
+            ]
+        ];
+
+
+        table.render({
+            elem: '#file-table',
+            url: MODULEMANAGE_PATH + 'getKnowDataList',
+            page: true,
+            cols: yfbCols,
+            skin: 'line',
+            //height: 'full-148',
+            //toolbar: '#role-toolbar',
+            defaultToolbar: [{
+                title: '刷新',
+                layEvent: 'refresh',
+                icon: 'layui-icon-refresh',
+            }, 'filter', 'print', 'exports']
+        });
+
+        table.on('tool(file-table)', function (obj) {
+            if (obj.event === 'remove') {
+                window.remove(obj);
+            } else if (obj.event === 'file-image') {
+                window.show(obj);
+            }else if (obj.event === 'download') {
+                window.download(obj);
+            }else if (obj.event === 'undercarr') {
+                window.undercarr(obj);
+            }else if (obj.event === 'uppercarr') {
+                window.uppercarr(obj);
+            }else if (obj.event === 'edit') {
+                window.edit(obj);
+            }
+        });
+
+        table.on('toolbar(file-table)', function (obj) {
+            if (obj.event === 'add') {
+                window.add();
+            } else if (obj.event === 'refresh') {
+                window.refresh();
+            } else if (obj.event === 'batchRemove') {
+                window.batchRemove(obj);
+            }else if (obj.event === 'download') {
+                window.download(obj);
+            }else if (obj.event === 'undercarr') {
+                window.undercarr(obj);
+            }else if (obj.event === 'uppercarr') {
+                window.uppercarr(obj);
+            }else if (obj.event === 'edit') {
+                window.edit(obj);
+            }
+        });
+
+        form.on('submit(file-query)', function (data) {
+
+            data.field['queryType'] = queryType;
+
+            table.reload('file-table', {where: data.field})
+            return false;
+        });
+
+
+        form.on('submit(yfb-query-div)', function (data) {
+
+            $("#yfb-div").removeClass("title-div");
+            $("#yfb-div").attr("class","title-div2");
+
+            $("#yxj-div").removeClass("title-div2");
+            $("#yxj-div").attr("class","title-div");
+
+            $("#cgx-div").removeClass("title-div2");
+            $("#cgx-div").attr("class","title-div");
+
+            queryType = "yfb";
+            data.field['queryType'] = queryType;
+
+            table.reload('file-table', {where: data.field,cols: yfbCols});
+
+            return false;
+        });
+
+        form.on('submit(yxj-query-div)', function (data) {
+
+            $("#yxj-div").removeClass("title-div");
+            $("#yxj-div").attr("class","title-div2");
+
+            $("#yfb-div").removeClass("title-div2");
+            $("#yfb-div").attr("class","title-div");
+
+            $("#cgx-div").removeClass("title-div2");
+            $("#cgx-div").attr("class","title-div");
+
+            queryType = "yxj";
+            data.field['queryType'] = queryType;
+
+            table.reload('file-table', {where: data.field,cols: yxjCols});
+
+            return false;
+        });
+
+
+        form.on('submit(cgx-query-div)', function (data) {
+
+            $("#cgx-div").removeClass("title-div");
+            $("#cgx-div").attr("class","title-div2");
+
+            $("#yfb-div").removeClass("title-div2");
+            $("#yfb-div").attr("class","title-div");
+
+            $("#yxj-div").removeClass("title-div2");
+            $("#yxj-div").attr("class","title-div");
+
+            queryType = "cgx";
+            data.field['queryType'] = queryType;
+
+            table.reload('file-table', {where: data.field,cols: cgxCols});
+            return false;
+        });
+
+        window.add = function () {
+            layer.open({
+                type: 2,
+                title: '模板上传',
+                shade: 0.1,
+                area: ['600px', '500px'],
+                content: MODULEMANAGE_PATH + 'modelAdd'
+            });
+        }
+
+        window.show = function (obj) {
+            layer.photos({
+                photos: {
+                    "title": "预览图片",
+                    "start": 0,
+                    "data": [
+                        {"src": "/system/file/download/" + obj.data.id}
+                    ]
+                }
+                , anim: 5
+            });
+        }
+
+        /**
+         * 删除
+         * @param obj
+         */
+        window.remove = function (obj) {
+            layer.confirm('确定要删除该知识', {icon: 3, title: '提示'}, function (index) {
+                layer.close(index);
+                let loading = layer.load();
+                $.ajax({
+                    url: MODULEMANAGE_PATH + "draftRemove/" + obj.data['infoId'],
+                    dataType: 'json',
+                    type: 'delete',
+                    success: function (result) {
+                        layer.close(loading);
+                        if (result.retCode == "0") {
+                            popup.success(result.retMsg, function () {
+                                obj.del();
+                            });
+                        } else {
+                            popup.failure(result.retMsg);
+                        }
+                    }
+                })
+            });
+        }
+
+        window.batchRemove = function (obj) {
+            let modelIds = common.checkField(obj, 'modelId');
+            if (common.isEmpty(modelIds)) {
+                popup.warning("未选中数据");
+                return false;
+            }
+            layer.confirm('确定要删除选中文件', {icon: 3, title: '提示'}, function (index) {
+                layer.close(index);
+                let loading = layer.load();
+                $.ajax({
+                    url: MODULEMANAGE_PATH + "batchModelRemove/" + modelIds,
+                    dataType: 'json',
+                    type: 'delete',
+                    success: function (result) {
+                        layer.close(loading);
+                        if (result.success) {
+                            popup.success(result.msg, function () {
+                                table.reload('file-table');
+                            });
+                        } else {
+                            popup.failure(result.msg);
+                        }
+                    }
+                })
+            });
+        }
+
+        window.refresh = function () {
+            table.reload('file-table');
+        }
+
+        window.download = function (obj) {
+            var modelId = obj.data['modelId'];
+            var modelName = obj.data['modelName'];
+            //window.open("/ppt/model/downloadFile2?fileName="+modelName+"&type=soure");
+            window.location.href = MODULEMANAGE_PATH+"downloadFile3?fileName="+modelName+"&type=soure";
+            return ;
+        }
+
+        /**
+         * 下架
+         * @param obj
+         */
+        window.undercarr = function (obj) {
+            layer.confirm('确定要下架该知识', {icon: 3, title: '提示'}, function (index) {
+                layer.close(index);
+                let loading = layer.load();
+                $.ajax({
+                    url: MODULEMANAGE_PATH + "undercarr/" + obj.data['infoId'],
+                    dataType: 'json',
+                    type: 'get',
+                    success: function (result) {
+                        layer.close(loading);
+                        if (result.retCode =="0") {
+                            popup.success(result.retMsg, function () {
+                                table.reload('file-table');
+                            });
+                        } else {
+                            popup.failure(result.retMsg);
+                        }
+                    }
+                })
+            });
+        }
+
+
+        /**
+         * 上架
+         * @param obj
+         */
+        window.uppercarr = function (obj) {
+            layer.confirm('确定要上架该知识', {icon: 3, title: '提示'}, function (index) {
+                layer.close(index);
+                let loading = layer.load();
+                $.ajax({
+                    url: MODULEMANAGE_PATH + "uppercarr?infoId=" + obj.data['infoId']+"&queryType="+queryType,
+                    dataType: 'json',
+                    type: 'get',
+                    success: function (result) {
+                        layer.close(loading);
+                        if (result.retCode =="0") {
+                            popup.success(result.retMsg, function () {
+                                table.reload('file-table');
+                            });
+                        } else {
+                            popup.failure(result.retMsg);
+                        }
+                    }
+                })
+            });
+        }
+
+
+        /**
+         * 编辑
+         * @param obj
+         */
+        window.edit = function (obj) {
+            var infoId = obj.data['infoId'];
+
+            window.location.href = MODULEMANAGE_PATH + 'toKnowEdit?infoId='+infoId+"&queryType="+queryType;
+        }
+
+
+    })
+</script>
+</html>

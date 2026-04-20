@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <th:block th:include="include :: header('我的模板')"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+
+</head>
+<body class="pear-container">
+<div class="layui-card">
+    <div class="layui-card-body">
+        <form action="" class="layui-form">
+            <div class="layui-form-item">
+                <!--<label class="layui-form-label">资源名称</label>
+                <div class="layui-input-inline">
+                    <input class="layui-input" name="realName" placeholder="" type="text">
+                </div>-->
+                <label class="layui-form-label">模板名称:</label>
+                <div class="layui-input-inline">
+                    <input class="layui-input" id="templateName" name="templateName" placeholder="请输入模板名称" type="text">
+                </div>
+                <label class="layui-form-label">开始日期:</label>
+                <div class="layui-input-inline">
+                    <input type="text" class="layui-input" id="startDate" name="startDate">
+                </div>
+                <label class="layui-form-label">结束日期:</label>
+                <div class="layui-input-inline">
+                    <input type="text" class="layui-input" id="endDate" name="endDate">
+                </div>
+                <button class="pear-btn pear-btn-md pear-btn-primary" lay-filter="report-query" lay-submit>
+                    <i class="layui-icon layui-icon-search"></i>
+                    查询
+                </button>
+                <button class="pear-btn pear-btn-md" type="reset">
+                    <i class="layui-icon layui-icon-refresh"></i>
+                    重置
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="layui-card">
+    <div id="card-body-div" class="layui-card-body" style="background-color: #FFFFFF;">
+        <table id="report-table" lay-filter="report-table"></table>
+    </div>
+</div>
+
+</body>
+
+<script id="report-bar" type="text/html">
+    <a class="pear-btn pear-btn-primary pear-btn-sm" lay-event="templateView" title="查看">
+        <i class="pear-icon pear-icon-electronics"></i>
+    </a>
+
+    <!--<a class="pear-btn pear-btn-primary pear-btn-sm" lay-event="downloadTemplate" title="下载">
+        <i class="pear-icon pear-icon-direction-down"></i>
+    </a>
+
+    <a id="reportToPpt_{{d.reportId}}" class="pear-btn pear-btn-primary pear-btn-sm" lay-event="reportToPpt" title="生成PPT">
+        <i class="pear-icon pear-icon-file"></i>
+    </a>-->
+
+    <button title="删除" class="pear-btn pear-btn-danger pear-btn-sm" lay-event="remove"><i class="layui-icon layui-icon-delete"></i>
+    </button>
+</script>
+
+<script id="report-createTime" type="text/html">
+    {{layui.util.toDateString(d.createTime,  'yyyy-MM-dd HH:mm:ss')}}
+</script>
+
+<script id="date-type" type="text/html">
+    {{#if (d.dateType == 'day') { }}
+    <span>日</span>
+    {{# }else if(d.dateType == 'month'){ }}
+    <span>月</span>
+    {{# } }}
+</script>
+
+<script id="index-type" type="text/html">
+    {{#if (d.indexType == 'count') { }}
+    <span>统计</span>
+    {{# }else if(d.indexType == 'details'){ }}
+    <span>明细</span>
+    {{# } }}
+</script>
+
+<th:block th:include="include :: footer"/>
+<script>
+    layui.use(['table', 'form', 'jquery', 'popup', 'common','laydate'], function () {
+        let table = layui.table;
+        let form = layui.form;
+        let $ = layui.jquery;
+        let popup = layui.popup;
+        let common = layui.common;
+        var laydate = layui.laydate;
+
+        let MODULE_PATH = "/autoData/report/";
+
+        laydate.render({
+            elem: '#startDate'
+        });
+
+        laydate.render({
+            elem: '#endDate'
+        });
+
+        //获取页面高度
+        var pageHeight = $(document).height();
+        $('#card-body-div').height(pageHeight-148);
+
+        let cols = [
+            [
+                {title: '模板ID', field: 'templateId', align: 'center', hide: true},
+                {title: '模板名称', field: 'templateName', align: 'center'},
+                {title: '开始时间', field: 'startDate', align: 'center', width: 160},
+                {title: '结束时间', field: 'endDate', align: 'center', width: 160},
+                {title: '数据周期', field: 'dateType', align: 'center', width: 160,templet: "#date-type"},
+                {title: '指标类型', field: 'indexType', align: 'center', width: 160,templet: "#index-type"},
+                /*{title: '模板路径', field: 'templatePath', align: 'center', width: 300,hide: true},*/
+                {title: '创建人', field: 'createUserName', align: 'center', width: 160},
+                {title: '创建日期', field: 'createTime', align: 'center', templet: "#report-createTime",width: 160,sort: true},
+                {title: '操作', toolbar: '#report-bar', align: 'center', width: 180}
+            ]
+        ]
+
+        table.render({
+            elem: '#report-table',
+            url: MODULE_PATH + 'templateInfoList',
+            page: true,
+            cols: cols,
+            skin: 'line',
+            //height: 'full-148',
+            toolbar: '#role-toolbar',
+            defaultToolbar: [
+                {
+                    title: '刷新',
+                    layEvent: 'refresh',
+                    icon: 'layui-icon-refresh',
+                }
+            ]
+        });
+
+        table.on('tool(report-table)', function (obj) {
+            if (obj.event === 'templateView') {
+                window.templateView(obj);
+            }else if (obj.event === 'downloadTemplate') {
+                window.downloadTemplate(obj);
+            }else if (obj.event === 'reportToPpt') {
+                window.reportToPpt(obj);
+            }else if (obj.event === 'remove') {
+                window.remove(obj);
+            }
+        });
+
+        table.on('toolbar(report-table)', function (obj) {
+            if (obj.event === 'refresh') {
+                window.refresh();
+            }
+        });
+
+        form.on('submit(report-query)', function (data) {
+            table.reload('report-table', {where: data.field})
+            return false;
+        });
+
+        window.templateView = function (obj) {
+            var templateId = obj.data['templateId'];
+            window.location.href = MODULE_PATH + 'templateView?templateId='+templateId;
+        }
+
+        /**
+         * 下载模板
+         * @param obj
+         */
+        window.downloadTemplate = function (obj) {
+            var templateId = obj.data['templateId'];
+            const link = document.createElement('a');
+            link.href = MODULE_PATH + "downloadTemplate?templateId=" + templateId;
+            // link.download = 'ppt_convert_config.txt';
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        window.reportToPpt = function (obj) {
+            layer.alert("建设中...！");
+            return;
+            // var reportPath = obj.data['reportPath'];
+            // if(reportPath =="" || reportPath == null || reportPath == undefined){
+            //     popup.failure("报表未生成无法下载！");
+            //     return false;
+            // }
+            //
+            // var reportId = obj.data['reportId'];
+            // var href = MODULE_PATH + "reportToPpt?reportId="+reportId;
+            // $('#downloadReport_'+reportId).attr('href', href);
+            // $('#downloadReport_'+reportId).trigger('click');
+        }
+
+        window.remove = function (obj) {
+            layer.confirm('确定要删除该模板', {icon: 3, title: '提示'}, function (index) {
+                layer.close(index);
+                let loading = layer.load();
+                $.ajax({
+                    url: MODULE_PATH + "templateRemove/" + obj.data['templateId'],
+                    dataType: 'json',
+                    type: 'delete',
+                    success: function (result) {
+                        layer.close(loading);
+                        if (result.success) {
+                            popup.success(result.msg, function () {
+                                obj.del();
+                            });
+                        } else {
+                            popup.failure(result.msg);
+                        }
+                    }
+                })
+            });
+        }
+
+        window.fileView = function (obj) {
+
+            var filePath = obj.data['modelTargetPath'];
+            if(filePath =="" || filePath === null || filePath == undefined){
+                popup.failure("文件未生成无法预览！");
+                return false;
+            }
+
+            let loading = layer.load();
+            var paramObj = {
+                id: obj.data['id']
+            };
+            var param = JSON.stringify(paramObj);
+
+            $.ajax({
+                url: MODULE_PATH + "fileView",
+                dataType: 'json',
+                contentType: 'application/json',
+                data: param,
+                type: 'post',
+                success: function (result) {
+                    layer.close(loading);
+                    if (result.retCode == "0") {
+
+                        var pageWidth = $(document).width();
+                        pageWidth = (pageWidth-100)+"px";
+
+                        var pageHeight1 = $(document).height();
+                        pageHeight1 = (pageHeight1-30)+"px";
+
+                        layer.open({
+                            type: 2,
+                            title: '文件预览',
+                            shade: 0.3,
+                            btn: ['关 闭'],
+                            btnAlign:"c",
+                            area: [pageWidth, pageHeight1],
+                            content: result.retMsg
+                        });
+
+                        //window.open(result.retMsg);
+
+                    } else {
+                        popup.failure("预览失败，请联系管理员");
+                    }
+                }
+                , error: function(xhr, status, error) {
+                    layer.close(loading);
+                    popup.failure("预览失败，请联系管理员");
+                }
+            })
+        }
+
+
+
+        window.refresh = function () {
+            table.reload('report-table');
+        }
+    })
+</script>
+</html>

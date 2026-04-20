@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('自助取数统计')"/>
+
+    <style>
+        .layui-layout-admin {
+            display: flex;
+            height: 100%; /* 高度设为100%视口高度，根据需要调整 */
+
+        }
+        .layui-left {
+            width: 250px; /* 左侧宽度 */
+            height: 100%;
+            /*background-color: #f2f2f2;*/
+            overflow: auto; /* 如果内容过多，可以有滚动条 */
+
+            border-right: #92b8b1 dashed 1px;
+        }
+        .layui-right {
+            flex: 1; /* 右侧自适应 */
+            /*background-color: #fff;*/
+            overflow-y: auto;
+            margin-left: 20px;
+        }
+
+        /* 添加到你的 CSS 文件中 */
+        .layui-table {
+            border: 1px solid #92b8b1 !important;
+            border-collapse: collapse !important;
+        }
+
+        .layui-table th,
+        .layui-table td {
+            border: 1px solid #92b8b1 !important;
+        }
+
+        /* 如果需要表头边框 */
+        /*.layui-table thead th {
+            border-bottom: 2px solid #92b8b1 !important;
+        }*/
+
+        /* 所有表头单元格 */
+        .layui-table-header th {
+            background-color: #f2f2f2  !important;
+            color: #333;
+        }
+
+        .custom-tooltip {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .custom-tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 5px 8px;
+            border-radius: 3px;
+            white-space: nowrap;
+            z-index: 1000;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .custom-tooltip:hover::before {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: #333;
+            margin-bottom: -5px;
+        }
+
+
+    </style>
+
+</head>
+<body class="pear-container">
+<div class="layui-card">
+    <div class="layui-card-body">
+        <form action="" class="layui-form">
+
+            <div id="layui-layout-admin" class="layui-layout-admin">
+                <!--左侧内容-->
+                <div class="layui-left">
+                    <div id="dimension"></div>
+                </div>
+
+                <!--右侧内容-->
+                <div class="layui-right">
+
+                    <div class="layui-form-item" style="margin-bottom: 0px;border: #e03e2d solid 0px;">
+                        <label class="layui-form-label">统计范围：</label>
+                        <div class="layui-input-inline" style="width: 15%;border: #e03e2d solid 0px;">
+                            <input type="text" class="layui-input" id="area" name="area" th:value="${area}" readonly>
+                            <input type="hidden" class="layui-input" id="areaId" name="areaId" th:value="${areaId}" readonly>
+                            <input type="hidden" class="layui-input" id="areaCode" name="areaCode" >
+                        </div>
+                        <label class="layui-form-label" id="startDateLabel" name="startDateLabel">开始时间：</label>
+                        <div class="layui-input-inline" style="width: 15%;border: #e03e2d solid 0px;">
+                            <input type="text" class="layui-input" id="startDate" name="startDate" readonly>
+                        </div>
+                        <label class="layui-form-label" id="endDateLabel" name="endDateLabel">结束时间：</label>
+                        <div class="layui-input-inline" style="width: 15%;border: #e03e2d solid 0px;">
+                            <input type="text" class="layui-input" id="endDate" name="endDate" readonly>
+                        </div>
+
+                        <button class="pear-btn pear-btn-md pear-btn-primary" lay-filter="file-query" lay-submit>
+                            <i class="layui-icon layui-icon-search"></i>
+                            查询
+                        </button>
+
+                        <a id="downloadFile" class="pear-btn pear-btn-md pear-btn-primary" lay-filter="downloadFile" lay-submit>
+                            <i class="pear-icon pear-icon-direction-down"></i>
+                            导出
+                        </a>
+
+                    </div>
+
+                        <div>
+                            <div id="card-body-div" class="layui-card-body" style="background-color: #FFFFFF;">
+                                <table id="file-table" lay-filter="file-table" class="layui-table"></table>
+                            </div>
+                        </div>
+
+
+                        <div style="border-top: #92b8b1 dashed 1px;margin-top: 20px;">
+                            <div>
+                                <div id="card-body-div-sub" class="layui-card-body" style="background-color: #FFFFFF;">
+                                    <table id="file-table-sub" lay-filter="file-table-sub" class="layui-table"></table>
+                                </div>
+                            </div>
+                        </div>
+
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+</body>
+
+
+<script id="ywlx" type="text/html">
+    {{#if (d.ywlx == '') { }}
+    <span>数量</span>
+    {{# }else if(d.ywlx == null){ }}
+    <span>数量</span>
+    {{# } }}
+</script>
+
+<script id="aa" type="text/html">
+
+    <span>数量</span>
+
+</script>
+
+<th:block th:include="include :: footer"/>
+<script>
+    layui.use(['table', 'form', 'jquery', 'popup', 'common','soulTable','tree','laydate'], function () {
+        let table = layui.table;
+        var tree = layui.tree;
+        let form = layui.form;
+        let $ = layui.jquery;
+        let popup = layui.popup;
+        let common = layui.common;
+        var soulTable = layui.soulTable;
+        var laydate = layui.laydate;
+
+        let MODULE_PATH = "/yytjzx/autoReportCount/";
+
+        //获取页面高度
+        var pageHeight = $(document).height()-60;
+        $("#layui-layout-admin").height(pageHeight);
+
+        var lastClickTime = 0;
+        var timeoutDuration = 300; // 双击间隔时间阈值，单位毫秒
+        //获取地域树数据
+        $.ajax({
+            url: MODULE_PATH +  "dimensionTreeload",
+            type: "post",
+            success: function(resut){
+                var treeData = JSON.parse(resut);
+                var dimensionInst = tree.render({
+                    elem: '#dimension',
+                    data: treeData,
+                    id: 'dimensionTree',  // 定义索引
+                    onlyIconControl: true,
+                    click: function(obj){
+
+                        var currentTime = new Date().getTime();
+                        if (currentTime - lastClickTime < timeoutDuration) {
+                            // 如果是双击事件
+                            var areaValue = obj.data.title;
+                            var areaId = $("#areaId").val();
+
+                            //不是全疆的账号不能选择全疆节点
+                            if(areaValue =="全疆" && areaId != "1"){
+                                return false;
+                            }
+
+                            var columnName = obj.data.columnName;
+
+                            $("#area").val(areaValue);
+                            $("#areaCode").val(columnName);
+
+                        } else {
+                            lastClickTime = currentTime; // 更新点击时间，以便下一次点击时检查是否为双击
+                        }
+
+                    },
+                    on: {
+                        // 直接在这里定义expand事件
+                        expand: function(obj) {
+                            console.log('节点展开了', obj.data);
+                            // 你的业务逻辑
+                        }
+                    }
+                });
+
+            }
+        });
+
+        //时间控件初始化
+        laydate.render({
+            elem: '#startDate',
+            type: 'date',
+            format: 'yyyy-MM-dd',
+            lang:'cn',
+            btns: ['confirm']
+        });
+
+        laydate.render({
+            elem: '#endDate',
+            type: 'date',
+            format: 'yyyy-MM-dd',
+            lang:'cn',
+            btns: ['confirm']
+        });
+
+
+        //初始化日期值
+        initDate();
+
+
+        let cols = [
+            [
+                {title: '核心模块',align: 'center','data-tip': '这是 ID 列的提示信息'},
+                {title: '用户覆盖', colspan: 3,rowspan:2,align: 'center'},
+                {title: '指标个数', colspan: 6,rowspan:2,align: 'center'},
+                {title: '生成报表数', colspan: 6,rowspan:2,align: 'center'},
+                {title: '自动推送报表数', colspan: 6,rowspan:2,align: 'center'},
+                {title: '预警处置', colspan: 5,rowspan:2,align: 'center'}
+            ],
+            [
+                {title: '统计维度',align: 'center'}
+            ],
+            [
+                {title: '业务类型', field: 'ywlx', align: 'center',width: 90,templet: "#ywlx"},
+                {title: '服务用户数(人)', field: 'yhFwyhs', align: 'center',width: 120},
+                {title: '活跃用户数(人)', field: 'yhHyyhs', align: 'center',width: 120},
+                {title: '用户活跃率', field: 'yhYhhylv', align: 'center',width: 100},
+                {title: '基础数据(个)', field: 'zbJcsj', align: 'center',width: 110},
+                {title: '宽带控流失(个)', field: 'zbKdkls', align: 'center',width: 120},
+                {title: '高值拓保(个)', field: 'zbGzbt', align: 'center',width: 110},
+                {title: '流量深耕(个)', field: 'zbLlsg', align: 'center',width: 110},
+                {title: '融合重耕(个)', field: 'zbRhcg', align: 'center',width: 110},
+                {title: '移动控流失(个)', field: 'zbYdkls', align: 'center',width: 120},
+                {title: '基础数据(份)', field: 'scbbJcsj', align: 'center',width: 110},
+                {title: '宽带控流失(份)', field: 'scbbKdkls', align: 'center',width: 120},
+                {title: '高值拓保(份)', field: 'scbbGzbt', align: 'center',width: 110},
+                {title: '流量深耕(份)', field: 'scbbLlsg', align: 'center',width: 110},
+                {title: '融合重耕(份)', field: 'scbbRhcg', align: 'center',width: 110},
+                {title: '移动控流失(份)', field: 'scbbYdkls', align: 'center',width: 120},
+                {title: '基础数据(份)', field: 'zdtsbbJcsj', align: 'center',width: 110},
+                {title: '宽带控流失(份)', field: 'zdtsbbKdkls', align: 'center',width: 120},
+                {title: '高值拓保(份)', field: 'zdtsbbGzbt', align: 'center',width: 110},
+                {title: '流量深耕(份)', field: 'zdtsbbLlsg', align: 'center',width: 110},
+                {title: '融合重耕(份)', field: 'zdtsbbRhcg', align: 'center',width: 110},
+                {title: '移动控流失(份)', field: 'zdtsbbYdkls', align: 'center',width: 120},
+                {title: '预警指标总数(个)', field: 'warningIndexCount', align: 'center',width: 130},
+                {title: '预警指标数-紧急(个)', field: 'warningIndexUrgentCount', align: 'center',width: 150},
+                {title: '预警指标数-告警(个)', field: 'warningIndexAlarmCount', align: 'center',width: 150},
+                {title: '预警指标数-普通(个)', field: 'warningIndexOrdinaryCount', align: 'center',width: 150},
+                {title: '预警总次数(次)', field: 'warningTotalCount', align: 'center',width: 120}
+
+            ]
+        ];
+
+        let subCols = [
+            [
+                {title: '核心模块',align: 'center'},
+                {title: '用户覆盖', colspan: 3,rowspan:2,align: 'center'},
+                /*{title: '指标个数', colspan: 6,rowspan:2,align: 'center'},*/
+                {title: '生成报表数', colspan: 6,rowspan:2,align: 'center'},
+                {title: '自动推送报表数', colspan: 6,rowspan:2,align: 'center'},
+                {title: '预警处置', colspan: 5,rowspan:2,align: 'center'}
+            ],
+            [
+                {title: '统计维度',align: 'center'}
+            ],
+            [
+                {title: '名称', field: 'areaName', align: 'center',width: 180},
+                {title: '服务用户数(人)', field: 'yhFwyhs', align: 'center',width: 120},
+                {title: '活跃用户数(人)', field: 'yhHyyhs', align: 'center',width: 120},
+                {title: '用户活跃率', field: 'yhYhhylv', align: 'center',width: 100},
+                /*{title: '基础数据(个)', field: 'zbJcsj', align: 'center',width: 110},
+                {title: '宽带控流失(个)', field: 'zbKdkls', align: 'center',width: 120},
+                {title: '高值保拓(个)', field: 'zbGzbt', align: 'center',width: 110},
+                {title: '流量深耕(个)', field: 'zbLlsg', align: 'center',width: 110},
+                {title: '融合重耕(个)', field: 'zbRhcg', align: 'center',width: 110},
+                {title: '移动控流失(个)', field: 'zbYdkls', align: 'center',width: 120},*/
+                {title: '基础数据(份)', field: 'scbbJcsj', align: 'center',width: 110},
+                {title: '宽带控流失(份)', field: 'scbbKdkls', align: 'center',width: 120},
+                {title: '高值拓保(份)', field: 'scbbGzbt', align: 'center',width: 110},
+                {title: '流量深耕(份)', field: 'scbbLlsg', align: 'center',width: 110},
+                {title: '融合重耕(份)', field: 'scbbRhcg', align: 'center',width: 110},
+                {title: '移动控流失(份)', field: 'scbbYdkls', align: 'center',width: 120},
+                {title: '基础数据(份)', field: 'zdtsbbJcsj', align: 'center',width: 110},
+                {title: '宽带控流失(份)', field: 'zdtsbbKdkls', align: 'center',width: 120},
+                {title: '高值拓保(份)', field: 'zdtsbbGzbt', align: 'center',width: 110},
+                {title: '流量深耕(份)', field: 'zdtsbbLlsg', align: 'center',width: 110},
+                {title: '融合重耕(份)', field: 'zdtsbbRhcg', align: 'center',width: 110},
+                {title: '移动控流失(份)', field: 'zdtsbbYdkls', align: 'center',width: 120},
+                {title: '预警指标总数(个)', field: 'warningIndexCount', align: 'center',width: 130},
+                {title: '预警指标数-紧急(个)', field: 'warningIndexUrgentCount', align: 'center',width: 150},
+                {title: '预警指标数-告警(个)', field: 'warningIndexAlarmCount', align: 'center',width: 150},
+                {title: '预警指标数-普通(个)', field: 'warningIndexOrdinaryCount', align: 'center',width: 150},
+                {title: '预警总次数(次)', field: 'warningTotalCount', align: 'center',width: 120}
+
+            ]
+        ]
+
+        table.render({
+            elem: '#file-table',
+            url: MODULE_PATH + 'getAppCount',
+            page: true,
+            where: {
+                area:$('#area').val(),
+                areaCode:$('#areaCode').val(),
+                startDate: $('#startDate').val(),
+                endDate: $('#endDate').val()
+            },
+            cols: cols,
+            //skin: 'line',
+            //skin: 'row',
+            border: true,
+            //height: 'full-148',
+            //toolbar: '#role-toolbar',
+            //defaultToolbar: ['print', 'exports'],
+            done: function(res, curr, count) {
+                // 表格渲染完成后初始化拖拽功能
+                //soulTable.render(this);
+            }
+        });
+
+        table.render({
+            elem: '#file-table-sub',
+            url: MODULE_PATH + 'getAppSubCount',
+            page: true,
+            where: {
+                area:$('#area').val(),
+                areaCode:$('#areaCode').val(),
+                startDate: $('#startDate').val(),
+                endDate: $('#endDate').val()
+            },
+            cols: subCols,
+            //skin: 'line',
+            border: true,
+            //height: 'full-148',
+            //toolbar: '#role-toolbar',
+            //defaultToolbar: ['print', 'exports'],
+            done: function() {
+                // 表格渲染完成后初始化拖拽功能
+                //soulTable.render(this);
+            }
+        });
+
+
+
+
+
+        form.on('submit(file-query)', function (data) {
+            table.reload('file-table', {where: data.field});
+            table.reload('file-table-sub', {where: data.field});
+            return false;
+        });
+
+        /**
+         * 初始化查询日期
+         */
+        function initDate(){
+            var currentDate = getCurrentDate();
+            var lastMonthDate = getLastMonthDate();
+
+            // 1. 直接设置 input 的 value（Laydate 会自动更新显示）
+            $('#startDate').val(lastMonthDate);
+            $('#endDate').val(currentDate);
+        }
+
+        // 格式化日期函数
+        function formatDate(date) {
+            var y = date.getFullYear();
+            var m = date.getMonth() + 1;
+            var d = date.getDate();
+            return y + '-' + (m < 10 ? '0' + m : m) + '-' + (d < 10 ? '0' + d : d);
+        }
+
+        // 获取前一个月日期
+        function getLastMonthDate() {
+            var now = new Date();
+            var lastMonth = new Date(now);
+            lastMonth.setMonth(now.getMonth() - 1);
+            return formatDate(lastMonth);
+        }
+
+        // 获取当前日期
+        function getCurrentDate() {
+            return formatDate(new Date());
+        }
+
+
+        table.on('tool(file-table)', function (obj) {
+            if (obj.event === 'downloadFile') {
+                window.downloadFile(obj);
+            }
+        });
+
+        table.on('toolbar(file-table)', function (obj) {
+            if (obj.event === 'downloadFile') {
+                window.downloadFile(obj);
+            }
+        });
+
+        /**
+         * 导出
+         * @param obj
+         * @returns {boolean}
+         */
+        form.on('submit(downloadFile)', function (data) {
+
+            var area = $("#area").val();
+            var startDate = $("#startDate").val();
+            var endDate = $("#endDate").val();
+            var areaCode = $("#areaCode").val();
+            var href = MODULE_PATH+"downloadFile?area="+area+"&areaCode="+areaCode+"&startDate="+startDate+"&endDate="+endDate;
+
+            window.location.href = href;
+
+        });
+
+
+    })
+</script>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('模板上传')"/>
+</head>
+<body>
+<form action="javascript:void(0);" class="layui-form">
+    <div class="mainBox">
+        <div class="main-container">
+
+            <div style="margin-bottom: 10px;">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">所属区域：</label>
+                    <div class="layui-input-block">
+                        <select id="qySel" name="qySel" lay-filter="qySel">
+                            <!--<option value="0" selected>全疆</option>
+                            <option value="1">区县</option>-->
+                            <option value="全疆" selected>全疆</option>
+                            <option value="乌鲁木齐">乌鲁木齐</option>
+                            <option value="昌吉">昌吉</option>
+                            <option value="克拉玛依">克拉玛依</option>
+                            <option value="石河子">石河子</option>
+                            <option value="奎屯">奎屯</option>
+                            <option value="博州">博州</option>
+                            <option value="伊犁">伊犁</option>
+                            <option value="和田">和田</option>
+                            <option value="哈密">哈密</option>
+                            <option value="克州">克州</option>
+                            <option value="喀什">喀什</option>
+                            <option value="阿克苏">阿克苏</option>
+                            <option value="吐鲁番">吐鲁番</option>
+                            <option value="巴州">巴州</option>
+                            <option value="塔城">塔城</option>
+                            <option value="阿勒泰">阿勒泰</option>
+                        </select>
+
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="white-space: nowrap;">模板类型：</label>
+                    <div class="layui-input-block">
+                        <input name="modelType" title="日报" type="radio" value="1" checked lay-filter="modelType">
+                        <input name="modelType" title="月报" type="radio" value="2" lay-filter="modelType">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="white-space: nowrap;padding-left: 15px;">表名：</label>
+                    <div class="layui-input-block">
+                        <input lay-verify="required" class="layui-input" name="tableName" id="tableName" placeholder="查询数据库表名"
+                               type="text">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="white-space: nowrap;padding-left: 15px;">模板参数：</label>
+                    <div class="layui-input-block">
+                        <input lay-verify="required" class="layui-input" name="modelParam" id="modelParam" placeholder="对应模板中xh1,xh2...，按顺序用分号分割"
+                               type="text">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="white-space: nowrap;padding-left: 15px;">背景颜色：</label>
+                    <div class="layui-input-block">
+                        <input class="layui-input" name="backgroundColor" id="backgroundColor" placeholder="黑色255,255,255" type="text">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="white-space: nowrap;padding-left: 15px;">线条颜色：</label>
+                    <div class="layui-input-block">
+                        <input class="layui-input" name="lineColor" id="lineColor" placeholder="黑色black  白色white  红色red  蓝色blue" type="text">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width: 100px;">是否生成图片:</label>
+                    <div class="layui-input-block">
+                        <input name="isCreateImg" title="否" type="radio" value="0" checked lay-filter="isCreateImg">
+                        <input name="isCreateImg" title="是" type="radio" value="1" lay-filter="isCreateImg">
+                    </div>
+                </div>
+
+                <!--<div class="layui-form-item">
+                    <label class="layui-form-label" style="white-space: nowrap;padding-left: 25px;">是否同步转换配置数据：</label>
+                    <div class="layui-input-block" style="padding-left: 70px;">
+                        <input name="autoConvertData" title="否" type="radio" value="0" checked lay-filter="autoConvertData">
+                        <input name="autoConvertData" title="是" type="radio" value="1" lay-filter="autoConvertData">
+                    </div>
+                </div>-->
+
+
+            </div>
+
+            <div class="layui-upload">
+                <button class="pear-btn pear-btn-primary" style="width: 100%;" id="testList" type="button">
+                    <i class="layui-icon layui-icon-upload"></i>
+                    模板上传
+                </button>
+                <div class="layui-upload-list">
+                    <table class="layui-table">
+                        <thead>
+                        <tr>
+                            <th>模板名</th>
+                            <th>大小</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody id="demoList"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label" style="white-space: nowrap;">推送文件名称:</label>
+                <div class="layui-input-block" style="width: 82%;">
+                    <input autocomplete="off" class="layui-input" name="sendFileName" lay-verify="required" id="sendFileName" placeholder="" type="text">
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="bottom">
+        <div class="button-container" style="right: 45%;">
+            <button class="pear-btn pear-btn-primary pear-btn-sm" id="testListAction" type="submit">
+                <i class="layui-icon layui-icon-ok"></i>
+                提交
+            </button>
+            <!--<button class="pear-btn pear-btn-sm" type="reset">
+                <i class="layui-icon layui-icon-refresh"></i>
+                重置
+            </button>-->
+        </div>
+    </div>
+</form>
+<th:block th:include="include :: footer"/>
+<script th:src="@{/pagejs/hdjk/modelAdd.js}" type="text/javascript"></script>
+<script>
+</script>
+</body>
+</html>

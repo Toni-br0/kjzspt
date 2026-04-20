@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('指标预警审批管理')"/>
+</head>
+<body class="pear-container">
+<div class="layui-card">
+    <div class="layui-card-body">
+        <form action="" class="layui-form">
+            <div class="layui-form-item">
+
+                <label class="layui-form-label">指标名称:</label>
+                <div class="layui-input-inline">
+                    <input  class="layui-input"  name="reportName" id="reportName" placeholder="" type="text">
+                </div>
+
+                <label class="layui-form-label">申请人:</label>
+                <div class="layui-input-inline">
+                    <input  class="layui-input"  name="applyPersonName" id="applyPersonName" placeholder="" type="text">
+                </div>
+
+                <button class="pear-btn pear-btn-md pear-btn-primary" lay-filter="file-query" lay-submit>
+                    <i class="layui-icon layui-icon-search"></i>
+                    查询
+                </button>
+                <button class="pear-btn pear-btn-md" type="reset">
+                    <i class="layui-icon layui-icon-refresh"></i>
+                    重置
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="layui-card">
+    <div id="card-body-div" class="layui-card-body" style="background-color: #FFFFFF;">
+        <table id="file-table" lay-filter="file-table"></table>
+    </div>
+</div>
+
+</body>
+
+<script id="role-toolbar" type="text/html">
+
+
+    <button class="pear-btn pear-btn-primary pear-btn-md" lay-event="batchAppr">
+        <i class="layui-icon layui-icon-username"></i>
+        审批
+    </button>
+
+</script>
+
+<script id="role-bar" type="text/html">
+    <button class="pear-btn pear-btn-primary pear-btn-sm" lay-event="leaderAppr"><i class="layui-icon layui-icon-username"></i>
+    </button>
+
+</script>
+
+<script id="file-image" type="text/html">
+    <a href="javascript:void(0);" class="pear-text">查看</a>
+</script>
+
+
+<script id="exec-period" type="text/html">
+    {{#if (d.execPeriod == 'month') { }}
+    <span>月</span>
+    {{# }else if(d.execPeriod == 'week'){ }}
+    <span>周</span>
+    {{# }else if(d.execPeriod == 'day'){ }}
+    <span>日</span>
+
+    {{# } }}
+</script>
+
+<script id="warning-level" type="text/html">
+    {{#if (d.warningLevel == 'urgent') { }}
+    <span>紧急</span>
+    {{# }else if(d.warningLevel == 'ordinary'){ }}
+    <span>普通</span>
+    {{# }else if(d.warningLevel == 'alarm'){ }}
+    <span>告警</span>
+
+    {{# } }}
+</script>
+
+
+<script id="exec-state" type="text/html">
+    {{#if (d.execState == '1') { }}
+    <span>执行中</span>
+    {{# }else if(d.execState == '0'){ }}
+    <span>未执行</span>
+
+    {{# } }}
+</script>
+
+<script id="appr-state" type="text/html">
+    {{#if (d.apprState == '0') { }}
+    <span>未审批</span>
+    {{# }else if(d.apprState == '1'){ }}
+    <span>审批通过</span>
+    {{# }else if(d.apprState == '2'){ }}
+    <span>审批不通过</span>
+
+    {{# } }}
+</script>
+
+
+<script id="index-devi-range" type="text/html">
+    {{#if (d.indexDeviRange == 'above') { }}
+    <span>高于标准值</span>
+    {{# }else if(d.indexDeviRange == 'below'){ }}
+    <span>低于标准值</span>
+
+    {{# } }}
+</script>
+
+<script id="exec-week" type="text/html">
+    {{#if (d.execWeek == 'MONDAY') { }}
+    <span>周一</span>
+    {{# }else if(d.execWeek == 'TUESDAY'){ }}
+    <span>周二</span>
+    {{# }else if(d.execWeek == 'WEDNESDAY'){ }}
+    <span>周三</span>
+    {{# }else if(d.execWeek == 'THURSDAY'){ }}
+    <span>周四</span>
+    {{# }else if(d.execWeek == 'FRIDAY'){ }}
+    <span>周五</span>
+    {{# }else if(d.execWeek == 'SATURDAY'){ }}
+    <span>周六</span>
+    {{# }else if(d.execWeek == 'SUNDAY'){ }}
+    <span>周日</span>
+
+    {{# } }}
+</script>
+
+
+<script id="create-time" type="text/html">
+    {{layui.util.toDateString(d.createTime,  'yyyy-MM-dd HH:mm:ss')}}
+</script>
+
+<script id="appr-time" type="text/html">
+    {{layui.util.toDateString(d.apprTime,  'yyyy-MM-dd HH:mm:ss')}}
+</script>
+
+
+<th:block th:include="include :: footer"/>
+<script>
+    layui.use(['table', 'form', 'jquery', 'popup', 'common'], function () {
+        let table = layui.table;
+        let form = layui.form;
+        let $ = layui.jquery;
+        let popup = layui.popup;
+        let common = layui.common;
+
+        let MODULE_PATH = "/autoData/repIndexWarnApproval/";
+
+        //获取页面高度
+        var pageHeight = $(document).height();
+        $('#card-body-div').height(pageHeight-148);
+
+
+        let cols = [
+            [
+                {type: 'checkbox'},
+                {title: 'ID', field: 'warningId', align: 'center',hide: true},
+                {title: '预警指标ID', field: 'warningIndexId', align: 'center',hide: true},
+                {title: '指标名称', field: 'indexName', align: 'center',width: 180},
+                {title: '所属地市', field: 'localCity', align: 'center',width: 150},
+                {title: '指标标准值', field: 'indexStanValue', align: 'center',width: 120},
+                {title: '指标偏离范围', field: 'indexDeviRange', align: 'center',width: 120,templet: "#index-devi-range"},
+                {title: '预警级别', field: 'warningLevel', align: 'center',width: 120,templet: "#warning-level"},
+                {title: '推送对象ID', field: 'pushObjectId', align: 'center',hide: true},
+                {title: '推送对象', field: 'pushObjectName', align: 'center',width: 180},
+                {title: '其他推送对象ID', field: 'pushOtherObjectId', align: 'center',width: 180,hide: true},
+                {title: '其他推送对象', field: 'pushOtherObjectName', align: 'center',width: 180},
+                {title: '执行周期', field: 'execPeriod', align: 'center',width: 90,templet: "#exec-period"},
+                {title: '执行日期(天)', field: 'execDay', align: 'center',width: 120},
+                /*{title: '执行周', field: 'execWeek', align: 'center',width: 120,templet: "#exec-week"},*/
+                {title: '执行日期(时间点)', field: 'execTime', align: 'center',width: 150},
+                {title: '申请时间', field: 'createTime', align: 'center',templet: "#create-time",width: 160},
+                {title: '创建人', field: 'realName', align: 'center',width: 100},
+                {title: '预警信息', field: 'warningMsg', align: 'center',width: 180},
+                {title: '审批状态', field: 'apprState', align: 'center',width: 100,templet: "#appr-state"},
+                {title: '审批人', field: 'apprPersonName', align: 'center',width: 100},
+                {title: '审批时间', field: 'apprTime', align: 'center',width: 160,templet: "#appr-time"},
+                {title: '审批意见', field: 'applyOpinion', align: 'center',width: 160},
+                {title: '执行状态', field: 'execState', align: 'center',width: 100,templet: "#exec-state"},
+                {title: '操作', toolbar: '#role-bar', align: 'center', width: 150}
+            ]
+        ]
+
+        table.render({
+            elem: '#file-table',
+            url: MODULE_PATH + 'getRepIndexWarnApprovalList',
+            page: true,
+            cols: cols,
+            skin: 'line',
+            //height: 'full-148',
+            toolbar: '#role-toolbar',
+            defaultToolbar: [{
+                title: '刷新',
+                layEvent: 'refresh',
+                icon: 'layui-icon-refresh',
+            }, 'filter', 'print', 'exports']
+        });
+
+        table.on('tool(file-table)', function (obj) {
+            if (obj.event === 'remove') {
+                window.remove(obj);
+            } else if (obj.event === 'file-image') {
+                window.show(obj);
+            } else if (obj.event === 'edit') {
+                window.edit(obj);
+            } else if (obj.event === 'add') {
+                window.add();
+            } else if(obj.event =='editModel'){
+                window.editModel();
+            } else if(obj.event =='leaderAppr'){
+                window.leaderAppr(obj);
+            }else if(obj.event =='batchAppr'){
+                window.batchAppr(obj);
+            }
+        });
+
+        table.on('toolbar(file-table)', function (obj) {
+
+            if (obj.event === 'add') {
+                window.add();
+            } else if (obj.event === 'refresh') {
+                window.refresh();
+            } else if (obj.event === 'batchRemove') {
+                window.batchRemove(obj);
+            } else if (obj.event === 'edit') {
+                window.edit(obj);
+            } else if(obj.event =='editModel'){
+                window.editModel();
+            } else if(obj.event =='leaderAppr'){
+                window.leaderAppr(obj);
+            }else if(obj.event =='batchAppr'){
+                window.batchAppr(obj);
+            }
+        });
+
+        form.on('submit(file-query)', function (data) {
+            table.reload('file-table', {where: data.field})
+            return false;
+        });
+
+
+        /**
+         * 领导审批
+         * @param obj
+         */
+        window.leaderAppr = function (obj) {
+
+            //根据ID获取审批状态
+            let loading = layer.load();
+
+            var paramState = new Object();
+            paramState.warningId = obj.data['warningId'];
+
+            $.ajax({
+                url: "/autoData/repIndexWarnApproval/getApplyState",
+                data: JSON.stringify(paramState),
+                dataType: 'json',
+                contentType: 'application/json',
+                type: 'post',
+                success: function (result) {
+                    layer.close(loading);
+                    if (result.retCode =='0') {
+
+                        layer.open({
+                            type: 2, // 0-4 分别代表不同类型的层
+                            title: '审批',
+                            //content: autoContent,
+                            content: '/autoData/repIndexWarnApproval/toIndexWarnAppr',
+                            area: ['550px', '430px'], // 宽高
+                            offset: 'auto', // 位置
+                            skin: 'custom-layer layer-title-center', // 应用自定义样式类
+                            shadeClose: false, // 点击遮罩不关闭
+                            //zIndex: layer.zIndex + 100, // 确保层级最高（覆盖其他元素）
+                            btn: ['确定', '取消'], // 按钮
+                            yes: function(index, layero){
+                                var iframe = layero.find('iframe')[0];
+
+                                //审批结果
+                                var applyResult = iframe.contentWindow.document.querySelector('input[id="applyResult"]:checked').value;
+
+                                //审批意见
+                                var applyOpinion = iframe.contentWindow.document.getElementById('applyOpinion').value;
+
+                                var warningId = obj.data['warningId'];
+
+                                var param = new Object();
+                                param.warningId = warningId;
+                                param.applyResult = applyResult;
+                                param.applyOpinion = applyOpinion;
+
+                                let loading = layer.load();
+                                $.ajax({
+                                    url: "/autoData/repIndexWarnApproval/saveApplyResult",
+                                    data: JSON.stringify(param),
+                                    dataType: 'json',
+                                    contentType: 'application/json',
+                                    type: 'post',
+                                    success: function (result) {
+                                        layer.close(loading);
+                                        if (result.retCode =='0') {
+                                            popup.success(result.retMsg, function () {
+                                                //obj.del();
+                                                table.reload('file-table');
+                                            });
+                                        } else {
+                                            popup.failure(result.retMsg);
+                                        }
+                                    }
+                                })
+
+                                layer.close(index);
+                            }
+                        })
+
+                    } else {
+                        popup.failure(result.retMsg);
+                    }
+                }
+            })
+
+        }
+
+        /**
+         * 批量审批
+         * @param obj
+         */
+        window.batchAppr = function (obj) {
+
+            let warningIds = common.checkField(obj, 'warningId');
+            if (common.isEmpty(warningIds)) {
+                popup.warning("未选中审批数据");
+                return false;
+            }
+
+            //根据ID获取审批状态
+            let loading = layer.load();
+
+            var paramState = new Object();
+            paramState.warningIds = warningIds;
+
+            $.ajax({
+                url: "/autoData/repIndexWarnApproval/getBatchApplyState",
+                data: JSON.stringify(paramState),
+                dataType: 'json',
+                contentType: 'application/json',
+                type: 'post',
+                success: function (result) {
+                    layer.close(loading);
+                    if (result.retCode =='0') {
+                        layer.open({
+                            type: 2, // 0-4 分别代表不同类型的层
+                            title: '审批',
+                            //content: autoContent,
+                            content: '/autoData/repIndexWarnApproval/toIndexWarnAppr',
+                            area: ['550px', '430px'], // 宽高
+                            offset: 'auto', // 位置
+                            skin: 'custom-layer layer-title-center', // 应用自定义样式类
+                            shadeClose: false, // 点击遮罩不关闭
+                            //zIndex: layer.zIndex + 100, // 确保层级最高（覆盖其他元素）
+                            btn: ['确定', '取消'], // 按钮
+                            yes: function(index, layero){
+                                var iframe = layero.find('iframe')[0];
+
+                                //审批结果
+                                var applyResult = iframe.contentWindow.document.querySelector('input[id="applyResult"]:checked').value;
+
+                                //审批意见
+                                var applyOpinion = iframe.contentWindow.document.getElementById('applyOpinion').value;
+
+
+                                var param = new Object();
+                                param.warningIds = warningIds;
+                                param.applyResult = applyResult;
+                                param.applyOpinion = applyOpinion;
+
+                                let loading = layer.load();
+                                $.ajax({
+                                    url: "/autoData/repIndexWarnApproval/saveBatchApplyResult",
+                                    data: JSON.stringify(param),
+                                    dataType: 'json',
+                                    contentType: 'application/json',
+                                    type: 'post',
+                                    success: function (result) {
+                                        layer.close(loading);
+                                        if (result.retCode =='0') {
+                                            popup.success(result.retMsg, function () {
+                                                //obj.del();
+                                                table.reload('file-table');
+                                            });
+                                        } else {
+                                            popup.failure(result.retMsg);
+                                        }
+                                    }
+                                })
+
+                                layer.close(index);
+                            }
+                        })
+
+                    } else {
+                        popup.failure(result.retMsg);
+                    }
+                }
+            })
+
+        }
+
+
+        window.batchRemove = function (obj) {
+            let infoIds = common.checkField(obj, 'infoId');
+            if (common.isEmpty(infoIds)) {
+                popup.warning("未选中数据");
+                return false;
+            }
+            layer.confirm('确定要删除选中的记录', {icon: 3, title: '提示'}, function (index) {
+                layer.close(index);
+                let loading = layer.load();
+                $.ajax({
+                    url: MODULE_PATH + "batchRemove/" + infoIds,
+                    dataType: 'json',
+                    type: 'delete',
+                    success: function (result) {
+                        layer.close(loading);
+                        if (result.retCode =='0') {
+                            popup.success(result.retMsg, function () {
+                                table.reload('file-table');
+                            });
+                        } else {
+                            popup.failure(result.retMsg);
+                        }
+                    }
+                })
+            });
+        }
+
+        window.edit = function (obj) {
+            layer.open({
+                type: 2,
+                title: '修改',
+                shade: 0.1,
+                area: ['550px', '550px'],
+                content: MODULE_PATH + 'toEditTask?infoId=' + obj.data['infoId']
+            });
+        }
+
+
+
+        window.refresh = function () {
+            table.reload('file-table');
+        }
+    })
+</script>
+</html>

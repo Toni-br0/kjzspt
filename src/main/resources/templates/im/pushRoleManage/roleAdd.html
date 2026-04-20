@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('角色新增')"/>
+</head>
+<body>
+
+<!--加载动画-->
+<div class="loading" style="display: none" id="loadDiv">
+    <span class="top"></span>
+    <span class="bottom"></span>
+</div>
+
+<form class="layui-form">
+    <div class="mainBox">
+        <div class="main-container">
+            <div class="main-container">
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">角色编码：</label>
+                    <div class="layui-input-block" style="margin-left:130px;">
+                        <input autocomplete="off" class="layui-input" lay-verify="required" name="roleCode" id="roleCode" placeholder=""
+                               type="text">
+                    </div>
+
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">角色名称：</label>
+                    <div class="layui-input-block" style="margin-left:130px;">
+                        <input autocomplete="off" class="layui-input" lay-verify="required" name="roleName" id="roleName" placeholder=""
+                               type="text">
+                    </div>
+
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" ><span style="color:red;">*</span>角色等级：</label>
+                    <div class="layui-input-block" style="margin-left:130px;">
+                        <select id="roleLevel" name="roleLevel">
+                            <option value="fgs">分公司</option>
+                            <option value="xf">县分</option>
+                            <option value="zj">支局</option>
+                            <option value="wg">网格</option>
+                        </select>
+
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="white-space: nowrap;width: 100px;">下级文件生成：</label>
+                    <div class="layui-input-block">
+                        <input name="nextLevelFile" id="nextLevelFile" title="是" type="radio" value="1"  lay-filter="modelType">
+                        <input name="nextLevelFile" id="nextLevelFile" title="否" type="radio" value="0" checked lay-filter="modelType">
+                    </div>
+                </div>
+
+                <div class="layui-form-item" style="margin-top:50px; display: flex; justify-content: center; align-items: center;">
+
+                    <!--<button id="btnSubmit" class="pear-btn pear-btn-primary pear-btn-sm" lay-filter="user-save" lay-submit="" type="submit">
+                        &lt;!&ndash;<i class="layui-icon layui-icon-ok"></i>&ndash;&gt;
+                        <i class="layui-icon layui-icon-refresh"></i>
+                        提交
+                    </button>-->
+
+                    <button id="btnSubmit" class="pear-btn pear-btn-sm" lay-filter="user-save" lay-submit="" type="submit">
+                        <!--<i class="layui-icon layui-icon-ok"></i>-->
+                        <i class="layui-icon layui-icon-ok"></i>
+                        提交
+                    </button>
+
+                    &nbsp;&nbsp;
+                    <button id="btnReset" class="pear-btn pear-btn-sm" type="reset">
+                        <i class="layui-icon layui-icon-refresh"></i>
+                        重置
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!--<div class="bottom">
+        <div class="button-container" >
+            <button class="pear-btn pear-btn-primary pear-btn-sm" lay-filter="user-save" lay-submit="" type="submit">
+                <i class="layui-icon layui-icon-ok"></i>
+                提交
+            </button>
+            <button class="pear-btn pear-btn-sm" type="reset">
+                <i class="layui-icon layui-icon-refresh"></i>
+                重置
+            </button>
+        </div>
+    </div>-->
+</form>
+<th:block th:include="include :: footer"/>
+<script th:src="@{/pagejs/im/pushRoleManage/roleAdd.js}" type="text/javascript"></script>
+
+<script>
+</script>
+</body>
+</html>

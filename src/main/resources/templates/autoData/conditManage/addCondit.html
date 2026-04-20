@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('条件新增')"/>
+</head>
+<body>
+
+<!--加载动画-->
+<div class="loading" style="display: none" id="loadDiv">
+    <span class="top"></span>
+    <span class="bottom"></span>
+</div>
+
+<form class="layui-form">
+    <div class="mainBox">
+        <div class="main-container">
+            <div class="main-container">
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red;">*</span>条件编码</label>
+                    <div class="layui-input-block">
+                        <input autocomplete="off" class="layui-input" lay-verify="required" name="conditCode" id="conditCode" placeholder=""
+                               type="text" >
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red;">*</span>条件名称</label>
+                    <div class="layui-input-block">
+                        <input autocomplete="off" class="layui-input" lay-verify="required" name="conditName" id="conditName" placeholder=""
+                               type="text">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red;">*</span>条件值1</label>
+                    <div class="layui-input-block">
+                        <input autocomplete="off" class="layui-input" lay-verify="required" name="conditValue1" id="conditValue1" placeholder=""
+                               type="text">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red;">*</span>条件值2</label>
+                    <div class="layui-input-block">
+                        <input autocomplete="off" class="layui-input" name="conditValue2" id="conditValue2" placeholder=""
+                               type="text">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red;">*</span>条件值3</label>
+                    <div class="layui-input-block">
+                        <input autocomplete="off" class="layui-input" name="conditValue3" id="conditValue3" placeholder=""
+                               type="text">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red;">*</span>条件值4</label>
+                    <div class="layui-input-block">
+                        <input autocomplete="off" class="layui-input"  name="conditValue4" id="conditValue4" placeholder=""
+                               type="text">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red;">*</span>条件值5</label>
+                    <div class="layui-input-block">
+                        <input autocomplete="off" class="layui-input"  name="conditValue5" id="conditValue5" placeholder=""
+                               type="text">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red;">*</span>条件值6</label>
+                    <div class="layui-input-block">
+                        <input autocomplete="off" class="layui-input"  name="conditValue6" id="conditValue6" placeholder=""
+                               type="text">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red;">*</span>条件值7</label>
+                    <div class="layui-input-block">
+                        <input autocomplete="off" class="layui-input"  name="conditValue7" id="conditValue7" placeholder=""
+                               type="text">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red;">*</span>条件值8</label>
+                    <div class="layui-input-block">
+                        <input autocomplete="off" class="layui-input"  name="conditValue8" id="conditValue8" placeholder=""
+                               type="text">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red;">*</span>条件值9</label>
+                    <div class="layui-input-block">
+                        <input autocomplete="off" class="layui-input"  name="conditValue9" id="conditValue9" placeholder=""
+                               type="text">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red;">*</span>条件值10</label>
+                    <div class="layui-input-block">
+                        <input autocomplete="off" class="layui-input"  name="conditValue10" id="conditValue10" placeholder=""
+                               type="text">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red;">*</span>条件值11</label>
+                    <div class="layui-input-block">
+                        <input autocomplete="off" class="layui-input"  name="conditValue11" id="conditValue11" placeholder=""
+                               type="text">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red;">*</span>条件值12</label>
+                    <div class="layui-input-block">
+                        <input autocomplete="off" class="layui-input"  name="conditValue12" id="conditValue12" placeholder=""
+                               type="text">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red;">*</span>条件值13</label>
+                    <div class="layui-input-block">
+                        <input autocomplete="off" class="layui-input"  name="conditValue13" id="conditValue13" placeholder=""
+                               type="text">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red;">*</span>条件值14</label>
+                    <div class="layui-input-block">
+                        <input autocomplete="off" class="layui-input"  name="conditValue14" id="conditValue14" placeholder=""
+                               type="text">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red;">*</span>条件值15</label>
+                    <div class="layui-input-block">
+                        <input autocomplete="off" class="layui-input"  name="conditValue15" id="conditValue15" placeholder=""
+                               type="text">
+                    </div>
+                </div>
+
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="white-space: nowrap;"><span style="color:red;">*</span>排序序号</label>
+                    <div class="layui-input-block">
+                        <input autocomplete="off" class="layui-input" lay-verify="required" name="sortId" id="sortId" placeholder=""
+                               type="number">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="white-space: nowrap;"><span style="color:red;">*</span>所属指标</label>
+                    <div class="layui-input-block">
+                        <ul class="dtree" data-id="0" id="selectParent" name="indexId"></ul>
+                    </div>
+                </div>
+
+                <div class="layui-form-item" style="margin-top:50px; display: flex; justify-content: center; align-items: center;">
+
+                    <!--<button id="btnSubmit" class="pear-btn pear-btn-primary pear-btn-sm" lay-filter="user-save" lay-submit="" type="submit">
+                        &lt;!&ndash;<i class="layui-icon layui-icon-ok"></i>&ndash;&gt;
+                        <i class="layui-icon layui-icon-refresh"></i>
+                        提交
+                    </button>-->
+
+                    <button id="btnSubmit" class="pear-btn pear-btn-sm" lay-filter="user-save" lay-submit="" type="submit">
+                        <!--<i class="layui-icon layui-icon-ok"></i>-->
+                        <i class="layui-icon layui-icon-ok"></i>
+                        提交
+                    </button>
+
+                    &nbsp;&nbsp;
+                    <button id="btnReset" class="pear-btn pear-btn-sm" type="reset">
+                        <i class="layui-icon layui-icon-refresh"></i>
+                        重置
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!--<div class="bottom">
+        <div class="button-container" >
+            <button class="pear-btn pear-btn-primary pear-btn-sm" lay-filter="user-save" lay-submit="" type="submit">
+                <i class="layui-icon layui-icon-ok"></i>
+                提交
+            </button>
+            <button class="pear-btn pear-btn-sm" type="reset">
+                <i class="layui-icon layui-icon-refresh"></i>
+                重置
+            </button>
+        </div>
+    </div>-->
+</form>
+<th:block th:include="include :: footer"/>
+<script>
+
+    layui.use(['form', 'jquery', 'dtree'], function () {
+
+        let form = layui.form;
+        let $ = layui.jquery;
+        let dtree = layui.dtree;
+        var layer = layui.layer;
+
+        dtree.renderSelect({
+            elem: "#selectParent",
+            url: "/autoData/indexManage/indexTree",
+            method: 'get',
+            selectInputName: {nodeId: "indexId", context: "indexName"},
+            skin: "layui",
+            dataFormat: "list",
+            response: {treeId: "indexId", parentId: "parentId", title: "indexName"},
+            selectInitVal: "1"
+        });
+
+
+        //保存提交事件
+        form.on('submit(user-save)', function (data) {
+
+            var param = JSON.stringify(data.field);
+
+            //data.field.modelId = data.field.select;
+            console.log("param: "+param);
+
+            $("#loadDiv").show();
+            $("#btnSubmit").prop("disabled", true);
+            $("#btnReset").prop("disabled", true);
+
+            $.ajax({
+                url: '/autoData/conditManage/saveConditInfo',
+                data: param,
+                dataType: 'json',
+                contentType: 'application/json',
+                type: 'post',
+                success: function (result) {
+
+                    $("#loadDiv").hide();
+                    $("#btnSubmit").prop("disabled", false);
+                    $("#btnReset").prop("disabled", false);
+                    console.log("result: "+JSON.stringify(result));
+                    if (result.retCode == "0") {
+                        layer.msg(result.retMsg, {icon: 1, time: 2500}, function () {
+                            parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+                            parent.layui.table.reload("file-table");
+                        });
+                    } else {
+                        layer.msg(result.retMsg, {icon: 2, time: 3000});
+                    }
+                }
+            })
+            return false;
+        });
+
+        document.getElementById('sortId').addEventListener('input', function(e) {
+            var temp = e.target.value;
+            var reg = /[^0-9]/g; // 正则表达式，匹配非英文字母字符
+            if (reg.test(temp)) {
+                // 如果输入包含非英文字母字符，则移除它们
+                e.target.value = temp.replace(reg, '');
+            }
+        });
+
+    })
+
+
+
+</script>
+<script>
+</script>
+</body>
+</html>

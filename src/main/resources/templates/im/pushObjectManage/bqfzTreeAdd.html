@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('标签分组新增')"/>
+</head>
+<body>
+
+<!--加载动画-->
+<div class="loading" style="display: none" id="loadDiv">
+    <span class="top"></span>
+    <span class="bottom"></span>
+</div>
+
+<form class="layui-form">
+    <div class="mainBox">
+        <div class="main-container">
+            <div class="main-container">
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width: 100px;"><span style="color:red;">*</span>分类类型：</label>
+                    <div class="layui-input-block">
+                        <input name="classType" title="标签分组" type="radio" value="bqwd" checked >
+
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width: 100px;">父维度名称：</label>
+                    <div class="layui-input-block" style="margin-left:130px;">
+                        <ul class="dtree" data-id="0" id="parentWdName" name="parentWdName"></ul>
+                    </div>
+
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width: 100px;"><span style="color:red;">*</span>维度名称：</label>
+                    <div class="layui-input-block" style="margin-left:130px;">
+                        <input class="layui-input" lay-verify="required" name="orgName" id="orgName" placeholder="" type="text">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width: 100px;"><span style="color:red;">*</span>维度ID：</label>
+                    <div class="layui-input-block" style="margin-left:130px;">
+                        <input class="layui-input" lay-verify="required" name="orgId" id="orgId" placeholder="" type="text">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width: 100px;"><span style="color:red;">*</span>层级：</label>
+                    <div class="layui-input-block" style="margin-left:130px;">
+                        <select id="level" name ="level">
+                            <option value="本地网">本地网</option>
+                            <option value="县分">县分</option>
+                            <option value="支局">支局</option>
+                            <option value="网格">网格</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width: 100px;"><span style="color:red;">*</span>排序：</label>
+                    <div class="layui-input-block" style="margin-left:130px;">
+                        <input class="layui-input" lay-verify="required" name="sortId" id="sortId" placeholder="" type="number">
+                    </div>
+                </div>
+
+                <div class="layui-form-item" style="margin-top:50px; display: flex; justify-content: center; align-items: center;">
+
+                    <!--<button id="btnSubmit" class="pear-btn pear-btn-primary pear-btn-sm" lay-filter="user-save" lay-submit="" type="submit">
+                        &lt;!&ndash;<i class="layui-icon layui-icon-ok"></i>&ndash;&gt;
+                        <i class="layui-icon layui-icon-refresh"></i>
+                        提交
+                    </button>-->
+
+                    <button id="btnSubmit" class="pear-btn pear-btn-sm" lay-filter="user-save" lay-submit="" type="submit">
+                        <!--<i class="layui-icon layui-icon-ok"></i>-->
+                        <i class="layui-icon layui-icon-ok"></i>
+                        提交
+                    </button>
+
+                    &nbsp;&nbsp;
+                    <button id="btnReset" class="pear-btn pear-btn-sm" type="reset">
+                        <i class="layui-icon layui-icon-refresh"></i>
+                        重置
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!--<div class="bottom">
+        <div class="button-container" >
+            <button class="pear-btn pear-btn-primary pear-btn-sm" lay-filter="user-save" lay-submit="" type="submit">
+                <i class="layui-icon layui-icon-ok"></i>
+                提交
+            </button>
+            <button class="pear-btn pear-btn-sm" type="reset">
+                <i class="layui-icon layui-icon-refresh"></i>
+                重置
+            </button>
+        </div>
+    </div>-->
+</form>
+<th:block th:include="include :: footer"/>
+<script th:src="@{/pagejs/im/pushObjectManage/bqfzTreeAdd.js}" type="text/javascript"></script>
+</body>
+</html>

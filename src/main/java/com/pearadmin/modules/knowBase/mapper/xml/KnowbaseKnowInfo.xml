@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.pearadmin.modules.knowBase.mapper.KnowbaseKnowInfoMapper">
+
+
+    <select id="selKnowInfoList" resultType="com.pearadmin.modules.knowBase.domain.KnowbaseKnowInfo" parameterType="com.pearadmin.modules.knowBase.domain.KnowbaseKnowInfo">
+        select
+           kn.*,kc.class_name as know_class_name
+         from knowbase_know_info kn
+         LEFT JOIN knowbase_class_info kc on kn.know_class = kc.class_code
+         where
+             1=1
+        <if test="knowbaseKnowInfo.knowClass != null and knowbaseKnowInfo.knowClass != ''">
+            and kn.know_class = #{knowbaseKnowInfo.knowClass}
+        </if>
+        <if test="knowbaseKnowInfo.knowType != null and knowbaseKnowInfo.knowType != ''">
+            and kn.know_type = #{knowbaseKnowInfo.knowType}
+        </if>
+        <if test="knowbaseKnowInfo.knowTitle != null and knowbaseKnowInfo.knowTitle != ''">
+            and (kn.know_title like concat('%',#{knowbaseKnowInfo.knowTitle},'%')
+            or MATCH(know_content) AGAINST (#{knowbaseKnowInfo.knowTitle}))
+        </if>
+        <if test="knowbaseKnowInfo.queryDate != null and knowbaseKnowInfo.queryDate != ''">
+            and date_format(kn.create_time,'%Y-%m-%d') = #{knowbaseKnowInfo.queryDate}
+        </if>
+        <if test="knowbaseKnowInfo.createUserName != null and knowbaseKnowInfo.createUserName != ''">
+            and kn.create_user_name like concat('%',#{knowbaseKnowInfo.createUserName},'%')
+        </if>
+
+            and (kn.share_purv ='all' or kn.create_user_id = #{knowbaseKnowInfo.createUserId})
+
+        order by kn.create_time desc
+
+    </select>
+
+
+    <select id="selKnowInfoByClassCode" resultType="int">
+        select
+        count(*)
+        from knowbase_know_info kn
+        where
+        1=1
+
+        <if test="list.size()>0">
+            AND know_class IN
+            <foreach collection="list" item="knowClass" open="(" separator="," close=")">
+                #{knowClass}
+            </foreach>
+        </if>
+
+    </select>
+
+
+    <select id="selDraftInfoList" resultType="com.pearadmin.modules.knowBase.domain.KnowbaseDraftInfo" parameterType="com.pearadmin.modules.knowBase.domain.KnowbaseKnowInfo">
+        select
+        kn.*,kc.class_name as know_class_name
+        from knowbase_draft_info kn
+        LEFT JOIN knowbase_class_info kc on kn.know_class = kc.class_code
+        where
+        1=1
+        <if test="knowbaseKnowInfo.knowClass != null and knowbaseKnowInfo.knowClass != ''">
+            and kn.know_class = #{knowbaseKnowInfo.knowClass}
+        </if>
+        <if test="knowbaseKnowInfo.knowType != null and knowbaseKnowInfo.knowType != ''">
+            and kn.know_type = #{knowbaseKnowInfo.knowType}
+        </if>
+        <if test="knowbaseKnowInfo.knowTitle != null and knowbaseKnowInfo.knowTitle != ''">
+            and (kn.know_title like concat('%',#{knowbaseKnowInfo.knowTitle},'%')
+            or MATCH(know_content) AGAINST (#{knowbaseKnowInfo.knowTitle}))
+        </if>
+        <if test="knowbaseKnowInfo.queryDate != null and knowbaseKnowInfo.queryDate != ''">
+            and date_format(kn.create_time,'%Y-%m-%d') = #{knowbaseKnowInfo.queryDate}
+        </if>
+        <if test="knowbaseKnowInfo.createUserName != null and knowbaseKnowInfo.createUserName != ''">
+            and kn.create_user_name like concat('%',#{knowbaseKnowInfo.createUserName},'%')
+        </if>
+
+        and (kn.share_purv ='all' or kn.create_user_id = #{knowbaseKnowInfo.createUserId})
+
+        order by kn.create_time desc
+
+    </select>
+
+
+    <select id="selUndercarrInfoList" resultType="com.pearadmin.modules.knowBase.domain.KnowbaseUndercarrInfo" parameterType="com.pearadmin.modules.knowBase.domain.KnowbaseKnowInfo">
+        select
+        kn.*,kc.class_name as know_class_name
+        from knowbase_undercarr_info kn
+        LEFT JOIN knowbase_class_info kc on kn.know_class = kc.class_code
+        where
+        1=1
+        <if test="knowbaseKnowInfo.knowClass != null and knowbaseKnowInfo.knowClass != ''">
+            and kn.know_class = #{knowbaseKnowInfo.knowClass}
+        </if>
+        <if test="knowbaseKnowInfo.knowType != null and knowbaseKnowInfo.knowType != ''">
+            and kn.know_type = #{knowbaseKnowInfo.knowType}
+        </if>
+        <if test="knowbaseKnowInfo.knowTitle != null and knowbaseKnowInfo.knowTitle != ''">
+            and (kn.know_title like concat('%',#{knowbaseKnowInfo.knowTitle},'%')
+            or MATCH(know_content) AGAINST (#{knowbaseKnowInfo.knowTitle}))
+        </if>
+        <if test="knowbaseKnowInfo.queryDate != null and knowbaseKnowInfo.queryDate != ''">
+            and date_format(kn.create_time,'%Y-%m-%d') = #{knowbaseKnowInfo.queryDate}
+        </if>
+        <if test="knowbaseKnowInfo.createUserName != null and knowbaseKnowInfo.createUserName != ''">
+            and kn.create_user_name like concat('%',#{knowbaseKnowInfo.createUserName},'%')
+        </if>
+
+        and (kn.share_purv ='all' or kn.create_user_id = #{knowbaseKnowInfo.createUserId})
+
+        order by kn.create_time desc
+
+    </select>
+
+
+    <select id="selUndercarrInfoByClassCode" resultType="int">
+        select
+        count(*)
+        from knowbase_undercarr_info kn
+        where
+        1=1
+
+        <if test="list.size()>0">
+            AND know_class IN
+            <foreach collection="list" item="knowClass" open="(" separator="," close=")">
+                #{knowClass}
+            </foreach>
+        </if>
+
+    </select>
+
+    <select id="selDraftInfoByClassCode" resultType="int">
+        select
+        count(*)
+        from knowbase_draft_info kn
+        where
+        1=1
+
+        <if test="list.size()>0">
+            AND know_class IN
+            <foreach collection="list" item="knowClass" open="(" separator="," close=")">
+                #{knowClass}
+            </foreach>
+        </if>
+
+    </select>
+
+
+</mapper>

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('任务管理')"/>
+</head>
+<body class="pear-container">
+<div class="layui-card">
+    <div class="layui-card-body">
+        <form action="" class="layui-form">
+            <div class="layui-form-item">
+
+                <label class="layui-form-label">报表名称:</label>
+                <div class="layui-input-inline">
+                    <input  class="layui-input"  name="reportName" id="reportName" placeholder="" type="text">
+                </div>
+
+                <button class="pear-btn pear-btn-md pear-btn-primary" lay-filter="file-query" lay-submit>
+                    <i class="layui-icon layui-icon-search"></i>
+                    查询
+                </button>
+                <button class="pear-btn pear-btn-md" type="reset">
+                    <i class="layui-icon layui-icon-refresh"></i>
+                    重置
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="layui-card">
+    <div id="card-body-div" class="layui-card-body" style="background-color: #FFFFFF;">
+        <table id="file-table" lay-filter="file-table"></table>
+    </div>
+</div>
+
+</body>
+
+<script id="role-toolbar" type="text/html">
+
+    <!--<button class="pear-btn pear-btn-md" lay-event="batchRemove">
+        <i class="layui-icon layui-icon-delete"></i>
+        删除
+    </button>-->
+
+</script>
+
+<script id="role-bar" type="text/html">
+    <button class="pear-btn pear-btn-primary pear-btn-sm" lay-event="edit"><i class="pear-icon pear-icon-edit"></i>
+    </button>
+    <button class="pear-btn pear-btn-danger pear-btn-sm" lay-event="remove"><i class="pear-icon pear-icon-ashbin"></i>
+    </button>
+
+</script>
+
+<script id="file-image" type="text/html">
+    <a href="javascript:void(0);" class="pear-text">查看</a>
+</script>
+
+
+<script id="is-success" type="text/html">
+    {{#if (d.isSuccess == '0') { }}
+    <span>成功</span>
+    {{# }else { }}
+    <span>失败</span>
+    {{# } }}
+</script>
+
+<script id="date-type" type="text/html">
+    {{#if (d.dateType == 'day') { }}
+    <span>日</span>
+    {{# }else if(d.dateType == 'month'){ }}
+    <span>月</span>
+    {{# } }}
+</script>
+
+<script id="send-cycle" type="text/html">
+    {{#if (d.sendCycle == 'daily') { }}
+    <span>每日</span>
+    {{# }else if(d.sendCycle == 'monthly'){ }}
+    <span>每月</span>
+    {{# } }}
+</script>
+
+<script id="create-time" type="text/html">
+    {{layui.util.toDateString(d.createTime,  'yyyy-MM-dd HH:mm:ss')}}
+</script>
+
+<script id="is-non-stand" type="text/html">
+    {{#if (d.isNonStand == '0') { }}
+    <span>是</span>
+    {{# }else if(d.isNonStand == '1'){ }}
+    <span>否</span>
+    {{# } }}
+</script>
+
+<th:block th:include="include :: footer"/>
+<script>
+    layui.use(['table', 'form', 'jquery', 'popup', 'common'], function () {
+        let table = layui.table;
+        let form = layui.form;
+        let $ = layui.jquery;
+        let popup = layui.popup;
+        let common = layui.common;
+
+        let MODULE_PATH = "/autoData/myTaskLog/";
+
+        //获取页面高度
+        var pageHeight = $(document).height();
+        $('#card-body-div').height(pageHeight-148);
+
+
+        let cols = [
+            [
+                {type: 'checkbox'},
+                {title: 'ID', field: 'infoId', align: 'center',hide: true},
+                {title: '报表名称', field: 'reportName', align: 'center'},
+                {title: '执行周期', field: 'sendCycle', align: 'center',width: 90,templet: "#send-cycle"},
+                {title: '执行日期', field: 'sendDay', align: 'center',width: 90},
+                {title: '执行时间点', field: 'sendTime', align: 'center',width: 90},
+                {title: '推送对象', field: 'pushObjectName', align: 'center',width: 260},
+                {title: '执行时间', field: 'createTime', align: 'center',templet: "#create-time",width: 160},
+                {title: '创建人', field: 'createUserName', align: 'center',width: 100},
+                {title: '数据周期', field: 'dateType', align: 'center',templet: "#date-type",width: 90},
+                {title: '标准维度', field: 'isNonStand', align: 'center',templet: "#is-non-stand",width: 90},
+                {title: '执行结果', field: 'isSuccess', align: 'center',templet: "#is-success",width: 90},
+                {title: '结果信息', field: 'interRetmsg', align: 'center',width: 150},
+                {title: 'SQL语句', field: 'sqlContent', align: 'center',hide: true},
+                {title: '文件路径', field: 'filePath', align: 'center',hide: true}
+            ]
+        ]
+
+        table.render({
+            elem: '#file-table',
+            url: MODULE_PATH + 'getMyTaskLogList',
+            page: true,
+            cols: cols,
+            skin: 'line',
+            //height: 'full-148',
+            toolbar: '#role-toolbar',
+            defaultToolbar: [{
+                title: '刷新',
+                layEvent: 'refresh',
+                icon: 'layui-icon-refresh',
+            }, 'filter', 'print', 'exports']
+        });
+
+        table.on('tool(file-table)', function (obj) {
+            if (obj.event === 'remove') {
+                window.remove(obj);
+            } else if (obj.event === 'file-image') {
+                window.show(obj);
+            } else if (obj.event === 'edit') {
+                window.edit(obj);
+            } else if (obj.event === 'add') {
+                window.add();
+            } else if(obj.event =='editModel'){
+                window.editModel();
+            }
+        });
+
+        table.on('toolbar(file-table)', function (obj) {
+
+            if (obj.event === 'add') {
+                window.add();
+            } else if (obj.event === 'refresh') {
+                window.refresh();
+            } else if (obj.event === 'batchRemove') {
+                window.batchRemove(obj);
+            } else if (obj.event === 'edit') {
+                window.edit(obj);
+            } else if(obj.event =='editModel'){
+                window.editModel();
+            }
+        });
+
+        form.on('submit(file-query)', function (data) {
+            table.reload('file-table', {where: data.field})
+            return false;
+        });
+
+        window.remove = function (obj) {
+            layer.confirm('确定要删除该记录', {icon: 3, title: '提示'}, function (index) {
+                layer.close(index);
+                let loading = layer.load();
+                $.ajax({
+                    url: MODULE_PATH + "remove/" + obj.data['infoId'],
+                    dataType: 'json',
+                    type: 'delete',
+                    success: function (result) {
+                        layer.close(loading);
+                        if (result.retCode =='0') {
+                            popup.success(result.retMsg, function () {
+                                //obj.del();
+                                table.reload('file-table');
+                            });
+                        } else {
+                            popup.failure(result.retMsg);
+                        }
+                    }
+                })
+            });
+        }
+
+        window.batchRemove = function (obj) {
+            let infoIds = common.checkField(obj, 'infoId');
+            if (common.isEmpty(infoIds)) {
+                popup.warning("未选中数据");
+                return false;
+            }
+            layer.confirm('确定要删除选中的记录', {icon: 3, title: '提示'}, function (index) {
+                layer.close(index);
+                let loading = layer.load();
+                $.ajax({
+                    url: MODULE_PATH + "batchRemove/" + infoIds,
+                    dataType: 'json',
+                    type: 'delete',
+                    success: function (result) {
+                        layer.close(loading);
+                        if (result.retCode =='0') {
+                            popup.success(result.retMsg, function () {
+                                table.reload('file-table');
+                            });
+                        } else {
+                            popup.failure(result.retMsg);
+                        }
+                    }
+                })
+            });
+        }
+
+        window.edit = function (obj) {
+            layer.open({
+                type: 2,
+                title: '修改',
+                shade: 0.1,
+                area: ['550px', '550px'],
+                content: MODULE_PATH + 'toEditTask?infoId=' + obj.data['infoId']
+            });
+        }
+
+
+
+        window.refresh = function () {
+            table.reload('file-table');
+        }
+    })
+</script>
+</html>

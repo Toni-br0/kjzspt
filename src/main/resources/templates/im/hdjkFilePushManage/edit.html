@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('活动监控推送管理修改')"/>
+</head>
+<body>
+
+<!--加载动画-->
+<div class="loading" style="display: none" id="loadDiv">
+    <span class="top"></span>
+    <span class="bottom"></span>
+</div>
+
+<form class="layui-form">
+    <div class="mainBox">
+        <div class="main-container">
+            <div class="main-container">
+                <input name="manageId" id="manageId" type="hidden" th:value="${imRbFilePushManage.manageId}">
+                <input name="selModelId" id="selModelId" type="hidden" th:value="${imRbFilePushManage.modelId}">
+                <input name="selPushObjectPeriod" id="selPushObjectPeriod" type="hidden" th:value="${imRbFilePushManage.pushObjectPeriod}">
+                <input name="selIsPushLeader" id="selIsPushLeader" type="hidden" th:value="${imRbFilePushManage.isPushLeader}">
+
+                <input name="querySendObjectWeek" id="querySendObjectWeek" type="hidden" th:value="${imRbFilePushManage.sendObjectWeek}">
+                <input name="querySendObjectDay" id="querySendObjectDay" type="hidden" th:value="${imRbFilePushManage.sendObjectDay}">
+                <input name="querySendObjectTime" id="querySendObjectTime" type="hidden" th:value="${imRbFilePushManage.sendObjectTime}">
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red;">*</span>模板</label>
+                    <div class="layui-input-block">
+                        <div id="modelSel" class="xm-select-demo"></div>
+                        <input class="layui-input" lay-verify="required" name="modelId" id="modelId" type="hidden" th:value="${imRbFilePushManage.modelId}"/>
+                        <input class="layui-input" lay-verify="required" name="modelName" id="modelName" type="hidden" th:value="${imRbFilePushManage.modelName}"/>
+                    </div>
+                </div>
+
+                <!--<div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red;">*</span>模板</label>
+                    <div class="layui-input-block">
+                        <ul class="dtree" data-id="0" id="selectModel" name="modelId"></ul>
+                    </div>
+
+                </div>-->
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red;">*</span>推送对象</label>
+                    <div class="layui-input-block">
+                        <!--<textarea class="layui-textarea" name="pushObject" id="pushObject" lay-verify="required"></textarea>-->
+
+                        <div id="pushObjectSel" class="xm-select-demo"></div>
+                        <input class="layui-input" lay-verify="required" name="pushObjectId" id="pushObjectId" type="hidden" th:value="${imRbFilePushManage.pushObjectId}"/>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="white-space: nowrap;margin-right: 10px;"><span style="color:red;">*</span>推送对象周期:</label>
+                    <div class="layui-input-block">
+                        <input name="pushObjectPeriod" title="每日" type="radio" value="day"  lay-filter="pushObjectPeriodFilter" th:checked="${imRbFilePushManage.pushObjectPeriod eq 'day'}">
+                        <input name="pushObjectPeriod" title="每周" type="radio" value="week" lay-filter="pushObjectPeriodFilter" th:checked="${imRbFilePushManage.pushObjectPeriod eq 'week'}">
+                        <input name="pushObjectPeriod" title="每月" type="radio" value="month" lay-filter="pushObjectPeriodFilter" th:checked="${imRbFilePushManage.pushObjectPeriod eq 'month'}">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="white-space: nowrap;margin-right: 10px;"><span style="color:red;">*</span>推送对象时间:</label>
+                    <div class="layui-input-block" style="display: flex;margin-left: 0px;">
+                        <div id="selSendObjectMonthDiv" style="margin-left: 20px; display: none;">
+                            <select id="selSendObjectMonth" style="width: 90px;height: 28px;border-color: #EEEEEE;">
+
+                            </select>
+                        </div>
+
+                        <div id="selSendObjectWeekDiv" style="margin-left: 20px; display: none;">
+                            <select id="selSendObjectWeek" style="width: 90px;height: 28px;border-color: #EEEEEE;">
+                                <option value="MONDAY">周一</option>
+                                <option value="TUESDAY">周二</option>
+                                <option value="WEDNESDAY">周三</option>
+                                <option value="THURSDAY">周四</option>
+                                <option value="FRIDAY">周五</option>
+                                <option value="SATURDAY">周六</option>
+                                <option value="SUNDAY">周天</option>
+                            </select>
+                        </div>
+
+                        <div style="margin-left: 20px;">
+                            <select id="selSendObjectHour" style="width: 90px;height: 28px;border-color: #EEEEEE;">
+                                <option value="00">0时</option>
+                                <option value="01">1时</option>
+                                <option value="02">2时</option>
+                                <option value="03">3时</option>
+                                <option value="04">4时</option>
+                                <option value="05">5时</option>
+                                <option value="06">6时</option>
+                                <option value="07">7时</option>
+                                <option value="08">8时</option>
+                                <option value="09">9时</option>
+                                <option value="10">10时</option>
+                                <option value="11">11时</option>
+                                <option value="12">12时</option>
+                                <option value="13">13时</option>
+                                <option value="14">14时</option>
+                                <option value="15">15时</option>
+                                <option value="16">16时</option>
+                                <option value="17">17时</option>
+                                <option value="18">18时</option>
+                                <option value="19">19时</option>
+                                <option value="20">20时</option>
+                                <option value="21">21时</option>
+                                <option value="22">22时</option>
+                                <option value="23">23时</option>
+                                <option value="24">24时</option>
+                            </select>
+                        </div>
+                        <div style="margin-left: 20px;">
+                            <select class="form-control" id="selSendObjectMinute" style="width: 90px;height: 28px;;border-color: #EEEEEE;">
+                                <option value="00">0分</option>
+                                <option value="01">1分</option>
+                                <option value="02">2分</option>
+                                <option value="03">3分</option>
+                                <option value="04">4分</option>
+                                <option value="05">5分</option>
+                                <option value="06">6分</option>
+                                <option value="07">7分</option>
+                                <option value="08">8分</option>
+                                <option value="09">9分</option>
+                                <option value="10">10分</option>
+                                <option value="11">11分</option>
+                                <option value="12">12分</option>
+                                <option value="13">13分</option>
+                                <option value="14">14分</option>
+                                <option value="15">15分</option>
+                                <option value="16">16分</option>
+                                <option value="17">17分</option>
+                                <option value="18">18分</option>
+                                <option value="19">19分</option>
+                                <option value="20">20分</option>
+                                <option value="21">21分</option>
+                                <option value="22">22分</option>
+                                <option value="23">23分</option>
+                                <option value="24">24分</option>
+                                <option value="25">25分</option>
+                                <option value="26">26分</option>
+                                <option value="27">27分</option>
+                                <option value="28">28分</option>
+                                <option value="29">29分</option>
+                                <option value="30">30分</option>
+                                <option value="31">31分</option>
+                                <option value="32">32分</option>
+                                <option value="33">33分</option>
+                                <option value="34">34分</option>
+                                <option value="35">35分</option>
+                                <option value="36">36分</option>
+                                <option value="37">37分</option>
+                                <option value="38">38分</option>
+                                <option value="39">39分</option>
+                                <option value="40">40分</option>
+                                <option value="41">41分</option>
+                                <option value="42">42分</option>
+                                <option value="43">43分</option>
+                                <option value="44">44分</option>
+                                <option value="45">45分</option>
+                                <option value="46">46分</option>
+                                <option value="47">47分</option>
+                                <option value="48">48分</option>
+                                <option value="49">49分</option>
+                                <option value="50">50分</option>
+                                <option value="51">51分</option>
+                                <option value="52">52分</option>
+                                <option value="53">53分</option>
+                                <option value="54">54分</option>
+                                <option value="55">55分</option>
+                                <option value="56">56分</option>
+                                <option value="57">57分</option>
+                                <option value="58">58分</option>
+                                <option value="59">59分</option>
+                            </select>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width: 100px;white-space: nowrap;"><span style="color:red;">*</span>自动推送至对象:</label>
+                    <div class="layui-input-block">
+                        <input name="isAutoPush" title="是" type="radio" value="1" lay-filter="isAutoPush">
+                        <input name="isAutoPush" title="否" type="radio" value="0" lay-filter="isAutoPush">
+                        <input name="hidIsAutoPush" id="hidIsAutoPush" type="hidden" th:value="${imRbFilePushManage.isAutoPush}">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width: 100px;white-space: nowrap;"><span style="color:red;">*</span>是否推送领导:</label>
+                    <div class="layui-input-block">
+                        <input name="isPushLeader" title="是" type="radio" value="1" lay-filter="isPushLeaderFilter" th:checked="${imRbFilePushManage.isPushLeader eq '1'}">
+                        <input name="isPushLeader" title="否" type="radio" value="0" lay-filter="isPushLeaderFilter" th:checked="${imRbFilePushManage.isPushLeader eq '0'}">
+
+                    </div>
+                </div>
+
+                <div id="isPushLeaderDiv" style="display: none;">
+
+                    <div class="layui-form-item">
+                        <label class="layui-form-label"><span style="color:red;">*</span>推送领导:</label>
+                        <div class="layui-input-block">
+                            <!--<textarea class="layui-textarea" name="pushObject" id="pushObject" lay-verify="required"></textarea>-->
+
+                            <div id="pushLeaderSel" class="xm-select-demo"></div>
+                            <input class="layui-input" name="pushLeaderId" id="pushLeaderId" type="hidden" th:value="${imRbFilePushManage.pushLeaderId}" />
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width: 100px;"><span style="color:red;">*</span>推送图片:</label>
+                    <div class="layui-input-block">
+                        <input name="isPushImg" title="是" type="radio" value="1" lay-filter="isPushImg">
+                        <input name="isPushImg" title="否" type="radio" value="0" checked lay-filter="isPushImg">
+                        <input name="hidIsPushImg" id="hidIsPushImg" type="hidden" th:value="${imRbFilePushManage.isPushImg}">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width: 100px;"><span style="color:red;">*</span>周末正常推送 :</label>
+                    <div class="layui-input-block">
+                        <input name="isWeekendPush" title="是" type="radio" value="1" lay-filter="isWeekendPush" th:checked="${imRbFilePushManage.isWeekendPush eq '1'}">
+                        <input name="isWeekendPush" title="否" type="radio" value="0" checked lay-filter="isWeekendPush" th:checked="${imRbFilePushManage.isWeekendPush eq '0'}">
+
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width: 100px;"><span style="color:red;">*</span>运行状态 :</label>
+                    <div class="layui-input-block">
+                        <input name="runState" title="运行" type="radio" value="1" checked lay-filter="runState" th:checked="${imRbFilePushManage.runState eq '1'}">
+                        <input name="runState" title="停止" type="radio" value="0" lay-filter="runState" th:checked="${imRbFilePushManage.runState eq '0'}">
+                    </div>
+                </div>
+
+                <div class="layui-form-item" style="margin-top:50px; display: flex; justify-content: center; align-items: center;">
+
+                    <!--<button id="btnSubmit" class="pear-btn pear-btn-primary pear-btn-sm" lay-filter="user-save" lay-submit="" type="submit">
+                        &lt;!&ndash;<i class="layui-icon layui-icon-ok"></i>&ndash;&gt;
+                        <i class="layui-icon layui-icon-refresh"></i>
+                        提交
+                    </button>-->
+
+                    <button id="btnSubmit" class="pear-btn pear-btn-sm" lay-filter="user-save" lay-submit="" type="submit">
+                        <!--<i class="layui-icon layui-icon-ok"></i>-->
+                        <i class="layui-icon layui-icon-ok"></i>
+                        提交
+                    </button>
+
+                    &nbsp;&nbsp;
+                    <!--<button id="btnReset" class="pear-btn pear-btn-sm" type="reset">
+                        <i class="layui-icon layui-icon-refresh"></i>
+                        重置
+                    </button>-->
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!--<div class="bottom">
+        <div class="button-container" >
+            <button class="pear-btn pear-btn-primary pear-btn-sm" lay-filter="user-save" lay-submit="" type="submit">
+                <i class="layui-icon layui-icon-ok"></i>
+                提交
+            </button>
+            <button class="pear-btn pear-btn-sm" type="reset">
+                <i class="layui-icon layui-icon-refresh"></i>
+                重置
+            </button>
+        </div>
+    </div>-->
+</form>
+<th:block th:include="include :: footer"/>
+<script>
+
+    layui.use(['form', 'jquery', 'dtree'], function () {
+
+        let form = layui.form;
+        let $ = layui.jquery;
+        let dtree = layui.dtree;
+        var layer = layui.layer;
+
+        var modelIdValue = $("#selModelId").val();
+        var selPushObjectId = $("#selPushObjectId").val();
+        var manageId = $("#manageId").val();
+
+        var hidIsAutoPush = $("#hidIsAutoPush").val();
+        // 页面加载后
+        document.querySelector('input[name="isAutoPush"][value="'+hidIsAutoPush+'"]').checked = true;
+
+        var hidIsPushImg = $("#hidIsPushImg").val();
+        if(hidIsPushImg.trim()==""){
+            hidIsPushImg = "0";
+        }
+        // 页面加载后
+        document.querySelector('input[name="isPushImg"][value="'+hidIsPushImg+'"]').checked = true;
+
+        // 更新渲染表单元素状态
+        form.render('radio');
+
+        var selSendObjectMonth = $('#selSendObjectMonth');
+        var daysInMonth = getDaysInMonth();
+
+        // 添加天数选项
+        for (var i = 1; i <= daysInMonth; i++) {
+            // 创建option元素并添加到下拉框
+            if(i <10){
+                selSendObjectMonth.append($('<option>', {
+                    value: '0'+i,
+                    text: i + '日'
+                }));
+
+            }else{
+                selSendObjectMonth.append($('<option>', {
+                    value: i,
+                    text: i + '日'
+                }));
+            }
+
+        }
+
+
+        //获取模板下拉树
+        $.ajax({
+            url: "/im/hdjkFilePushManage/getModelSelectSel?modelId="+modelIdValue,
+            dataType: 'json',
+            contentType: 'application/json',
+            type: 'get',
+            success: function (result) {
+
+                var demo1 = xmSelect.render({
+                    el: '#modelSel',
+                    theme: {
+                        color: '#287ED8',
+                    },
+                    toolbar: {
+                        show: true,
+                        showIcon: false,
+                    },
+                    filterable: true,
+                    paging: true,
+                    pageSize: 5,
+                    layVerify: 'required',
+                    radio: true,
+                    on: function(data){
+                        //arr:  当前多选已选中的数据
+                        var arr = data.arr;
+
+                        var dataLength = arr.length;
+                        if(dataLength >0) {
+                            var modelIds = "";
+                            var modelName ="";
+                            for (var i = 0; i < dataLength; i++) {
+                                var selData = arr[i];
+                                if(i !=0){
+                                    modelIds +=","+selData.value;
+                                    modelName +=","+selData.name;
+                                }else{
+                                    modelIds +=selData.value;
+                                    modelName +=selData.name;
+                                }
+                            }
+
+                            //console.log("modelIds: "+modelIds);
+                            $("#modelId").val(modelIds);
+                            $("#modelName").val(modelName);
+                        }
+                    },
+                    data: result
+                });
+            }
+        });
+
+        //获取推送对象下拉框
+        $.ajax({
+            url: '/im/pushObjectManage/getRbPushObjectManageSelectSel?manageId='+manageId,
+            dataType: 'json',
+            contentType: 'application/json',
+            type: 'get',
+            async: false,
+            success: function (result) {
+
+                var demo1 = xmSelect.render({
+                    el: '#pushObjectSel',
+                    theme: {
+                        color: '#287ED8',
+                    },
+                    toolbar: {
+                        show: true,
+                        showIcon: false,
+                    },
+                    filterable: true,
+                    paging: true,
+                    pageSize: 5,
+                    layVerify: 'required',
+                    /*radio: true,*/
+                    on: function(data){
+                        //arr:  当前多选已选中的数据
+                        var arr = data.arr;
+
+                        var dataLength = arr.length;
+                        if(dataLength >0) {
+                            var pushObjectIds = "";
+                            for (var i = 0; i < dataLength; i++) {
+                                var selData = arr[i];
+
+                                if(i!=0){
+                                    pushObjectIds = pushObjectIds +";"+selData.id;
+                                }else{
+                                    pushObjectIds = pushObjectIds +selData.id;
+                                }
+                            }
+
+                            //console.log("modelIds: "+modelIds);
+                            $("#pushObjectId").val(pushObjectIds);
+
+                            console.log("pushObjectIds: "+pushObjectIds);
+
+                        }
+                    },
+
+                    data: result
+                });
+            }
+        });
+
+        var pushLeaderXmSelect;
+        //获取推送领导下拉框
+        $.ajax({
+            url: '/im/pushObjectManage/getRbPushLeaderManageSelectSel?manageId='+manageId,
+            dataType: 'json',
+            contentType: 'application/json',
+            type: 'get',
+            async: false,
+            success: function (result) {
+
+                pushLeaderXmSelect = xmSelect.render({
+                    el: '#pushLeaderSel',
+                    theme: {
+                        color: '#287ED8',
+                    },
+                    toolbar: {
+                        show: true,
+                        showIcon: false,
+                    },
+                    filterable: true,
+                    paging: true,
+                    pageSize: 5,
+                    /*radio: true,*/
+                    on: function(data){
+                        //arr:  当前多选已选中的数据
+                        var arr = data.arr;
+
+                        var dataLength = arr.length;
+                        if(dataLength >0) {
+                            var pushLeaderIds = "";
+                            for (var i = 0; i < dataLength; i++) {
+                                var selData = arr[i];
+
+                                if(i!=0){
+                                    pushLeaderIds = pushLeaderIds +";"+selData.id;
+                                }else{
+                                    pushLeaderIds = pushLeaderIds +selData.id;
+                                }
+                            }
+
+                            //console.log("modelIds: "+modelIds);
+                            $("#pushLeaderId").val(pushLeaderIds);
+
+                            console.log("pushLeaderIds: "+pushLeaderIds);
+
+                        }
+                    },
+
+                    data: result
+                });
+            }
+        });
+
+        //是否推送领导
+        var selIsPushLeader = $("#selIsPushLeader").val();
+        if(selIsPushLeader == "1"){ //是
+            $("#isPushLeaderDiv").show();
+            pushLeaderXmSelect.options.layVerify = 'required';
+            // 必须调用 update 方法使配置生效
+            pushLeaderXmSelect.update();
+        }else{
+            $("#isPushLeaderDiv").hide();
+            pushLeaderXmSelect.options.layVerify = '';
+            pushLeaderXmSelect.update();
+        }
+
+        //是否推送领导单选事件
+        form.on('radio(isPushLeaderFilter)', function(data){
+            if(data.value == "1"){
+                $("#isPushLeaderDiv").show();
+                pushLeaderXmSelect.options.layVerify = 'required';
+                // 必须调用 update 方法使配置生效
+                pushLeaderXmSelect.update();
+            }else{
+                $("#isPushLeaderDiv").hide();
+                pushLeaderXmSelect.options.layVerify = '';
+                pushLeaderXmSelect.update();
+            }
+        })
+
+        //推送对象周期
+        var selPushObjectPeriod = $("#selPushObjectPeriod").val();
+
+        if(selPushObjectPeriod == "day"){
+            $("#selSendObjectMonthDiv").hide();
+            $("#selSendObjectWeekDiv").hide();
+
+        }else if(selPushObjectPeriod == "week"){
+            $("#selSendObjectMonthDiv").hide();
+            $("#selSendObjectWeekDiv").show();
+
+            var querySendObjectWeek = $("#querySendObjectWeek").val();
+            $("#selSendObjectWeek").val(querySendObjectWeek);
+
+        }else if(selPushObjectPeriod == "month"){
+            $("#selSendObjectMonthDiv").show();
+            $("#selSendObjectWeekDiv").hide();
+
+            var querySendObjectDay = $("#querySendObjectDay").val();
+            $("#selSendObjectMonth").val(querySendObjectDay);
+        }
+
+        var querySendObjectTime = $("#querySendObjectTime").val();
+        if(querySendObjectTime.indexOf(":")>-1){
+            var sendObjHour = querySendObjectTime.substring(0,2);
+            var sendObjMinute = querySendObjectTime.substring(3,5);
+
+            $("#selSendObjectHour").val(sendObjHour);
+            $("#selSendObjectMinute").val(sendObjMinute);
+        }
+
+
+        form.render('select');
+
+        //推送对象周期单选事件
+        form.on('radio(pushObjectPeriodFilter)', function(data){
+            if(data.value == "day"){
+                $("#selSendObjectMonthDiv").hide();
+                $("#selSendObjectWeekDiv").hide();
+            }else if(data.value == "week"){
+                $("#selSendObjectMonthDiv").hide();
+                $("#selSendObjectWeekDiv").show();
+            }else if(data.value == "month"){
+                $("#selSendObjectMonthDiv").show();
+                $("#selSendObjectWeekDiv").hide();
+            }
+        })
+
+        //保存提交事件
+        form.on('submit(user-save)', function (data) {
+
+            //推送对象时分
+            var selSendObjectHour = $("#selSendObjectHour").val();
+            var selSendObjectMinute = $("#selSendObjectMinute").val();
+            var sendObjectTime = selSendObjectHour+":"+selSendObjectMinute;
+            data.field.sendObjectTime = sendObjectTime;
+
+            //推送对象周期
+            var pushObjectPeriodValue = $('input[name="pushObjectPeriod"]:checked').val();
+            if(pushObjectPeriodValue == "day"){ //天
+                data.field.sendObjectWeek = "";
+                data.field.sendObjectDay = "";
+            }else if(pushObjectPeriodValue == "week"){ //周
+                var selSendObjectWeekValue = $("#selSendObjectWeek").val();
+                data.field.sendObjectWeek = selSendObjectWeekValue;
+                data.field.sendObjectDay = "";
+            }else if(pushObjectPeriodValue == "month"){ //月
+                var selSendObjectMonthValue = $("#selSendObjectMonth").val();
+                data.field.sendObjectDay = selSendObjectMonthValue;
+                data.field.sendObjectWeek = "";
+            }
+
+            data.field.execState = "0";
+
+            var param = JSON.stringify(data.field);
+
+            //data.field.modelId = data.field.select;
+            console.log("param: "+param);
+
+            $("#loadDiv").show();
+            $("#btnSubmit").prop("disabled", true);
+            $("#btnReset").prop("disabled", true);
+
+            $.ajax({
+                url: '/im/hdjkFilePushManage/save',
+                data: param,
+                dataType: 'json',
+                contentType: 'application/json',
+                type: 'post',
+                success: function (result) {
+
+                    $("#loadDiv").hide();
+                    $("#btnSubmit").prop("disabled", false);
+                    $("#btnReset").prop("disabled", false);
+
+                    if (result.success) {
+                        layer.msg(result.msg, {icon: 1, time: 2000}, function () {
+                            parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+                            parent.layui.table.reload("file-table");
+                        });
+                    } else {
+                        layer.msg(result.msg, {icon: 2, time: 2000});
+                    }
+                }
+            })
+            return false;
+        });
+
+        // 获取当月天数
+        function getDaysInMonth() {
+            const date = new Date(); // 当前日期
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1; // 月份从0开始，需+1
+
+            // 下个月的第0天 = 当前月的最后一天
+            return new Date(year, month, 0).getDate();
+        }
+
+    })
+
+
+
+</script>
+</body>
+</html>

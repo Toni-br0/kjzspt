@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <th:block th:include="include :: header('修改我的任务')"/>
+
+</head>
+<body>
+
+<!--加载动画-->
+<div class="loading" style="display: none" id="loadDiv">
+    <span class="top"></span>
+    <span class="bottom"></span>
+</div>
+
+<!--<form class="layui-form">-->
+<div class="mainBox">
+
+    <div class="main-container">
+        <input autocomplete="off" class="layui-input" lay-verify="required" name="infoId" id="infoId" placeholder=""
+               type="hidden" th:value="${reportAutoCreateInfo.infoId}">
+
+        <input autocomplete="off" class="layui-input" lay-verify="required" name="hidSendCycle" id="hidSendCycle" placeholder=""
+               type="hidden" th:value="${reportAutoCreateInfo.sendCycle}">
+
+        <input autocomplete="off" class="layui-input" name="hidSendDay" id="hidSendDay" placeholder=""
+               type="hidden" th:value="${reportAutoCreateInfo.sendDay}">
+
+        <input autocomplete="off" class="layui-input" lay-verify="required" name="hidSendTime" id="hidSendTime" placeholder=""
+               type="hidden" th:value="${reportAutoCreateInfo.sendTime}">
+
+        <input type="hidden" id="addPushLeaderId" name="addPushLeaderId" style="width: 310px;height: 28px;" />
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">报表名称</label>
+            <div class="layui-input-block">
+                <input autocomplete="off" class="layui-input" lay-verify="required" name="autoReportName" id="autoReportName" placeholder=""
+                       type="text" th:value="${reportAutoCreateInfo.reportName}">
+            </div>
+        </div>
+
+        <div class="layui-form-item" style="display: flex;">
+            <label class="layui-form-label">执行周期</label>
+
+            <input type="radio" id="sendCycle" name="sendCycle" value="daily" th:checked="${reportAutoCreateInfo.sendCycle eq 'daily'}" onclick="sendCycleFilter(this)" style="width: 19px;height: 19px; margin-top: 8px;display: flex;" />
+            <div style="display: flex; margin-left: 5px;margin-top: 8px;">每日</div>
+            <input type="radio" id="sendCycle" name="sendCycle" value="monthly" th:checked="${reportAutoCreateInfo.sendCycle eq 'monthly'}" onclick="sendCycleFilter(this)" style="width: 19px;height: 19px; margin-top: 8px;margin-left: 30px;display: flex;" />
+            <div style="display: flex; margin-left: 5px;margin-top: 8px;">每月</div>
+
+            <!--<input name="sendCycle" title="每日" type="radio" value="daily" th:checked="${reportAutoCreateInfo.sendCycle eq 'daily'}" lay-filter="sendCycleFilter"/>
+            <input name="sendCycle" title="每月" type="radio" value="monthly" th:checked="${reportAutoCreateInfo.sendCycle eq 'monthly'}" lay-filter="sendCycleFilter"/>-->
+
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">执行时间</label>
+
+            <div class="layui-input-inline" style="width: 120px;">
+                <div id="selSendMonthDiv" style="display: none;">
+                    <select id="selSendMonth" name="selSendMonth" lay-filter="selSendMonth" style="width: 90px;height: 28px;border-color: #EEEEEE;">
+
+                    </select>
+                </div>
+            </div>
+
+            <div class="layui-input-inline" style="width: 120px;">
+                <select id="selSendHour" name="selSendHour" lay-filter="selSendHour" lay-verify="required" style="width: 90px;height: 28px;border-color: #EEEEEE;">
+                    <option value="00">0时</option>
+                    <option value="01">1时</option>
+                    <option value="02">2时</option>
+                    <option value="03">3时</option>
+                    <option value="04">4时</option>
+                    <option value="05">5时</option>
+                    <option value="06">6时</option>
+                    <option value="07">7时</option>
+                    <option value="08">8时</option>
+                    <option value="09">9时</option>
+                    <option value="10">10时</option>
+                    <option value="11">11时</option>
+                    <option value="12">12时</option>
+                    <option value="13">13时</option>
+                    <option value="14">14时</option>
+                    <option value="15">15时</option>
+                    <option value="16">16时</option>
+                    <option value="17">17时</option>
+                    <option value="18">18时</option>
+                    <option value="19">19时</option>
+                    <option value="20">20时</option>
+                    <option value="21">21时</option>
+                    <option value="22">22时</option>
+                    <option value="23">23时</option>
+                    <option value="24">24时</option>
+                </select>
+            </div>
+
+            <div class="layui-input-inline" style="width: 120px;">
+                <select id="selSendMinute" name="selSendMinute" lay-filter="selSendMinute" lay-verify="required" style="width: 90px;height: 28px;border-color: #EEEEEE;">
+                    <option value="00">0分</option>
+                    <option value="01">1分</option>
+                    <option value="02">2分</option>
+                    <option value="03">3分</option>
+                    <option value="04">4分</option>
+                    <option value="05">5分</option>
+                    <option value="06">6分</option>
+                    <option value="07">7分</option>
+                    <option value="08">8分</option>
+                    <option value="09">9分</option>
+                    <option value="10">10分</option>
+                    <option value="11">11分</option>
+                    <option value="12">12分</option>
+                    <option value="13">13分</option>
+                    <option value="14">14分</option>
+                    <option value="15">15分</option>
+                    <option value="16">16分</option>
+                    <option value="17">17分</option>
+                    <option value="18">18分</option>
+                    <option value="19">19分</option>
+                    <option value="20">20分</option>
+                    <option value="21">21分</option>
+                    <option value="22">22分</option>
+                    <option value="23">23分</option>
+                    <option value="24">24分</option>
+                    <option value="25">25分</option>
+                    <option value="26">26分</option>
+                    <option value="27">27分</option>
+                    <option value="28">28分</option>
+                    <option value="29">29分</option>
+                    <option value="30">30分</option>
+                    <option value="31">31分</option>
+                    <option value="32">32分</option>
+                    <option value="33">33分</option>
+                    <option value="34">34分</option>
+                    <option value="35">35分</option>
+                    <option value="36">36分</option>
+                    <option value="37">37分</option>
+                    <option value="38">38分</option>
+                    <option value="39">39分</option>
+                    <option value="40">40分</option>
+                    <option value="41">41分</option>
+                    <option value="42">42分</option>
+                    <option value="43">43分</option>
+                    <option value="44">44分</option>
+                    <option value="45">45分</option>
+                    <option value="46">46分</option>
+                    <option value="47">47分</option>
+                    <option value="48">48分</option>
+                    <option value="49">49分</option>
+                    <option value="50">50分</option>
+                    <option value="51">51分</option>
+                    <option value="52">52分</option>
+                    <option value="53">53分</option>
+                    <option value="54">54分</option>
+                    <option value="55">55分</option>
+                    <option value="56">56分</option>
+                    <option value="57">57分</option>
+                    <option value="58">58分</option>
+                    <option value="59">59分</option>
+                </select>
+            </div>
+        </div>
+
+        <!--<div class="layui-form-item">
+            <label class="layui-form-label"><span style="color:red;">*</span>推送对象</label>
+            <div class="layui-input-block">
+
+                <div id="pushObjectSel" class="xm-select-demo"></div>
+                <input class="layui-input" lay-verify="required" name="pushObjectId" id="pushObjectId" type="hidden" th:value="${reportAutoCreateInfo.pushObjectId}"/>
+
+            </div>
+        </div>-->
+
+
+        <div class="layui-input-inline">
+
+            <label class="layui-form-label">推送对象</label>
+            <input class="layui-input" style="width: 62%;" lay-verify="required" name="pushObjectName" id="pushObjectName" type="text" th:value="${reportAutoCreateInfo.pushObjectName}" readonly/>
+            <input class="layui-input" lay-verify="required" name="pushObjectId" id="pushObjectId" type="hidden" th:value="${reportAutoCreateInfo.pushObjectId}"/>
+
+        </div>
+
+        <div class="layui-input-inline">
+            <button id="autoReportBtn" class="pear-btn pear-btn-md pear-btn-primary" style="height: 33px;margin-left: 20px;" lay-filter="pust-leader" lay-submit="" type="submit">
+                推送至领导
+            </button>
+
+        </div>
+
+
+        <!--<div class="layui-form-item">
+            <label class="layui-form-label"><span style="color:red;">*</span>推送领导</label>
+            <div class="layui-input-block">
+
+                <div id="pushObjectSel" class="xm-select-demo"></div>
+                <input class="layui-input" lay-verify="required" name="pushLeaderId" id="pushLeaderId" type="hidden" th:value="${reportAutoCreateInfo.pushLeaderId}"/>
+
+            </div>
+        </div>-->
+
+        <div class="layui-form-item" style="margin-top:50px; display: flex; justify-content: center; align-items: center;">
+
+            <button id="btnSubmit" class="pear-btn pear-btn-sm" lay-filter="user-save" lay-submit="" type="submit" style="margin-top: 30px;">
+                <!--<i class="layui-icon layui-icon-ok"></i>-->
+                <i class="layui-icon layui-icon-ok"></i>
+                提交
+            </button>
+
+            &nbsp;&nbsp;
+            <button id="btnReset" class="pear-btn pear-btn-sm" type="submit" lay-submit="" lay-filter="form-close" style="margin-top: 30px;">
+                <i class="layui-icon layui-icon-close"></i>
+                关闭
+            </button>
+        </div>
+
+    </div>
+</div>
+<!--<div class="bottom">
+    <div class="button-container" >
+        <button class="pear-btn pear-btn-primary pear-btn-sm" lay-filter="user-save" lay-submit="" type="submit">
+            <i class="layui-icon layui-icon-ok"></i>
+            提交
+        </button>
+        <button class="pear-btn pear-btn-sm" type="reset">
+            <i class="layui-icon layui-icon-refresh"></i>
+            重置
+        </button>
+    </div>
+</div>-->
+<!--</form>-->
+<th:block th:include="include :: footer"/>
+<script>
+
+    layui.use(['tree', 'layer','form','laydate','table','popup','element'], function () {
+
+        let form = layui.form;
+        let $ = layui.jquery;
+        let dtree = layui.dtree;
+        var layer = layui.layer;
+        var tree = layui.tree;
+        var laydate = layui.laydate;
+        let table = layui.table;
+        let popup = layui.popup;
+        var element = layui.element;
+
+        var hidSendCycle = $("#hidSendCycle").val();
+        if(hidSendCycle == "monthly"){ //每月
+            initSendDay();
+            initSendTime(hidSendCycle);
+            // 给select添加lay-verify属性
+            $('#selSendMonth').attr('lay-verify', 'required');
+            form.render('select');
+            $("#selSendMonthDiv").show();
+        }else{ //每日
+            // 获取下拉框元素
+            var $selSendMonth = $('#selSendMonth');
+            // 清空下拉框
+            $selSendMonth.empty();
+
+            initSendTime(hidSendCycle);
+
+            // 给select添加lay-verify属性
+            $('#selSendMonth').removeAttr('lay-verify');
+
+            form.render('select');
+            $("#selSendMonthDiv").hide();
+        }
+
+
+        var infoId = $("#infoId").val();
+        //获取推送领导下拉框
+        /*$.ajax({
+            url: '/autoData/myTask/getPushLeaderSel?infoId='+infoId,
+            dataType: 'json',
+            contentType: 'application/json',
+            type: 'get',
+            success: function (result) {
+
+                var demo1 = xmSelect.render({
+                    el: '#pushObjectSel',
+                    theme: {
+                        color: '#287ED8',
+                    },
+                    toolbar: {
+                        show: true,
+                        showIcon: false,
+                    },
+                    filterable: true,
+                    paging: true,
+                    pageSize: 5,
+                    layVerify: 'required',
+                    /!*radio: true,*!/
+                    on: function(data){
+                        //arr:  当前多选已选中的数据
+                        var arr = data.arr;
+
+                        var dataLength = arr.length;
+                        if(dataLength >0) {
+                            var pushLeaderIds = "";
+                            for (var i = 0; i < dataLength; i++) {
+                                var selData = arr[i];
+
+                                if(i!=0){
+                                    pushLeaderIds = pushLeaderIds +";"+selData.id;
+                                }else{
+                                    pushLeaderIds = pushLeaderIds +selData.id;
+                                }
+                            }
+
+                            //console.log("modelIds: "+modelIds);
+                            $("#pushLeaderId").val(pushLeaderIds);
+
+                            console.log("pushLeaderId: "+pushLeaderIds);
+
+                        }else{
+                            $("#pushLeaderId").val("");
+                        }
+                    },
+
+                    data: result
+                });
+            }
+        });*/
+
+
+        /**
+         * 推送至领导
+         */
+        form.on('submit(pust-leader)', function (data) {
+
+            var autoReportName = $("#autoReportName").val();
+            if(autoReportName.trim() == ""){
+                layer.alert("报表名称不能为空");
+                return;
+            }
+
+          layer.open({
+                type: 2, // 0-4 分别代表不同类型的层
+                title: '推送对象申请',
+                //content: autoContent,
+                content: '/autoData/report/selPustLeader',
+                area: ['600px', '630px'], // 宽高
+                offset: 'auto', // 位置
+                skin: 'custom-layer layer-title-center', // 应用自定义样式类
+                shadeClose: false, // 点击遮罩不关闭
+                //zIndex: layer.zIndex + 100, // 确保层级最高（覆盖其他元素）
+                btn: ['确定', '取消'], // 按钮
+                yes: function(index, layero){
+                    var iframe = layero.find('iframe')[0];
+                    var addPushLeaderId = iframe.contentWindow.document.getElementById('addPushLeaderId').value;
+                    if(addPushLeaderId == ""){
+                        layer.alert("请选择推送对象");
+                        return;
+                    }
+
+                    $("#addPushLeaderId").val(addPushLeaderId);
+                    var pustTime = iframe.contentWindow.document.getElementById('pustTime').value;
+                    $("#pushTime").val(pustTime);
+
+                    layer.close(index);
+                }
+            })
+        })
+
+
+        //保存提交事件
+        form.on('submit(user-save)', function (data) {
+            var selSendHour = $("#selSendHour").val();
+            var selSendMinute = $("#selSendMinute").val();
+
+            var infoId = $("#infoId").val();
+            var reportName = $("#autoReportName").val();
+            var sendCycle = $('input[id="sendCycle"]:checked').val();;
+            var sendDay = $("#selSendMonth").val();
+            //var pushLeaderId = $("#pushLeaderId").val();
+            var addPushLeaderId = $("#addPushLeaderId").val();
+
+            if(sendCycle =="daily"){ //每日
+                sendDay = "";
+            }
+
+            data.field.sendTime = selSendHour+":"+selSendMinute;
+
+            var paramObject = new Object();
+            paramObject.infoId = infoId;
+            paramObject.reportName = reportName;
+            paramObject.sendCycle = sendCycle;
+            paramObject.sendDay = sendDay;
+            paramObject.sendTime = selSendHour+":"+selSendMinute;
+            //paramObject.pushLeaderId = pushLeaderId;
+            paramObject.addPushLeaderId = addPushLeaderId;
+
+            var param = JSON.stringify(paramObject);
+
+            //data.field.modelId = data.field.select;
+            console.log("param: "+param);
+
+            $("#loadDiv").show();
+            $("#btnSubmit").prop("disabled", true);
+
+            $.ajax({
+                url: '/autoData/myTask/saveMyTaskInfo',
+                data: param,
+                dataType: 'json',
+                contentType: 'application/json',
+                type: 'post',
+                success: function (result) {
+
+                    $("#loadDiv").hide();
+                    $("#btnSubmit").prop("disabled", false);
+
+                    if (result.success) {
+                        layer.msg(result.msg, {icon: 1, time: 2000}, function () {
+                            parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+                            parent.layui.table.reload("file-table");
+                        });
+                    } else {
+                        layer.msg(result.msg, {icon: 2, time: 2000});
+                    }
+                }
+            })
+            return false;
+        });
+
+        /**
+         * 关闭
+         */
+        form.on('submit(form-close)', function (data) {
+            parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+        })
+
+
+        // 获取当月天数
+        function getDaysInMonth() {
+            const date = new Date(); // 当前日期
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1; // 月份从0开始，需+1
+
+            // 下个月的第0天 = 当前月的最后一天
+            return new Date(year, month, 0).getDate();
+        }
+
+        /**
+         * 给发送日期的天赋值
+         */
+        function initSendDay(){
+            var daysInMonth = getDaysInMonth();
+
+            // 获取下拉框元素
+            var $selSendMonth = $('#selSendMonth');
+            // 清空下拉框
+            $selSendMonth.empty();
+            // 添加天数选项
+            for (var i = 1; i <= daysInMonth; i++) {
+                // 创建option元素并添加到下拉框
+                if(i <10){
+                    $selSendMonth.append($('<option>', {
+                        value: '0'+i,
+                        text: i + '日'
+                    }));
+                }else{
+                    $selSendMonth.append($('<option>', {
+                        value: i,
+                        text: i + '日'
+                    }));
+                }
+
+            }
+
+            // 可选：设置当前日期为默认选中
+            var today = new Date();
+            var currentDay = today.getDate();
+            if(currentDay <10){
+                currentDay = "0"+currentDay;
+            }
+            $selSendMonth.val(currentDay);
+
+        }
+
+        // 监听执行周期单选按钮的选中事件
+        window.sendCycleFilter = function(data) {
+            if (data.value == "monthly") { //每月
+                initSendDay();
+                initSendTime(data.value);
+                // 给select添加lay-verify属性
+                $('#selSendMonth').attr('lay-verify', 'required');
+                form.render('select');
+                $("#selSendMonthDiv").show();
+            } else { //每日
+                // 获取下拉框元素
+                var $selSendMonth = $('#selSendMonth');
+                // 清空下拉框
+                $selSendMonth.empty();
+                initSendTime(data.value);
+                $('#selSendMonth').removeAttr('lay-verify');
+
+                form.render('select');
+                $("#selSendMonthDiv").hide();
+            }
+        };
+
+        function initSendTime(sendCycleValue){
+            if( sendCycleValue== "monthly"){
+                var hidSendDay = $("#hidSendDay").val();
+                if(hidSendDay != ""){
+                    $('select[name="sendDay"]').val(hidSendDay);
+                }
+            }
+
+            var hidSendTime = $("#hidSendTime").val();
+            var hour = hidSendTime.substring(0, 2);
+            var minute = hidSendTime.substring(3, 5);
+
+            $('select[name="selSendHour"]').val(hour);
+            $('select[name="selSendMinute"]').val(minute);
+        }
+
+    })
+
+
+
+</script>
+<script>
+</script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.pearadmin.modules.im.mapper.ImHdjkPushManageMapper">
+
+    <select id="getListByTime" resultType="com.pearadmin.modules.im.domain.ImHdjkPushManage">
+        <![CDATA[
+        select * from im_hdjk_push_manage ihpm
+        where ihpm.run_state ='1' and exec_state ='0'
+          and STR_TO_DATE(ihpm.send_object_time , '%H:%i') > STR_TO_DATE(#{startTime}, '%H:%i')
+          and STR_TO_DATE(ihpm.send_object_time , '%H:%i') <= STR_TO_DATE(#{endTime}, '%H:%i')
+        ]]>
+    </select>
+
+</mapper>

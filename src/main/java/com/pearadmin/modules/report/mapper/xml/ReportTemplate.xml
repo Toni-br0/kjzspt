@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.pearadmin.modules.report.mapper.TemplateInfoMapper">
+
+
+    <select id="selTempInfoList" resultType="com.pearadmin.modules.report.domain.ReportTemplate" >
+        select ri.*,u.real_name create_user_name
+          from report_template ri
+        left join sys_user u on ri.create_by = u.user_id
+         where 1=1
+        <if test="reportTemplate.templateName != null and reportTemplate.templateName != ''">
+            and ri.template_name like "%"#{reportTemplate.templateName}"%"
+
+        </if>
+        <if test="isAdmin == false">
+            and ri.create_by = #{userId}
+        </if>
+
+        order by ri.create_time desc
+
+    </select>
+
+
+
+
+</mapper>

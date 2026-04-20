@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('新建知识')"/>
+
+    <link rel="stylesheet" th:href="@{/component/wangEditor/css/wangEditor.css}" />
+    <link rel="stylesheet" th:href="@{/knowbase/css/addKnow.css}" />
+    <script th:src="@{/component/wangEditor/js/wangEditor.js}"></script>
+
+</head>
+<body>
+
+<form class="layui-form" id="layuiForm">
+    <div id="mainBoxDiv" class="mainBox" style="overflow: auto;">
+        <div class="main-container">
+
+                <div style="margin-left: 20px;">
+                    <div class="fwzs-div">
+                        <div style="display: flex">
+                            <img src="../../knowbase/images/zsfb.png" alt="" style="width: 30px;height: 20px;">
+                        </div>
+                        <div class="fwzs-div">发布知识</div>
+                    </div>
+                    <div class="div-line-top"></div>
+                </div>
+
+                <div id="contentDiv" style="">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">文章类型：</label>
+                        <div class="layui-input-block">
+                            <input checked name="knowType" title="图文" type="radio" value="tw" lay-filter="knowType">
+                            <input  name="knowType" title="文档" type="radio" value="wd" lay-filter="knowType">
+                            <input  name="knowType" title="视频" type="radio" value="sp" lay-filter="knowType">
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">标题：</label>
+                        <div class="layui-input-block" style="width: 50%;">
+                            <input class="layui-input" lay-verify="required" name="knowTitle" id="knowTitle" placeholder="输入30个字以内的标题" type="text">
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">类别：</label>
+                        <div class="layui-input-block" style="width: 50%;">
+                            <!--<select name="knowClassSel" id="knowClassSel" lay-filter="knowClassSel">
+                                <option value="lb1">类别1</option>
+                                <option value="lb2">类别2</option>
+                            </select>-->
+
+                            <div id="knowClassSel" class="xm-select-demo"></div>
+                            <input class="layui-input" lay-verify="required" name="knowClass" id="knowClass" type="hidden" />
+
+                        </div>
+                    </div>
+
+                    <div id="zwbjDiv" class="layui-form-item">
+                        <label class="zwbj-label">正文编辑：</label>
+
+                        <div id="editor—wrapper">
+                            <!-- 工具栏 -->
+                            <div id="toolbar-container"></div>
+                            <!-- 编辑器 -->
+                            <div id="editor-container"></div>
+                        </div>
+                    </div>
+
+                    <div id="spscDiv" class="layui-form-item" style="display: none">
+                        <div class="spsc-div-all">
+                            <div  class="spsc-div">
+                                <div >上传视频：</div>
+                                <div class="spsc-div-sub" id="scspList">
+                                    <div class="spsc-div-img">
+                                        <img src="../../knowbase/images/fileUpload.png" alt="" style="width: 50px;height: 35px;">
+                                    </div>
+                                    <div class="spsc-div-content">
+                                        点击或拖拽文件到此处上传
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="spsc-info-div">
+                            <div class="spsc-info-sub-div">
+                                <table class="layui-table" style="width: 75%;">
+                                    <tbody id="scspInfoDiv"></tbody>
+                                </table>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="layui-form-item" >
+                        <div class="wjsc-div">
+                            <div  class="scfj-div" >
+                                <div >上传附件：</div>
+                                <div class="scfj-div-sub" id="scfjList">
+                                    <div class="scfj-div-img">
+                                        <img src="../../knowbase/images/fileUpload.png" alt="" style="width: 50px;height: 35px;">
+                                    </div>
+                                    <div class="scfj-div-content">
+                                        点击或拖拽文件到此处上传
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="scfm-div">
+                                <div>上传封面：</div>
+                                <div class="scfm-div-sub" id="scfmList">
+                                    <div class="scfm-div-img">
+                                        <img src="../../knowbase/images/fileUpload.png" alt="" style="width: 50px;height: 35px;">
+                                    </div>
+                                    <div class="scfm-div-content">
+                                        点击或拖拽文件到此处上传
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="wjsc-info-div">
+                            <div class="wjsc-info-sub-div" style="margin-right: 15px;">
+                                <table class="layui-table" style="width: 100%;">
+                                    <tbody id="scfjInfoDiv"></tbody>
+                                </table>
+                            </div>
+                            <div class="wjsc-info-sub-div">
+                                <table class="layui-table" style="width: 100%;">
+                                    <tbody id="scfmInfoDiv"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="layui-form-item">
+                        <div class="fxqx-div">
+                            <label class="fxqx-div-label">分享权限：</label>
+                            <div style="display: flex;">
+                                <input checked name="sharePurv" title="分享给所有人" type="radio" value="all">
+                                <input  name="sharePurv" title="仅自己可见" type="radio" value="self">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div class="layui-form-item div-line"></div>
+
+                <div class="layui-form-item">
+                    <div style="margin-left: 25px;">
+                        <button class="pear-btn pear-btn-primary pear-btn-md" id="uploadAll" lay-filter="publish-know" lay-submit="" type="submit">
+                            <i class="layui-icon layui-icon-release"></i>
+                            发布知识
+                        </button>
+
+                        <button class="pear-btn pear-btn-primary pear-btn-md" lay-event="batchPush" style="margin-left: 30px;">
+                            <i class="pear-icon pear-icon-electronics"></i>
+                            预 览
+                        </button>
+
+                        <button class="pear-btn pear-btn-primary pear-btn-md" lay-filter="save-draft" style="margin-left: 30px;" lay-submit="" type="submit">
+                            <i class="layui-icon layui-icon-form"></i>
+                            保存草稿
+                        </button>
+                    </div>
+
+                </div>
+
+
+        </div>
+
+    </div>
+
+</form>
+<th:block th:include="include :: footer"/>
+<script>
+
+    layui.use(['form', 'jquery', 'dtree','laydate','upload','layer'], function () {
+
+        let form = layui.form;
+        let $ = layui.jquery;
+        let dtree = layui.dtree;
+        var laydate = layui.laydate;
+        var upload = layui.upload;
+        var layer = layui.layer;
+
+       /* var elementHeight = $('#mainBoxDiv').height();
+        $("#contentDiv").height(elementHeight-110);*/
+
+        //获取页面高度
+        /*var pageHeight = $(document).height();
+        $('#contentDiv').height(pageHeight-240);*/
+
+        // 存储选择的文件
+        var selectedFiles = {
+            images: [],
+            files: [],
+            videos: []
+        };
+
+        //文本编辑器
+        const { createEditor, createToolbar } = window.wangEditor
+
+        const editorConfig = {
+            placeholder: '请输入内容...',
+            onChange(editor) {
+                const html = editor.getHtml()
+                console.log('editor content', html)
+                // 也可以同步到 <textarea>
+            },
+        }
+
+        const editor = createEditor({
+            selector: '#editor-container',
+            html: '<p><br></p>',
+            config: editorConfig,
+            mode: 'default', // or 'simple'
+        })
+
+        const toolbarConfig = {}
+
+        const toolbar = createToolbar({
+            editor,
+            selector: '#toolbar-container',
+            config: toolbarConfig,
+            mode: 'default', // or 'simple'
+        })
+
+
+        // 监听文章类型单选框的切换事件
+        form.on('radio(knowType)', function(data){
+            if(data.elem.checked){
+
+                if(data.value == "sp"){
+                    $("#zwbjDiv").hide();
+                    $("#spscDiv").show();
+                }else{
+                    $("#zwbjDiv").show();
+                    $("#spscDiv").hide();
+                }
+            }
+
+        });
+
+        //获取类别下拉树
+        $.ajax({
+            url: '/knowBase/classManage/getClassSelect',
+            dataType: 'json',
+            contentType: 'application/json',
+            type: 'get',
+            success: function (result) {
+
+                var demo1 = xmSelect.render({
+                    el: '#knowClassSel',
+                    theme: {
+                        color: '#287ED8',
+                    },
+                    toolbar: {
+                        show: true,
+                        showIcon: false,
+                    },
+                    filterable: true,
+                    paging: true,
+                    pageSize: 10,
+                    height: "500px",
+                    radio: true,
+                    layVerify: 'required',
+                    on: function(data){
+                        //arr:  当前多选已选中的数据
+                        var arr = data.arr;
+                        var dataLength = arr.length;
+                        if(dataLength >0) {
+                            var selClassCode = arr[0].value;
+                            $("#knowClass").val(selClassCode);
+
+                        }
+                    },
+
+                    data: result
+                });
+            }
+        });
+
+
+        //上传附件
+        var uploadScfjList = upload.render({
+            elem: '#scfjList'
+            ,elemList: $('#scfjInfoDiv') //列表元素对象
+            ,url: ''
+            ,accept: 'file'
+            ,multiple: true
+            ,auto: false
+            ,bindAction: '#uploadAll'
+            ,choose: function(obj){
+                var that = this;
+                var files = this.files = obj.pushFile(); //将每次选择的文件追加到文件队列
+                //读取本地文件
+                obj.preview(function(index, file, result){
+                    var tr = $(['<tr id="scfj_'+ index +'">'
+                        ,'<td style="width: 15%;">'+ file.name +'</td>'
+                        ,'<td style="width: 2%;">'
+                        ,'<button class="layui-btn layui-btn-xs layui-btn-danger demo-delete">删除</button>'
+                        ,'</td>'
+                        ,'</tr>'].join(''));
+
+                    // 记录选择的普通文件
+                    selectedFiles.files.push(file);
+
+                    //单个重传
+                    tr.find('.demo-reload').on('click', function(){
+                        obj.upload(index, file);
+                    });
+
+                    //删除
+                    tr.find('.demo-delete').on('click', function(){
+                        delete files[index]; //删除对应的文件
+                        tr.remove();
+                        //uploadListIns.config.elem.next()[0].value = ''; //清空 input file 值，以免删除后出现同名文件不可选
+
+                        // 从selectedFiles中移除
+                        var idx = selectedFiles.files.findIndex(function(item) {
+                            return item.name === file.name;
+                        });
+
+                        if (idx !== -1) {
+                            selectedFiles.files.splice(idx, 1);
+                        }
+
+                    });
+
+                    that.elemList.append(tr);
+                    //element.render('progress'); //渲染新加的进度条组件
+
+
+                });
+            }
+            ,done: function(res, index, upload){ //成功的回调
+                var that = this;
+                //if(res.code == 0){ //上传成功
+                var tr = that.elemList.find('tr#scfj_'+ index)
+                    ,tds = tr.children();
+                tds.eq(3).html(''); //清空操作
+                delete this.files[index]; //删除文件队列已经上传成功的文件
+                return;
+                //}
+                this.error(index, upload);
+            }
+            ,allDone: function(obj){ //多文件上传完毕后的状态回调
+                console.log(obj)
+            }
+            ,error: function(index, upload){ //错误回调
+                var that = this;
+                var tr = that.elemList.find('tr#scfj_'+ index)
+                    ,tds = tr.children();
+                tds.eq(3).find('.demo-reload').removeClass('layui-hide'); //显示重传
+            }
+            ,progress: function(n, elem, e, index){ //注意：index 参数为 layui 2.6.6 新增
+                //element.progress('progress-demo-'+ index, n + '%'); //执行进度条。n 即为返回的进度百分比
+            }
+        });
+
+
+        //上传封面
+        var uploadScfmList = upload.render({
+            elem: '#scfmList'
+            ,elemList: $('#scfmInfoDiv') //列表元素对象
+            ,url: ''
+            ,multiple: false
+            ,auto: false
+            ,accept: 'images'
+            //,exts: 'bmp|jpg|jpeg|gif|png'
+            ,bindAction: '#uploadAll'
+            ,choose: function(obj){
+                var that = this;
+                var files = this.files = obj.pushFile(); //将每次选择的文件追加到文件队列
+                //读取本地文件
+                obj.preview(function(index, file, result){
+                    var tr = $(['<tr id="scfm_'+ index +'">'
+                        ,'<td style="width: 15%;">'+ file.name +'</td>'
+                        ,'<td style="width: 2%;">'
+                        ,'<button class="layui-btn layui-btn-xs layui-btn-danger demo-delete">删除</button>'
+                        ,'</td>'
+                        ,'</tr>'].join(''));
+
+                    // 记录选择的图片文件
+                    selectedFiles.images.push(file);
+
+                    //单个重传
+                    tr.find('.demo-reload').on('click', function(){
+                        obj.upload(index, file);
+                    });
+
+                    //删除
+                    tr.find('.demo-delete').on('click', function(){
+                        delete files[index]; //删除对应的文件
+                        tr.remove();
+                        //uploadListIns.config.elem.next()[0].value = ''; //清空 input file 值，以免删除后出现同名文件不可选
+
+                        // 从selectedFiles中移除
+                        var idx = selectedFiles.images.findIndex(function(item) {
+                            return item.name === file.name;
+                        });
+
+                        if (idx !== -1) {
+                            selectedFiles.images.splice(idx, 1);
+                        }
+                    });
+
+                    that.elemList.append(tr);
+
+                    //element.render('progress'); //渲染新加的进度条组件
+                });
+            }
+            ,done: function(res, index, upload){ //成功的回调
+                var that = this;
+                //if(res.code == 0){ //上传成功
+                var tr = that.elemList.find('tr#scfm_'+ index)
+                    ,tds = tr.children();
+                tds.eq(3).html(''); //清空操作
+                delete this.files[index]; //删除文件队列已经上传成功的文件
+                return;
+                //}
+                this.error(index, upload);
+            }
+            ,allDone: function(obj){ //多文件上传完毕后的状态回调
+                console.log(obj)
+            }
+            ,error: function(index, upload){ //错误回调
+                var that = this;
+                var tr = that.elemList.find('tr#scfm_'+ index)
+                    ,tds = tr.children();
+                tds.eq(3).find('.demo-reload').removeClass('layui-hide'); //显示重传
+            }
+            ,progress: function(n, elem, e, index){ //注意：index 参数为 layui 2.6.6 新增
+                //element.progress('progress-demo-'+ index, n + '%'); //执行进度条。n 即为返回的进度百分比
+            }
+        });
+
+
+        //上传视频
+        var uploadScspList = upload.render({
+            elem: '#scspList'
+            ,elemList: $('#scspInfoDiv') //列表元素对象
+            ,url: ''
+            ,accept: 'video'
+            //,exts: 'mp4|avi|mov|flv|wmv' // 允许上传的视频格式
+            ,multiple: true
+            ,auto: false
+            ,bindAction: '#uploadAll'
+            ,choose: function(obj){
+                var that = this;
+                var files = this.files = obj.pushFile(); //将每次选择的文件追加到文件队列
+                //读取本地文件
+                obj.preview(function(index, file, result){
+                    var tr = $(['<tr id="scsp_'+ index +'">'
+                        ,'<td style="width: 8%;">'+ file.name +'</td>'
+                        ,'<td style="width: 2%;">'
+                        ,'<button class="layui-btn layui-btn-xs layui-btn-danger demo-delete">删除</button>'
+                        ,'</td>'
+                        ,'</tr>'].join(''));
+
+                    selectedFiles.videos.push(file);
+
+                    //单个重传
+                    tr.find('.demo-reload').on('click', function(){
+                        obj.upload(index, file);
+                    });
+
+                    //删除
+                    tr.find('.demo-delete').on('click', function(){
+                        delete files[index]; //删除对应的文件
+                        tr.remove();
+                        //uploadListIns.config.elem.next()[0].value = ''; //清空 input file 值，以免删除后出现同名文件不可选
+
+                        // 从selectedFiles中移除
+                        var idx = selectedFiles.videos.findIndex(function(item) {
+                            return item.name === file.name;
+                        });
+
+                        if (idx !== -1) {
+                            selectedFiles.videos.splice(idx, 1);
+                        }
+
+                    });
+
+                    that.elemList.append(tr);
+
+                    //element.render('progress'); //渲染新加的进度条组件
+                });
+            }
+            ,done: function(res, index, upload){ //成功的回调
+                var that = this;
+                //if(res.code == 0){ //上传成功
+                var tr = that.elemList.find('tr#scsp_'+ index)
+                    ,tds = tr.children();
+                tds.eq(3).html(''); //清空操作
+                delete this.files[index]; //删除文件队列已经上传成功的文件
+                return;
+                //}
+                this.error(index, upload);
+            }
+            ,allDone: function(obj){ //多文件上传完毕后的状态回调
+                console.log(obj)
+            }
+            ,error: function(index, upload){ //错误回调
+                var that = this;
+                var tr = that.elemList.find('tr#scsp_'+ index)
+                    ,tds = tr.children();
+                tds.eq(3).find('.demo-reload').removeClass('layui-hide'); //显示重传
+            }
+            ,progress: function(n, elem, e, index){ //注意：index 参数为 layui 2.6.6 新增
+                //element.progress('progress-demo-'+ index, n + '%'); //执行进度条。n 即为返回的进度百分比
+            }
+        });
+
+        //发布知识
+        form.on('submit(publish-know)', function (data) {
+            var fileTotal = 0;
+
+            var formData = new FormData();
+
+            //标题
+            var knowTitle = $("#knowTitle").val();
+            if(knowTitle.trim().length ==0){
+                layer.msg('标题不能为空', {icon: 2});
+                return false;
+            }
+
+            if(knowTitle.length >30){
+                layer.msg('标题内容不能超过30个字', {icon: 2});
+                return false;
+            }
+
+
+            formData.append('knowTitle', knowTitle);
+
+            //获取文章类型选中的值
+            var knowType = $('input[name="knowType"]:checked').val();
+            //图文 或 文档
+            if(knowType != "sp"){
+                //获取正文编辑的内容
+                var knowContent = editor.getHtml();
+                formData.append('knowContent', knowContent);
+                formData.append('videos', '');
+            }else{ //视频
+                // 添加视频
+                selectedFiles.videos.forEach(function(file, index) {
+                    formData.append('videos', file);
+                    fileTotal++;
+                });
+
+                formData.append('knowContent', "");
+            }
+
+            formData.append('knowType', knowType);
+
+            // 添加封面
+            var fmCount = 0;
+            selectedFiles.images.forEach(function(file, index) {
+                formData.append('images', file);
+                fmCount++;
+                fileTotal++;
+            });
+
+            if(fmCount >1){
+                layer.msg('封面只能上传一个', {icon: 2});
+                return false;
+            }
+
+
+            // 添加附件
+            selectedFiles.files.forEach(function(file, index) {
+                formData.append('files', file);
+                fileTotal++;
+            });
+
+            if(fileTotal >5){
+                layer.msg('上传的文件数不能超过5个', {icon: 2});
+                return false;
+            }
+
+            //类别
+            var knowClass = $('#knowClass').val();
+            formData.append('knowClass', knowClass);
+
+            //获取分享权限选中的值
+            var sharePurv = $('input[name="sharePurv"]:checked').val();
+            formData.append('sharePurv', sharePurv);
+
+            let loading = layer.load();
+            //获取模板下拉树
+            $.ajax({
+                url: '/knowBase/knowManage/publishKnow',
+                type: 'POST',
+                data: formData,
+                async: false,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function (result) {
+                    layer.close(loading);
+                    if(result.retCode == "0"){
+                        //layer.msg(result.retMsg, {icon: 1});
+
+                        /*layer.msg(result.retMsg, {icon: 1, time: 3000}, function () {
+                            form.reset();
+                        })*/
+
+                        layer.msg(result.retMsg, {
+                            icon: 1,
+                            time: 3000,
+                            //shade: 0.6,
+                            success: function (layero, index) {
+
+                            },
+                        }, function () {
+                            //倒计时完成后需要执行的代码
+                            window.location.reload();
+                        });
+
+
+                    }else{
+                        layer.msg(result.retMsg, {icon: 2});
+                    }
+                },
+                error: function (){
+                    layer.close(loading);
+                    layer.msg(result.retMsg, {icon: 2});
+                }
+            });
+            return false;
+        });
+
+
+        //保存草稿
+        form.on('submit(save-draft)', function (data) {
+            var fileTotal = 0;
+
+            var formData = new FormData();
+
+            //标题
+            var knowTitle = $("#knowTitle").val();
+            if(knowTitle.trim().length ==0){
+                layer.msg('标题不能为空', {icon: 2});
+                return false;
+            }
+
+            if(knowTitle.length >30){
+                layer.msg('标题内容不能超过30个字', {icon: 2});
+                return false;
+            }
+
+            formData.append('knowTitle', knowTitle);
+
+            //获取文章类型选中的值
+            var knowType = $('input[name="knowType"]:checked').val();
+            //图文 或 文档
+            if(knowType != "sp"){
+                //获取正文编辑的内容
+                var knowContent = editor.getHtml();
+                formData.append('knowContent', knowContent);
+                formData.append('videos', '');
+            }else{ //视频
+                // 添加视频
+                selectedFiles.videos.forEach(function(file, index) {
+                    formData.append('videos', file);
+                    fileTotal++;
+                });
+
+                formData.append('knowContent', "");
+            }
+
+            formData.append('knowType', knowType);
+
+            // 添加封面
+            var fmCount = 0;
+            selectedFiles.images.forEach(function(file, index) {
+                formData.append('images', file);
+                fmCount++;
+                fileTotal++;
+            });
+
+            if(fmCount >1){
+                layer.msg('封面只能上传一个', {icon: 2});
+                return false;
+            }
+
+
+            // 添加附件
+            selectedFiles.files.forEach(function(file, index) {
+                formData.append('files', file);
+                fileTotal++;
+            });
+
+            if(fileTotal >5){
+                layer.msg('上传的文件数不能超过5个', {icon: 2});
+                return false;
+            }
+
+            //类别
+            var knowClass = $('#knowClass').val();
+            formData.append('knowClass', knowClass);
+
+            //获取分享权限选中的值
+            var sharePurv = $('input[name="sharePurv"]:checked').val();
+            formData.append('sharePurv', sharePurv);
+
+            let loading = layer.load();
+            //获取模板下拉树
+            $.ajax({
+                url: '/knowBase/knowManage/saveDraft',
+                type: 'POST',
+                data: formData,
+                async: false,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function (result) {
+                    layer.close(loading);
+                    if(result.retCode == "0"){
+                        //layer.msg(result.retMsg, {icon: 1});
+
+                        /*layer.msg(result.retMsg, {icon: 1, time: 3000}, function () {
+                            form.reset();
+                        })*/
+
+                        layer.msg(result.retMsg, {
+                            icon: 1,
+                            time: 3000,
+                            //shade: 0.6,
+                            success: function (layero, index) {
+
+                            },
+                        }, function () {
+                            //倒计时完成后需要执行的代码
+                            window.location.reload();
+                        });
+
+
+                    }else{
+                        layer.msg(result.retMsg, {icon: 2});
+                    }
+                },
+                error: function (){
+                    layer.close(loading);
+                    layer.msg(result.retMsg, {icon: 2});
+                }
+            });
+            return false;
+        });
+
+    })
+
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,3064 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('报表详情')"/>
+
+    <style>
+        /* 高亮样式 */
+        .search-highlight {
+            font-weight: bold;
+            background-color: #fffbe6;
+            padding: 0 4px;
+            border-radius: 3px;
+        }
+
+        .quotaHighlight {
+            color: #1e90ff;
+            font-weight: bold;
+        }
+
+        .dimensionHighlight {
+            color: #1e90ff;
+            font-weight: bold;
+        }
+    </style>
+
+</head>
+<body class="pear-container">
+<div class="layui-row layui-col-space10">
+    <div class="layui-col-md3">
+        <div class="layui-card">
+            <div class="layui-card-body" style="border-radius: 1px;">
+                <div class="layui-card nav click-but">
+                    <div class="panel-box">
+                        <input id="currArea" name="currArea" type="hidden" th:value="${currArea}">
+                        <div class="layui-card-header layui-card-header-opt" >分类</div>
+                        <div style="border-bottom: #F0F0F0 dashed 1px;"></div>
+                        <div class="layui-card-body layui-card-body-opt" style="height: 80px;padding: 5px 5px;" >
+                            <div class="layui-form" id="classify">
+                                <!--<input type="checkbox" id="yd"  value="yd" title="移动" lay-skin="primary" lay-filter="optionFilter">
+                                <input type="checkbox" id="kd" value="kd" title="宽带" lay-skin="primary" lay-filter="optionFilter">
+                                <input type="checkbox" id="itv" value="itv" title="ITV" lay-skin="primary" lay-filter="optionFilter">
+                                <input type="checkbox" id="zj" value="zj" title="智家" lay-skin="primary" lay-filter="optionFilter">-->
+
+                                <input lay-skin="primary" name="hobby" th:each="reportClassify:${reportClassifys}"
+                                       th:title="${reportClassify.classifyName}" th:value="${reportClassify.classifyId}" th:id="${reportClassify.classifyId}"
+                                       type="checkbox" lay-filter="optionClassifys">
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-box">
+                        <div class="layui-card-header layui-card-header-opt" style="margin-bottom: 10px;">
+                            指标
+                            <input type="text" id="quotaSearch" name ="quotaSearch" style="width: 60%;height: 20px;margin-left: 5px;"/>
+                            <!--<button style="font-size: 13px;margin-left: 5px;" lay-filter="query-quota-but" lay-submit="" type="submit" >查询</button>-->
+                            <button lay-filter="query-quota-but" lay-submit style="width: 30px;height: 25px;border: none;background-color: #FFFFFF;">
+                                <i class="layui-icon layui-icon-search"></i>
+                            </button>
+                        </div>
+                        <div style="border-bottom: #F0F0F0 dashed 1px;"></div>
+                        <div class="layui-card-body layui-card-body-opt" id="quota"></div>
+                    </div>
+                    <div class="panel-box">
+                        <div style="border: solid 0px blue;width: 100%;height: 25px;display: flex;margin-bottom: 15px;">
+                            <div style="display: flex;">
+                                <button style="font-size: 13px;" lay-filter="sel-all-quanqu" lay-submit="" type="submit" id="btnQq">&nbsp;全区&nbsp; </button>
+                                <button style="font-size: 13px;margin-left: 10px;" lay-filter="sel-all-dishi" lay-submit="" type="submit" id="btnDs"> &nbsp;地市&nbsp; </button>
+                                <button style="font-size: 13px;margin-left: 10px;" lay-filter="sel-all-quxian" lay-submit="" type="submit" id="btnQx"> &nbsp;区县&nbsp; </button>
+                                <button style="font-size: 13px;margin-left: 10px;" lay-filter="sel-all-wangge" lay-submit="" type="submit" id="btnWg"> &nbsp;网格&nbsp; </button>
+                            </div>
+                            <div style="display: flex;"></div>
+                        </div>
+
+                        <div class="layui-form" style="margin-top: 0px;display: flex;">
+                            <div style="display: flex;">
+                                <input type="radio" id="isNonNtand" name="isNonNtand" value="0" title="标准维度" lay-filter="isNonNtandFilter" >
+                            </div>
+                            <div style="display: none;" id="isNonNtandDiv">
+                                <input type="radio" id="isNonNtand" name="isNonNtand" value="1" title="非标准维度" lay-filter="isNonNtandFilter">
+                            </div>
+
+                        </div>
+
+                        <div class="layui-card-header layui-card-header-opt" style="margin-bottom: 10px;">
+                            维度
+                            <input type="text" id="dimensionSearch" name ="dimensionSearch" style="width: 60%;height: 20px;margin-left: 5px;"/>
+                            <!--<button style="font-size: 13px;margin-left: 5px;" lay-filter="query-dimension-but" lay-submit="" type="submit">查询</button>-->
+                            <button lay-filter="query-dimension-but" lay-submit style="width: 30px;height: 25px;border: none;background-color: #FFFFFF;">
+                                <i class="layui-icon layui-icon-search"></i>
+                            </button>
+                        </div>
+                        <div style="border-bottom: #F0F0F0 dashed 1px;"></div>
+                        <div class="layui-card-body layui-card-body-opt"id="dimension"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-col-md9">
+        <div class="layui-card">
+            <div class="layui-card-body">
+                <div class="layui-form-item">
+
+                    <label class="layui-form-label">报表名称：</label>
+                    <div class="layui-input-inline" style="width: 46%;">
+                        <input id="reportName" name="reportName" type="text"  lay-verify="required" placeholder="请输入报表名称" autocomplete="off" class="layui-input">
+                    </div>
+
+                    <!--<label class="layui-form-label">客户：</label>
+                    <div class="layui-input-inline">
+                        <div class="layui-form" style="margin-top: 0px;">
+                            <input type="checkbox" id="zhengqi" name="custType" value="zhengqi" title="政企">
+                            <input type="checkbox" id="gongzhong" name="custType" value="gongzhong" title="公众">
+                        </div>
+                    </div>-->
+                    <label class="layui-form-label">客户类型：</label>
+                    <div class="layui-input-inline">
+
+                        <div class="layui-form" style="margin-top: 0px;">
+                            <select name="custType" id="custType" lay-filter="custTypeSel">
+                                <option value=""></option>
+                                <option th:each="khlx:${zzqsKhlxs}" th:text="${khlx.dataLabel}" th:value="${khlx.dataValue}"></option>
+                            </select>
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">数据周期：</label>
+                    <div class="layui-input-inline" style="width: 18%; border: #e03e2d solid 0px;">
+                        <div class="layui-form" style="margin-top: 0px;">
+                            <input type="radio" id="day" name="dateType" value="day" title="日" lay-filter="dateTypeRadio">
+                            <input type="radio" id="month" name="dateType" value="month" title="月" lay-filter="dateTypeRadio">
+                        </div>
+                    </div>
+
+                    <label class="layui-form-label">分析角色：</label>
+                    <div class="layui-input-inline" style="width: 30%;border: #e03e2d solid 0px;">
+                        <div class="layui-form" style="margin-top: 0px;">
+                            <input type="radio" id="roleType" name="roleType" value="customer" title="客户" checked lay-filter="roleTypeRadio">
+                            <input type="radio" id="roleType" name="roleType" value="user" title="用户" lay-filter="roleTypeRadio">
+                            <input type="radio" id="roleType" name="roleType" value="account" title="账户" lay-filter="roleTypeRadio">
+                        </div>
+                    </div>
+
+                    <label class="layui-form-label">指标类型：</label>
+                    <div class="layui-input-inline" style="width: 10%;border: #e03e2d solid 0px;">
+                        <div class="layui-form" style="margin-top: 0px;">
+                            <input type="radio" id="indexType" name="indexType" value="count" title="统计" checked lay-filter="indexTypeRadio">
+                            <!--<input type="radio" id="indexType" name="indexType" value="details" title="明细" lay-filter="indexTypeRadio">-->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <div style="display: flex;">
+                        <label class="layui-form-label">指标：</label>
+                        <div class="layui-input-inline" style="width: 70%;overflow: auto;">
+                            <div id="col-zone" class="selected-zone"></div>
+                        </div>
+                        <div class="layui-input-inline" style="width: 20%;display: flex;">
+                            <button lay-filter="clear-col-zone" lay-submit style="height: 35px;width: 50px;">
+                                <!--<i class="layui-icon layui-icon-clear"></i>-->
+                                清除
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <div style="display: flex;">
+                        <label class="layui-form-label">维度：</label>
+                        <div class="layui-input-inline" style="width: 70%;overflow: auto;">
+                            <div id="row-zone" class="selected-zone"></div>
+                        </div>
+                        <div class="layui-input-inline" style="width: 20%;display: flex;">
+                            <button lay-filter="clear-row-zone" lay-submit style="height: 35px;width: 50px;">
+                                <!--<i class="layui-icon layui-icon-clear"></i>-->
+                                清除
+                            </button>
+
+                            <form class="layui-form">
+                                <div style="border: red dashed 0px;margin-left: 15px;margin-top: -15px;">
+                                    <input type="checkbox" id="xyjwd" name="xyjwd" value="1"
+                                           title="下一级维度" lay-skin="primary" lay-filter="xyjwdFilter">
+                                </div>
+
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">条件：</label>
+                    <div id="tjDiv" class="layui-input-inline" style="width: 90%;text-align: left;display: flex;justify-content: left;
+                         flex-wrap: wrap;">
+
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="layui-form-item" style="margin-bottom: 0px;">
+                    <label class="layui-form-label">开始日期：</label>
+                    <div class="layui-input-inline" style="width: 10%;border: #e03e2d solid 0px;">
+                        <input type="text" class="layui-input" id="startDate" name="startDate" readonly>
+                    </div>
+                    <label class="layui-form-label">结束日期：</label>
+                    <div class="layui-input-inline" style="width: 10%;border: #e03e2d solid 0px;">
+                        <input type="text" class="layui-input" id="endDate" name="endDate" readonly>
+                    </div>
+
+                    <button class="pear-btn pear-btn-md pear-btn-primary" lay-filter="report-search" lay-submit="" type="submit">
+                        <!--<i class="layui-icon layui-icon-search"></i>-->
+                        查询报表
+                    </button>
+                    <button class="pear-btn pear-btn-md pear-btn-primary" lay-filter="report-reset" lay-submit="" type="submit">
+                        <!--<i class="layui-icon layui-icon-refresh"></i>-->
+                        重置
+                    </button>
+                    <!--<button class="pear-btn pear-btn-md pear-btn-primary" lay-filter="report-save" lay-submit="" type="submit">
+                        <i class="layui-icon layui-icon-add-circle"></i>
+                        保存报表
+                    </button>-->
+
+                    <button class="pear-btn pear-btn-md pear-btn-primary" lay-filter="template-save" lay-submit="" type="submit">
+                        <!--<i class="layui-icon layui-icon-add-circle"></i>-->
+                        保存模板
+                    </button>
+
+                    <button id="exportReport" class="pear-btn pear-btn-md pear-btn-primary" lay-filter="report-export" lay-submit="" type="submit">
+                        <!--<i class="layui-icon layui-icon-export"></i>-->
+                        导出报表
+                    </button>
+                    <button id="autoReportBtn" class="pear-btn pear-btn-md pear-btn-primary" lay-filter="auto-report" lay-submit="" type="submit">
+                        <!--<i class="layui-icon layui-icon-add-circle"></i>-->
+                        自动化报表
+                    </button>
+
+                    <button class="pear-btn pear-btn-md pear-btn-primary" lay-filter="report-return" lay-submit="" type="submit">
+                        <!--<i class="layui-icon layui-icon-return"></i>-->
+                        返回
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="layui-card">
+            <div id="card-body-div" class="layui-card-body" style="background-color: #FFFFFF;">
+                <table id="report-table" lay-filter="report-table"></table>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+
+<th:block th:include="include :: footer"/>
+<script>
+    var urlParams = new URLSearchParams(window.location.search);
+    var templateId = urlParams.get('templateId');
+    //console.log(templateId);
+
+    layui.use(['tree', 'layer','form','laydate','table','popup'], function(){
+
+        var tree = layui.tree;
+        var layer = layui.layer;
+        var form = layui.form;
+        var laydate = layui.laydate;
+        let table = layui.table;
+        let popup = layui.popup;
+        form.render('radio');
+        form.render('checkbox');
+        var $ = layui.$;
+        var quota = false;
+        var col = false;
+        var row = false;
+
+        let loading = layer.load();
+
+        var quota;
+        var dimension;
+        var reportName;
+        var selDateTypeValue =""; //数据周期选中的值
+        var selRoleTypeValue =""; //分析角色选中值
+        var selIndexTypeValue =""; ///指标类型选中值
+
+
+        var zhengqi = document.getElementById('zhengqi');
+        var gongzhong = document.getElementById('gongzhong');
+        var day = document.getElementById('day');
+        var month = document.getElementById('month');
+
+
+        let MODULE_PATH = "/autoData/report/";
+
+        var colZone = document.getElementById('col-zone');
+        var colHeaders = [];
+        var colHeadersArr = [];
+
+        var rowZone = document.getElementById('row-zone');
+        var rowHeaders = [];
+        var rowHeadersArr = [];
+
+        var quotaData = new Array();
+
+        colZone.addEventListener('click', function() {
+            col = true;
+            row = false;
+            this.classList.toggle('active');
+        });
+        rowZone.addEventListener('click', function() {
+            col = false;
+            row = true;
+            this.classList.toggle('active');
+        });
+        // 点击其他地方取消激活状态
+        document.addEventListener('click', function(e) {
+            if (!colZone.contains(e.target)) {
+                colZone.classList.remove('active');
+            }
+            if (!rowZone.contains(e.target)) {
+                rowZone.classList.remove('active');
+            }
+        });
+
+        //设置分类复选框不可用
+        $('input[lay-filter="optionClassifys"]').each(function() {
+            $(this).prop('disabled', true);
+        });
+        form.render('checkbox');
+
+        //设置全区，地市，区县，网格显示不显示
+        var currArea = $("#currArea").val();
+        if(currArea =="hx_latn_name"){ //地市
+            $('#btnQq').hide();
+        }else if(currArea =="hx_area_name"){ //区县
+            $('#btnQq').hide();
+            $('#btnDs').hide();
+        }else if(currArea =="x_hx5_bp_name"){ //网格
+            $('#btnQq').hide();
+            $('#btnDs').hide();
+            $('#btnQx').hide();
+        }
+
+        //选中指标的表名称
+        var checkTableName ="";
+
+        //标准非标准单选按钮选中的是否是同一个值
+        var selIsNonNtandFilterValue ="";
+
+        var param = new Object();
+        param.templateId = templateId;
+        // var loadIndex = layer.load(1, {shade: [0.5, '#000']});
+        $.ajax({
+            url: MODULE_PATH + 'templateInfo',
+            data: JSON.stringify(param),
+            dataType: 'json',
+            contentType: 'application/json',
+            type: 'post',
+            async: false,
+            success: function (result) {
+                layer.close(loading);
+                if (result.retCode == '0') {
+                    dimension = result.dimension;//已选维度
+                    quota = result.quota; // 表的列
+                    reportName = result.templateName;
+                    document.getElementById('reportName').value = result.templateName;
+                    checkTableName = result.indexTableName;
+                    selIsNonNtandFilterValue = result.isNonNtand;
+
+                    /*if (result.custZq != null && result.custZq == '1') {
+                        zhengqi.checked = true;
+                    }
+                    if (result.custGz != null && result.custGz == '1') {
+                        gongzhong.checked = true;
+                    }*/
+
+                    //指标中包含环比的 结束时间为空不可用
+                    if(quota.indexOf("\"indexClass\":\"hb\"") >=0){
+                        $("#endDate").val("");
+                        $("#endDate").attr("disabled",true);
+                    }
+
+                    //用户类型
+                    $("#custType").val(result.custType);
+                    form.render('select');
+
+                    //数据周期
+                    $("input[name='dateType'][value='" + result.dateType + "']").prop("checked", true);
+                    selDateTypeValue = result.dateType;
+                    if(selDateTypeValue == "day"){ //日
+                        laydate.render({
+                            elem: '#startDate', //指定元素
+                            type: 'date',
+                            format: 'yyyy-MM-dd',
+                            max: -1,
+                            lang:'cn'
+                        });
+
+                        laydate.render({
+                            elem: '#endDate', //指定元素
+                            type: 'date',
+                            format: 'yyyy-MM-dd',
+                            max: -1,
+                            lang:'cn'
+                        });
+
+                    }else{ //月
+                        laydate.render({
+                            elem: '#startDate', //指定元素
+                            type: 'month',
+                            format: 'yyyy-MM',
+                            max: -1,
+                            lang:'cn'
+
+                        });
+
+                        laydate.render({
+                            elem: '#endDate', //指定元素
+                            type: 'month',
+                            format: 'yyyy-MM',
+                            max: -1,
+                            lang:'cn'
+
+                        });
+                    }
+
+                    $("#startDate").val(result.startDate);
+                    $("#endDate").val(result.endDate);
+
+                    //分析角色
+                    $("input[name='roleType'][value='" + result.roleType + "']").prop("checked", true);
+                    selRoleTypeValue = result.roleType;
+
+                    //指标类型
+                    $("input[name='indexType'][value='" + result.indexType + "']").prop("checked", true);
+                    selIndexTypeValue = result.indexType;
+
+                    //设置导出按钮和自动化报表按钮不可用
+                    if(selIndexTypeValue == "details"){ //明细
+                        // 设置导出按钮不可用
+                        $('#exportReport').prop('disabled', true);
+                        // 添加 Layui 禁用样式（更美观）
+                        $('#exportReport').addClass('layui-disabled');
+                        $('#exportReport').hide();
+
+                        // 设置自动化报表按钮不可用
+                        $('#autoReportBtn').prop('disabled', true);
+                        $('#autoReportBtn').addClass('layui-disabled');
+                        $('#autoReportBtn').hide();
+                    }
+
+                    //条件
+                    $('#tjDiv').html(result.whereStr);
+
+                    var whereCheck = result.whereCheck;
+                    //console.log("whereCheck: "+whereCheck);
+                    if(whereCheck != null && whereCheck != ""){
+                        var whereArr = JSON.parse(whereCheck);
+                        // 使用jQuery遍历
+                        $.each(whereArr, function(index, item) {
+                            //console.log("索引：" + index + "，id：" + item.id + "，名称：" + item.name +", check: "+item.isCheck);
+                            var isCheck = item.isCheck;
+                            if(isCheck == "是"){
+                                $("input[name='"+item.name+"'][value='是']").prop("checked", true);
+                            }else if(isCheck == "否"){
+                                $("input[name='"+item.name+"'][value='否']").prop("checked", true);
+                            }
+                        });
+                    }
+
+                    form.render('radio');
+
+                    //分类
+                    var reportClassify = result.reportClassify;
+                    //console.log("reportClassify: "+reportClassify);
+                    if(reportClassify != null && reportClassify != ""){
+                        var reportClassifyArr = reportClassify.split(";");
+                        for(var i=0;i<reportClassifyArr.length;i++){
+                            var reportClassifyId = reportClassifyArr[i];
+                            document.getElementById(reportClassifyId).checked = true;
+                            var addClassify = getClassify(reportClassifyId);
+
+                            if(addClassify != null){
+                                quotaData.push(addClassify);
+                            }
+                        }
+                    }
+
+                    //下一级维度
+                    var xyjwdValue = result.xyjwd;
+                    if(xyjwdValue == "0"){
+                        $('#xyjwd').prop('checked', false);
+                    }else{
+                        $('#xyjwd').prop('checked', true);
+                    }
+
+                    form.render('checkbox');
+
+                    const quotaArray = JSON.parse(quota);
+                    for (var i = 0; i < quotaArray.length; i++) {
+                        var quotaItem = quotaArray[i];
+                        //添加指标数据到指标文本框
+                        addToReportQuota(quotaItem);
+                    }
+
+                    //加载指标树
+                    var lastClickTime = 0;
+                    var timeoutDuration = 300; // 双击间隔时间阈值，单位毫秒
+                    optionInst = tree.render({
+                        elem: '#quota',
+                        data: quotaData,
+                        id: 'quotaTree',
+                        showCheckbox: false,
+                        isJump: true,
+                        click: function (obj) {
+                            var currentTime = new Date().getTime();
+                            if (currentTime - lastClickTime < timeoutDuration) {
+                                addToReportQuota(obj.data);
+                            }else {
+                                lastClickTime = currentTime; // 更新点击时间，以便下一次点击时检查是否为双击
+                            }
+
+                        }
+                    });
+                    if (dimension != null) {
+                        const dimensionArr = JSON.parse(dimension);
+                        for (var i = 0; i < dimensionArr.length; i++) {
+                            var dimensionItem = dimensionArr[i];
+                            addToReportDimension(dimensionItem);
+                        }
+                    }
+
+                    //校验那些分类可用
+                    var checkdateType = result.dateType;
+                    var checkRoleType = result.roleType;
+                    var checkIndexType = result.indexType;
+
+                    setClassState(checkdateType,checkRoleType,checkIndexType);
+
+                    /*const cols = JSON.parse(result.cols)
+                    let col = new Array();
+                    col.push(cols);
+                    console.log("col::::"+col)
+                    table.render({
+                        elem: '#report-table',
+                        url: MODULE_PATH + 'reportList',
+                        where: {
+                            quota:result.quota,
+                            dimension: result.dimension,
+                            isQf:result.isQf,
+                            isHy:result.isHy,
+                            isFiveg:result.isFiveg,
+                            isFivegb:result.isFivegb,
+                            isFivegtc:result.isFivegtc,
+                            isQzxsp:result.isQzxsp,
+                            isQzsl:result.isQzsl,
+                            isSfllb:result.isSfllb,
+                            isQzxq:result.isQzxq
+                        },
+                        page: true,
+                        cols: col,
+                        skin: 'line'
+                    });*/
+
+                    //根据值选中标准维度 或非标准维度
+                    var queryIsNonStand = result.isNonStand;
+
+                    $('input[name="isNonNtand"][value="' + queryIsNonStand + '"]').prop('checked', true);
+                    form.render('radio');
+
+                }else {
+                    layer.alert(result.retMsg);
+                    return;
+                }
+            }
+        })
+
+
+        var lastClickTime = 0;
+        var timeoutDuration = 300; // 双击间隔时间阈值，单位毫秒
+        // 加载维度树数据
+        var dimensionData = getDimensionData();
+        var dimensionInst = tree.render({
+            elem: '#dimension',
+            data: dimensionData,
+            id: 'dimensionTree',  // 定义索引
+            // showCheckbox: true,  // 是否显示复选框
+            isJump: true,  // 是否允许点击节点时弹出新窗口跳转
+            //onlyIconControl: true,  // 仅允许通过图标展开
+            click: function(obj){
+                var currentTime = new Date().getTime();
+                if (currentTime - lastClickTime < timeoutDuration) {
+
+                    //2025-11-20
+                    var clickDimension = new Object();
+                    clickDimension.columnName = obj.data.columnName;
+                    clickDimension.id = obj.data.id;
+                    clickDimension.title = obj.data.title;
+                    clickDimension.level = obj.data.level;
+
+                    // 如果是双击事件
+                    //addToReportDimension(obj.data);
+                    addToReportDimension(clickDimension);
+                } else {
+                    lastClickTime = currentTime; // 更新点击时间，以便下一次点击时检查是否为双击
+                }
+
+            }
+        });
+
+        /**
+         * 分类复选框事件
+         */
+        var optionInst;
+        form.on('checkbox(optionClassifys)', function(data){
+            if(data.elem.checked) {
+                quotaData.push(getClassify(data.value));
+            } else {
+                removeOption(quotaData,data.value);
+                $("#reportName").val("");
+
+                //2025-11-24
+                checkTableName ="";
+            }
+
+            var lastClickTime = 0;
+            var timeoutDuration = 300; // 双击间隔时间阈值，单位毫秒
+            //指标树
+            optionInst = tree.render({
+                elem: '#quota',
+                data: quotaData,
+                id: 'quotaTree',  // 定义索引
+                showCheckbox: false,  // 是否显示复选框
+                isJump: true,  // 是否允许点击节点时弹出新窗口跳转
+                //onlyIconControl: true,  // 仅允许通过图标展开
+                click: function(obj){
+                    var currentTime = new Date().getTime();
+                    if (currentTime - lastClickTime < timeoutDuration) {
+                        // 在这里处理双击事件
+                        addToReportQuota(obj.data);
+                    } else {
+                        lastClickTime = currentTime; // 更新点击时间，以便下一次点击时检查是否为双击
+                    }
+                }
+            });
+        });
+
+
+        /**
+         * 获取指标下拉树数据
+         * @param type
+         * @returns {{title: string, id: string, children: [{title: string, id: string, children: *[]}]}}
+         */
+        function getClassify(classifyId){
+
+            var indexType = $('input[name="indexType"]:checked').val();
+            var dateType = $('input[name="dateType"]:checked').val();
+            var roleType = $('input[name="roleType"]:checked').val();
+
+            var retData = null;
+            $.ajax({
+                url: MODULE_PATH +  "getQuotaByClassId",
+                type: "post",
+                async:false,
+                data: {classifyId:classifyId,indexType:indexType,dateType:dateType,roleType:roleType},
+                success: function(result){
+                    /*if (result.retCode == "0"){
+                        retData = result.retData;
+                    }*/
+
+                    retData = result;
+                }
+            });
+            return retData;
+        }
+
+        /**
+         * 删除指标下拉树数据
+         * @param optionData
+         * @param type
+         */
+        function removeOption(optionData,type){
+            optionData.forEach((item, index, array) => {
+
+                //console.log(`索引 ${index}: 值 ${item}`);
+                if(type == item.id){
+                    optionData.splice(index,1);
+
+                    findAndDelIndex(item);
+
+                    //清空指标文件框中的内容
+                    $("#col-zone").empty();
+                    colHeaders = [];
+                    colHeadersArr = [];
+
+                    //清空条件
+                    $('#tjDiv').html("");
+
+                    //清空维度文件框中的内容
+                    $('#row-zone').empty();
+                    rowHeaders = [];
+                    rowHeadersArr = [];
+
+                    //清空列表数据
+                    table.render({
+                        elem: '#report-table',
+                        data: []
+                    });
+
+                }
+
+            });
+        }
+
+        /**
+         * 查找并删除指标选中框的内容
+         * @param data
+         * @returns {*|null}
+         */
+        function findAndDelIndex(data) {
+
+            if(data != null){
+                // 检查当前节点是否匹配
+                var indexId = data.id;
+                //console.log(indexId);
+                if(indexId != null){
+                    //根据父ID，根据子ID删除指标文件框的内容
+                    $("#col-zone").find("#"+indexId).remove();
+
+                    const delIndex = colHeaders.indexOf(indexId);
+                    if (delIndex !== -1) {
+                        colHeaders.splice(delIndex, 1); // 从 index 位置开始删除 1 个元素
+                        colHeadersArr.splice(delIndex, 1);
+                    }
+
+                    //$("#tjDiv").find("#tj_"+indexId).remove();
+                    var childTjDivs = document.getElementById("tjDiv").querySelectorAll(".selTjClassDiv_"+indexId);
+                    // 删除所有匹配的子div
+                    childTjDivs.forEach(function(delDiv) {
+                        delDiv.remove();
+                    });
+                }
+
+
+                // 递归检查子节点
+                if (data.children && data.children.length > 0) {
+                    for (const child of data.children) {
+                        const result = findAndDelIndex(child);
+                        if (result) return result; // 找到即返回
+                    }
+                }
+            }else{
+                return null; // 未找到
+            }
+
+        }
+
+        /**
+         * 添加指标树数据到指标文件框
+         * @param data
+         */
+        function addToReportQuota(data){
+
+            var columnName = data.columnName;
+            if(columnName == null || columnName == ""){
+                layer.msg("当前指标不可选择", {icon:5});
+                return ;
+            }
+
+            var tableName = data.tableName;
+            //console.log("++tableName: "+tableName+" -- checkTableName: "+checkTableName)
+            if(checkTableName != undefined && checkTableName != "" && checkTableName != tableName){
+                layer.msg("请选择同一类下的指标", {icon:5});
+                return ;
+            }
+
+            checkTableName = tableName;
+
+            data.field = data.id;
+            var addId = "selCol_"+data.id;
+            col = true;
+            //const index = colHeaders.indexOf(data.id);
+            const index = colHeaders.indexOf(addId);
+            if (index !== -1) {
+                layer.msg("已存在，请重新选择", {icon:5});
+                return ;
+            }else{
+                //colHeaders.push(data.id);
+                colHeaders.push(addId);
+                colHeadersArr.push(data);
+            }
+
+            //2025-11-27
+            var isFiveInten = data.isFiveInten;
+            if(isFiveInten == "1"){
+                //周期中的月不可用
+                $("#month").prop("disabled", true);
+                //分析角色不可用
+                $("[name='roleType']").prop("disabled", true);
+                //结束日期不可用
+                $("#endDate").prop("disabled",true);
+
+                form.render('radio');
+
+            }else{
+                //周期中的月可用
+                $("#month").prop("disabled", false);
+                //分析角色不可用
+                $("[name='roleType']").prop("disabled", false);
+                //结束日期不可用
+                $("#endDate").prop("disabled",false);
+
+                form.render('radio');
+            }
+
+            //判断非标准维度是否可用
+            var isIncludeNoStand = data.isIncludeNoStand;
+            if(isIncludeNoStand =="1"){ //非标准维度
+                $("#isNonNtandDiv").show();
+
+            }else{ //标准维度
+                $("#isNonNtandDiv").hide();
+                //选中标准维度
+                $('input[name="isNonNtand"][value="0"]').prop('checked', true);
+
+                selIsNonNtandFilterValue ="0";
+
+                //判断是否需要重新加载维度树的数据
+                if (dimensionData?.[0]?.children?.[0]?.isNonStand !== undefined) {
+                    if(dimensionData[0].children[0].isNonStand ==1){
+                        //重新加载维度树
+                        dimensionData = getDimensionData();
+                        // 重新渲染树
+                        dimensionInst.reload({
+                            data: dimensionData
+                        });
+                    }
+                }
+            }
+
+            // 创建表头项
+            const headerItem = document.createElement('div');
+            headerItem.className = 'selected-header-item';
+            headerItem.setAttribute('data-field', data.id);
+            //headerItem.id = data.id;
+            headerItem.id = addId;
+
+            headerItem.innerHTML = '<span>'+data.title+'</span><span class="remove-btn">&times;</span>';
+
+            // 添加删除按钮事件
+            headerItem.querySelector('.remove-btn').addEventListener('click', function(event) {
+                // const parentId = parseInt(event.target.parentElement.id);
+                const parentId = event.target.parentElement.id;
+                var removeHead = document.getElementById(parentId);
+                const index = colHeaders.indexOf(parentId);
+                if (index !== -1) {
+                    colHeaders.splice(index, 1);
+
+                    var delColObject = colHeadersArr[index];
+
+                    colHeadersArr.splice(index, 1);
+
+                    //删除环比指标
+                    if(delColObject.indexClass =="hb"){
+
+                        //检查数组对象中是否有环比指标
+                        const isHb = colHeadersArr.some(colItem => colItem.indexClass === "hb");
+                        //没有环比指标
+                        if(!isHb){
+                            $("#endDate").val("");
+                            $("#endDate").attr("disabled",false);
+                        }else{
+                            $("#endDate").val("");
+                            $("#endDate").attr("disabled",true);
+                        }
+                    }
+
+                    colZone.removeChild(removeHead);
+
+                    // 移除选中状态
+                    var tjFilterName = "tj_"+data.id;
+                    //console.log("tjFilterName: "+tjFilterName);
+                    $('[lay-filter="'+tjFilterName+'"]').remove();
+
+                    //删除最后一个所选指标时，重置选择的表名
+                    if(colHeadersArr.length ==0){
+                        checkTableName ="";
+                    }
+
+                }
+            });
+
+            colZone.appendChild(headerItem);
+
+            //获取对应的报表名称
+            if($("#reportName").val().trim() == ""){
+                $("#reportName").val(data.rootName+"_"+getCurrentDateTime());
+            }
+
+            //环比时结束时间不可用
+            if(data.indexClass !=null && data.indexClass =="hb"){
+                $("#endDate").val("");
+                $("#endDate").attr("disabled",true);
+            }
+
+
+            //获取条件DIV中所有有元素的name值
+            // 找到目标DIV
+            const tjTargetDiv = $('#tjDiv');
+            // 获取所有单选按钮元素
+            const tjRadioButtons = tjTargetDiv.find('input[type="radio"]');
+
+            // 使用 Set 存储唯一的 name 值
+            const tjRadioNames = new Set();
+            // 遍历所有单选按钮，将 name 添加到 Set 中
+            tjRadioButtons.each(function() {
+                tjRadioNames.add($(this).attr('name'));
+            });
+
+            const tjCodeStr = Array.from(tjRadioNames).join(';');
+
+            //获取指标对应的条件
+            var indexId = data.id;
+            $.ajax({
+                url: MODULE_PATH +  "getConditByIndexId",
+                type: "post",
+                async: false,
+                data: {indexId:indexId,tjCodeStr:tjCodeStr},
+                success: function(result){
+
+
+                    var html = $('#tjDiv').html();
+
+                    result.forEach((option, index) => {
+                        html += '<div lay-filter="tj_'+option.indexId+'" id="tj_'+option.indexId+'" class="selTjClassDiv_'+option.indexId+'" style="display: flex;width: 100%;">' +
+                            ' <label class="layui-form-label" style="white-space:nowrap;padding-left: 5px;">'+option.conditName+'</label>'
+                            +'<div class="layui-input-inline" style="width: 100%;margin-left: 10px;margin-top: 8px;overflow-y: hidden;overflow-x: auto;">'+
+                            '<div style="width: 100%;display: flex;">' +
+                            '<label style="margin-right: 5px;white-space:nowrap;">'+option.conditValue1+'</label> ' +
+                            '<div style="display: flex;margin-top: 3px;">' +
+                            '<input type="radio" id="'+option.conditId+'" name="'+option.conditCode+'" value="'+option.conditValue1+'" title="'+option.conditValue1+'" style="margin-right: 10px;width: 16px;height: 16px;" lay-filter="tjFilter">' +
+                            '</div>' ;
+
+                        if(option.conditValue2 != null && option.conditValue2 != ""){
+                            html = html +'<label style="margin-right: 5px;white-space:nowrap;margin-left: 5px;">'+option.conditValue2+'</label> ' +
+                                '<div style="display: flex;margin-top: 3px;"> ' +
+                                '<input type="radio" id="'+option.conditId+'" name="'+option.conditCode+'" value="'+option.conditValue2+'" title="'+option.conditValue2+'" style="width: 16px;height: 16px;" lay-filter="tjFilter">' +
+                                '</div>';
+                        }
+
+                        if(option.conditValue3 != null && option.conditValue3 != ""){
+                            html = html +'<label style="margin-right: 5px;white-space:nowrap;margin-left: 12px;">'+option.conditValue3+'</label> ' +
+                                '<div style="display: flex;margin-top: 3px;"> ' +
+                                '<input type="radio" id="'+option.conditId+'" name="'+option.conditCode+'" value="'+option.conditValue3+'" title="'+option.conditValue3+'" style="width: 16px;height: 16px;" lay-filter="tjFilter">' +
+                                '</div>';
+                        }
+
+                        if(option.conditValue4 != null && option.conditValue4 != ""){
+                            html = html +'<label style="margin-right: 5px;white-space:nowrap;margin-left: 12px;">'+option.conditValue4+'</label> ' +
+                                '<div style="display: flex;margin-top: 3px;"> ' +
+                                '<input type="radio" id="'+option.conditId+'" name="'+option.conditCode+'" value="'+option.conditValue4+'" title="'+option.conditValue4+'" style="width: 16px;height: 16px;" lay-filter="tjFilter">' +
+                                '</div>';
+                        }
+
+                        if(option.conditValue5 != null && option.conditValue5 != ""){
+                            html = html +'<label style="margin-right: 5px;white-space:nowrap;margin-left: 12px;">'+option.conditValue5+'</label> ' +
+                                '<div style="display: flex;margin-top: 3px;"> ' +
+                                '<input type="radio" id="'+option.conditId+'" name="'+option.conditCode+'" value="'+option.conditValue5+'" title="'+option.conditValue5+'" style="width: 16px;height: 16px;" lay-filter="tjFilter">' +
+                                '</div>';
+                        }
+
+                        if(option.conditValue6 != null && option.conditValue6 != ""){
+                            html = html +'<label style="margin-right: 5px;white-space:nowrap;margin-left: 12px;">'+option.conditValue6+'</label> ' +
+                                '<div style="display: flex;margin-top: 3px;"> ' +
+                                '<input type="radio" id="'+option.conditId+'" name="'+option.conditCode+'" value="'+option.conditValue6+'" title="'+option.conditValue6+'" style="width: 16px;height: 16px;" lay-filter="tjFilter">' +
+                                '</div>';
+                        }
+
+                        if(option.conditValue7 != null && option.conditValue7 != ""){
+                            html = html +'<label style="margin-right: 5px;white-space:nowrap;margin-left: 12px;">'+option.conditValue7+'</label> ' +
+                                '<div style="display: flex;margin-top: 3px;"> ' +
+                                '<input type="radio" id="'+option.conditId+'" name="'+option.conditCode+'" value="'+option.conditValue7+'" title="'+option.conditValue7+'" style="width: 16px;height: 16px;" lay-filter="tjFilter">' +
+                                '</div>';
+                        }
+
+                        if(option.conditValue8 != null && option.conditValue8 != ""){
+                            html = html +'<label style="margin-right: 5px;white-space:nowrap;margin-left: 12px;">'+option.conditValue8+'</label> ' +
+                                '<div style="display: flex;margin-top: 3px;"> ' +
+                                '<input type="radio" id="'+option.conditId+'" name="'+option.conditCode+'" value="'+option.conditValue8+'" title="'+option.conditValue8+'" style="width: 16px;height: 16px;" lay-filter="tjFilter">' +
+                                '</div>';
+                        }
+
+                        if(option.conditValue9 != null && option.conditValue9 != ""){
+                            html = html +'<label style="margin-right: 5px;white-space:nowrap;margin-left: 12px;">'+option.conditValue9+'</label> ' +
+                                '<div style="display: flex;margin-top: 3px;"> ' +
+                                '<input type="radio" id="'+option.conditId+'" name="'+option.conditCode+'" value="'+option.conditValue9+'" title="'+option.conditValue9+'" style="width: 16px;height: 16px;" lay-filter="tjFilter">' +
+                                '</div>';
+                        }
+
+                        if(option.conditValue10 != null && option.conditValue10 != ""){
+                            html = html +'<label style="margin-right: 5px;white-space:nowrap;margin-left: 12px;">'+option.conditValue10+'</label> ' +
+                                '<div style="display: flex;margin-top: 3px;"> ' +
+                                '<input type="radio" id="'+option.conditId+'" name="'+option.conditCode+'" value="'+option.conditValue10+'" title="'+option.conditValue10+'" style="width: 16px;height: 16px;" lay-filter="tjFilter">' +
+                                '</div>';
+                        }
+
+                        if(option.conditValue11 != null && option.conditValue11 != ""){
+                            html = html +'<label style="margin-right: 5px;white-space:nowrap;margin-left: 12px;">'+option.conditValue11+'</label> ' +
+                                '<div style="display: flex;margin-top: 3px;"> ' +
+                                '<input type="radio" id="'+option.conditId+'" name="'+option.conditCode+'" value="'+option.conditValue11+'" title="'+option.conditValue11+'" style="width: 16px;height: 16px;" lay-filter="tjFilter">' +
+                                '</div>';
+                        }
+
+                        if(option.conditValue12 != null && option.conditValue12 != ""){
+                            html = html +'<label style="margin-right: 5px;white-space:nowrap;margin-left: 12px;">'+option.conditValue12+'</label> ' +
+                                '<div style="display: flex;margin-top: 3px;"> ' +
+                                '<input type="radio" id="'+option.conditId+'" name="'+option.conditCode+'" value="'+option.conditValue12+'" title="'+option.conditValue12+'" style="width: 16px;height: 16px;" lay-filter="tjFilter">' +
+                                '</div>';
+                        }
+
+                        if(option.conditValue13 != null && option.conditValue13 != ""){
+                            html = html +'<label style="margin-right: 5px;white-space:nowrap;margin-left: 12px;">'+option.conditValue13+'</label> ' +
+                                '<div style="display: flex;margin-top: 3px;"> ' +
+                                '<input type="radio" id="'+option.conditId+'" name="'+option.conditCode+'" value="'+option.conditValue13+'" title="'+option.conditValue13+'" style="width: 16px;height: 16px;" lay-filter="tjFilter">' +
+                                '</div>';
+                        }
+
+                        if(option.conditValue14 != null && option.conditValue14 != ""){
+                            html = html +'<label style="margin-right: 5px;white-space:nowrap;margin-left: 12px;">'+option.conditValue14+'</label> ' +
+                                '<div style="display: flex;margin-top: 3px;"> ' +
+                                '<input type="radio" id="'+option.conditId+'" name="'+option.conditCode+'" value="'+option.conditValue14+'" title="'+option.conditValue14+'" style="width: 16px;height: 16px;" lay-filter="tjFilter">' +
+                                '</div>';
+                        }
+
+                        if(option.conditValue15 != null && option.conditValue15 != ""){
+                            html = html +'<label style="margin-right: 5px;white-space:nowrap;margin-left: 12px;">'+option.conditValue15+'</label> ' +
+                                '<div style="display: flex;margin-top: 3px;"> ' +
+                                '<input type="radio" id="'+option.conditId+'" name="'+option.conditCode+'" value="'+option.conditValue15+'" title="'+option.conditValue15+'" style="width: 16px;height: 16px;" lay-filter="tjFilter">' +
+                                '</div>';
+                        }
+
+                        html = html+'</div>'
+                            +'</div>'
+                            +"</div>";
+                    });
+
+                    $('#tjDiv').html(html);
+                }
+            });
+
+        }
+
+        /**
+         * 维度树节点点击事件
+         * @param data
+         */
+        function addToReportDimension(data){
+
+            var columnName = data.columnName;
+            if(columnName == null || columnName == ""){
+                layer.msg("当前维度不可选择", {icon:5});
+                return ;
+            }
+
+            var searchText ="selRow_selAllQuanQu";
+            var searchIndex = $.inArray(searchText, rowHeaders);
+            if(searchIndex != -1){
+                layer.msg("请先删除所选全区维度", {icon:5});
+                return ;
+            }
+
+            var searchText ="selRow_selAllDiShi";
+            var searchIndex = $.inArray(searchText, rowHeaders);
+            if(searchIndex != -1){
+                layer.msg("请先删除所选地市维度", {icon:5});
+                return ;
+            }
+
+            var searchText ="selRow_selAllQuXian";
+            var searchIndex = $.inArray(searchText, rowHeaders);
+            if(searchIndex != -1){
+                layer.msg("请先删除所选区县维度", {icon:5});
+                return ;
+            }
+
+            var searchText ="selRow_selAllWangGe";
+            var searchIndex = $.inArray(searchText, rowHeaders);
+            if(searchIndex != -1){
+                layer.msg("请先删除所选网格维度", {icon:5});
+                return ;
+            }
+
+
+            var id = data.id;
+            var addId = "selRow_"+id;
+            var title = data.title;
+            row = true;
+            //const index = rowHeaders.indexOf(id);
+            const index = rowHeaders.indexOf(addId);
+            if (index !== -1) {
+                layer.msg("已存在，请重新选择", {icon:5});
+                return ;
+            }else{
+                //rowHeaders.push(id);
+                rowHeaders.push(addId);
+                rowHeadersArr.push(data);
+            }
+
+            // 创建表头项
+            const headerItem = document.createElement('div');
+            headerItem.className = 'selected-header-item';
+            headerItem.setAttribute('data-field', id);
+            //headerItem.id = id;
+            headerItem.id = addId;
+
+            headerItem.innerHTML = '<span>'+title+'</span><span class="remove-btn">&times;</span>';
+
+            // 添加删除按钮事件
+            headerItem.querySelector('.remove-btn').addEventListener('click', function(event) {
+                // const parentId = parseInt(event.target.parentElement.id);
+                const parentId = event.target.parentElement.id;
+                var removeHead = document.getElementById(parentId);
+                const index = rowHeaders.indexOf(parentId);
+                if (index !== -1) {
+                    rowHeaders.splice(index, 1);
+                    rowHeadersArr.splice(index, 1);
+                    rowZone.removeChild(removeHead);
+                }
+            });
+
+            rowZone.appendChild(headerItem);
+        }
+
+        /**
+         * 查询报表
+         */
+        form.on('submit(report-search)', function (data) {
+
+            var reportName = document.getElementById("reportName");
+            //数据周期
+            const dateType = document.querySelector('input[name="dateType"]:checked')?.value;
+
+            //分析角色
+            const roleType = document.querySelector('input[name="roleType"]:checked')?.value;
+
+            //指标类型
+            const indexType = document.querySelector('input[name="indexType"]:checked')?.value;
+
+            if(colHeaders == "" || colHeaders === null){
+                layer.alert("请至少选择一项作为指标！");
+                return;
+            }
+
+            if(rowHeaders == "" || rowHeaders === null){
+                layer.alert("请至少选择一项作为维度！");
+                return;
+            }
+
+            //2025-11-19 下一级维度
+            var xyjwdValue = "";
+            if ($('#xyjwd').is(':checked')) {
+                xyjwdValue = $('#xyjwd').val();
+            }
+
+            var newHeadersArr = new Array();
+
+            var firstLevel = "";
+            if(rowHeadersArr.length > 0){
+
+                for(var i=0;i<rowHeadersArr.length;i++){
+                    var rowHead = rowHeadersArr[i];
+                    var col = new Object(); //地市
+                    var qxCol = new Object(); //区县
+                    var wgCol = new Object(); //网格
+
+                    col.id = "wd_"+rowHead.id
+                    qxCol.id = "wd_qx_"+rowHead.id
+                    wgCol.id = "wd_wg_"+rowHead.id
+
+                    if(i == 0){
+                        firstLevel = rowHead.level;
+                    } else {
+                        if(firstLevel != rowHead.level){
+                            layer.alert("请选择同一层级维度！");
+                            return;
+                        }
+                    }
+
+                    //2025-11-19
+                    if(xyjwdValue =="1"){
+                        if(rowHead.columnName == "hxLatnName"){ //地市
+                            col.title = "地市";
+                            col.field = "hxLatnName";
+
+                            qxCol.title = "区县";
+                            qxCol.field = "hxAreaName";
+                        }else if(rowHead.columnName == "hxAreaName"){//区县
+                            col.title = "地市";
+                            col.field = "hxLatnName";
+
+                            qxCol.title = "区县";
+                            qxCol.field = "hxAreaName";
+
+                            wgCol.title = "网格";
+                            wgCol.field = "xHx5BpName";
+
+                        }else if(rowHead.columnName == "xHx5BpName"){//网格
+                            col.title = "地市";
+                            col.field = "hxLatnName";
+
+                            qxCol.title = "区县";
+                            qxCol.field = "hxAreaName";
+
+                            wgCol.title = "网格";
+                            wgCol.field = "xHx5BpName";
+                            //col.fixed = "left";
+                        }else if(rowHead.id == "selAllQuanQu"){
+                            col.title = "全区";
+                            col.field = "selAllQuanQu";
+                            //col.fixed = "left";
+                        }else if(rowHead.id == "selAllDiShi"){
+                            col.title = "地市";
+                            col.field = "hxLatnName";
+                            //col.fixed = "left";
+                        }else if(rowHead.id == "selAllQuXian"){
+                            col.title = "地市";
+                            col.field = "hxLatnName";
+
+                            qxCol.title = "区县";
+                            qxCol.field = "hxAreaName";
+                        }else if(rowHead.id == "selAllWangGe"){
+                            col.title = "地市";
+                            col.field = "hxLatnName";
+
+                            qxCol.title = "区县";
+                            qxCol.field = "hxAreaName";
+
+                            wgCol.title = "网格";
+                            wgCol.field = "xHx5BpName";
+                        }else{
+                            col.title = rowHead.title;
+                            col.field = rowHead.columnName;
+                            //col.fixed = "left";
+                        }
+                    }else{
+                        if(rowHead.columnName == "hxLatnName"){
+                            col.title = "地市";
+                            col.field = "hxLatnName";
+                            //col.fixed = "left";
+                        }else if(rowHead.columnName == "hxAreaName"){
+                            col.title = "地市";
+                            col.field = "hxLatnName";
+
+                            qxCol.title = "区县";
+                            qxCol.field = "hxAreaName";
+
+                        }else if(rowHead.columnName == "xHx5BpName"){
+                            col.title = "地市";
+                            col.field = "hxLatnName";
+
+                            qxCol.title = "区县";
+                            qxCol.field = "hxAreaName";
+
+                            wgCol.title = "网格";
+                            wgCol.field = "xHx5BpName";
+                        }else if(rowHead.id == "selAllQuanQu"){
+                            col.title = "全区";
+                            col.field = "selAllQuanQu";
+                            //col.fixed = "left";
+                        }else if(rowHead.id == "selAllDiShi"){
+                            col.title = "地市";
+                            col.field = "hxLatnName";
+                            //col.fixed = "left";
+                        }else if(rowHead.id == "selAllQuXian"){
+                            col.title = "地市";
+                            col.field = "hxLatnName";
+
+                            qxCol.title = "区县";
+                            qxCol.field = "hxAreaName";
+
+                            //col.fixed = "left";
+                        }else if(rowHead.id == "selAllWangGe"){
+                            col.title = "地市";
+                            col.field = "hxLatnName";
+
+                            qxCol.title = "区县";
+                            qxCol.field = "hxAreaName";
+
+                            wgCol.title = "网格";
+                            wgCol.field = "xHx5BpName";
+                        }else{
+                            col.title = rowHead.title;
+                            col.field = rowHead.columnName;
+                            //col.fixed = "left";
+                        }
+                    }
+
+                    var isExist = false;
+                    for(var j=0; j<newHeadersArr.length;j++){
+                        var newHead = newHeadersArr[j];
+                        if(col.field == newHead.field){
+                            isExist = true;
+                            break;
+                        }
+                    }
+                    if(!isExist){
+                        col.align = "center";
+                        newHeadersArr.push(col);
+
+                        if(Object.keys(qxCol).length > 1){
+                            qxCol.align = "center";
+                            newHeadersArr.push(qxCol);
+                        }
+
+                        if(Object.keys(wgCol).length > 1){
+                            wgCol.align = "center";
+                            newHeadersArr.push(wgCol);
+                        }
+                    }
+                }
+            }
+
+
+            for(var i=0;i<colHeadersArr.length;i++){
+                var colHeadItem = colHeadersArr[i];
+                var data = new Object();
+                data.id = colHeadItem.id;
+                data.title = colHeadItem.title;
+                data.field = colHeadItem.columnName;
+                data.align = "center";
+                //2025-11-25
+                data.isFiveInten = colHeadItem.isFiveInten;
+                newHeadersArr.push(data);
+            }
+
+            let cols = new Array();
+            cols.push(newHeadersArr);
+
+            /*var custZQ = zhengqi.checked ? '1' : '0';
+            var custGZ = gongzhong.checked ? '1' : '0';*/
+            var custType = $("#custType").val();
+
+
+            var whereMap = new Map();
+            var strWhere ="";
+            var tjElements = $('[lay-filter="tjFilter"]');
+            tjElements.each(function() {
+
+                var tjCheckValue = $('input[name="'+this.name+'"]:checked').val() || null;
+                if(tjCheckValue != null){
+                    whereMap.set(this.id, this.name+" = '"+tjCheckValue+"'");
+                }
+            });
+
+            //console.log(whereMap);
+            const whereMapToArray = Array.from(whereMap);
+            //console.log(whereMapToArray);
+            const whereJson = JSON.stringify(whereMapToArray);
+            //console.log(whereJson);
+
+            var startDate = $("#startDate").val();
+            var endDate = $("#endDate").val();
+
+            var isNonNtandValue = $('input[name="isNonNtand"]:checked').val();
+
+            table.render({
+                elem: '#report-table',
+                url: MODULE_PATH + 'reportListNew',
+                method: 'post',
+                where: {
+                    dateType: dateType,
+                    roleType: roleType,
+                    indexType: indexType,
+                    indexInfo:JSON.stringify(newHeadersArr),
+                    dimensionInfo: JSON.stringify(rowHeadersArr),
+                    /*custZq:custZQ,
+                    custGz:custGZ,*/
+                    custType:custType,
+                    whereInfo:whereJson,
+                    startDate:startDate,
+                    endDate:endDate,
+                    isNonNtand:isNonNtandValue,
+                    xyjwd:xyjwdValue
+                },
+                page: true,
+                cols: cols,
+                skin: 'line',
+                cellMinWidth: 150
+            });
+        });
+
+        /**
+         * 重置
+         */
+        form.on('submit(report-reset)', function (data) {
+            document.getElementById('reportName').value = '';
+            colZone.replaceChildren();
+            colHeaders.splice(0,colHeaders.length);
+            rowZone.replaceChildren();
+            rowHeaders.splice(0,rowHeaders.length);
+            rowHeadersArr.splice(0,rowHeadersArr.length);
+
+            /*zhengqi.checked = false;
+            gongzhong.checked = false;*/
+            //客户类型
+            $("#custType").val("");
+            form.render('select');
+
+            /*is_qf.checked = false;
+            is_hy.checked = false;
+            is_fiveg.checked = false;
+            is_fivegb.checked = false;
+            is_fivegtc.checked = false;
+            is_qzxsp.checked = false;
+            is_qzsl.checked = false;
+            is_sfllb.checked = false;
+            is_qzxq.checked = false;*/
+
+            var elements = $('[lay-filter="optionFilter"]');
+            elements.each(function() {
+                this.checked = false;
+            });
+
+            //取消分类复选框选中状态
+            $('input[lay-filter="optionClassifys"]').each(function() {
+                $(this).prop('checked', false); //
+            });
+            form.render('checkbox');
+
+            day.checked = true;
+            month.checked = false;
+
+            //2025-11-27
+            //周期中的月可用
+            $("#month").prop("disabled", false);
+            //分析角色不可用
+            $("[name='roleType']").prop("disabled", false);
+            //结束日期不可用
+            $("#endDate").prop("disabled",false);
+
+            form.render('radio');
+
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            table.render({
+                elem: '#report-table',
+                data: [],
+            });
+
+
+
+            //清空指标文件框中的内容
+            $("#col-zone").empty();
+            colHeaders = [];
+            colHeadersArr = [];
+
+            //清空条件
+            $('#tjDiv').html("");
+
+            //清空维度文件框中的内容
+            $('#row-zone').empty();
+            rowHeaders = [];
+            rowHeadersArr = [];
+
+            $("#startDate").val('');
+            $("#endDate").val('');
+
+            //清空指标树的内容
+            quotaData = [];
+            optionInst.reload({
+                data: quotaData // 清空节点
+            });
+        });
+
+        /**
+         * 保存模板
+         */
+        form.on('submit(template-save)', function (data) {
+            var reportName = document.getElementById("reportName").value.trim();
+            if(!reportName){
+                layer.alert("请填写报表名称！");
+                return;
+            }
+
+            /*var custZQ = zhengqi.checked ? '1' : '0';
+            var custGZ = gongzhong.checked ? '1' : '0';*/
+            var custType = $("#custType").val();
+
+            /*var isQf = is_qf.checked ? '1' : '0';
+            var isHy = is_hy.checked ? '1' : '0';
+            var isFiveg = is_fiveg.checked ? '1' : '0';
+            var isFivegb = is_fivegb.checked ? '1' : '0';
+            var isFivegtc = is_fivegtc.checked ? '1' : '0';
+            var isQzxsp = is_qzxsp.checked ? '1' : '0';
+            var isQzsl = is_qzsl.checked ? '1' : '0';
+            var isSfllb = is_sfllb.checked ? '1' : '0';
+            var isQzxq = is_qzxq.checked ? '1' : '0';*/
+
+            var dateType;
+            if(day.checked){
+                dateType = 'day';
+            } else if(month.checked){
+                dateType = 'month';
+            }
+
+            var startDate = document.getElementById("startDate").value;
+            var endDate = document.getElementById("endDate").value;
+
+            var newHeadersArr = new Array();
+
+            var firstLevel = "";
+            if(rowHeadersArr.length > 0){
+                for(var i=0;i<rowHeadersArr.length;i++){
+                    var rowHead = rowHeadersArr[i];
+                    var col = new Object();
+                    col.id = rowHead.id
+                    if(i == 0){
+                        firstLevel = rowHead.level;
+                    } else {
+                        if(firstLevel != rowHead.level){
+                            layer.alert("请选择同一层级维度！");
+                            return;
+                        }
+                    }
+
+                    if(rowHead.columnName == "hxLatnName"){
+                        col.title = "地州";
+                        col.field = "hxLatnName";
+                    }else if(rowHead.columnName == "hxAreaName"){
+                        col.title = "分局";
+                        col.field = "hxAreaName";
+                    }else if(rowHead.columnName == "hxRegionName"){
+                        col.title = "支局";
+                        col.field = "hxRegionName";
+                    }else if(rowHead.columnName == "xHx5BpName"){
+                        col.title = "网格";
+                        col.field = "xHx5BpName";
+                    }else if(rowHead.id == "selAllQuanQu"){
+                        col.title = "全区";
+                        col.field = "selAllQuanQu";
+                    }else if(rowHead.id == "selAllDiShi"){
+                        col.title = "地市";
+                        col.field = "hxLatnName";
+                    }else if(rowHead.id == "selAllQuXian"){
+                        col.title = "区县";
+                        col.field = "hxAreaName";
+                    }else if(rowHead.id == "selAllWangGe"){
+                        col.title = "网格";
+                        col.field = "xHx5BpName";
+                    }else{
+                        col.title = rowHead.title;
+                        col.field = rowHead.columnName;
+                    }
+
+                    /*if(rowHead.level == "1"){
+                        col.title = "地州";
+                        col.field = "hxLatnName";
+                    } else if(rowHead.level == "2"){
+                        col.title = "分局";
+                        col.field = "hxAreaName";
+                    } else if(rowHead.level == "3"){
+                        col.title = "支局";
+                        col.field = "hxRegionName";
+                    } else if(rowHead.level == "4"){
+                        col.title = "网格";
+                        col.field = "xHx5BpName";
+                    }*/
+
+                    var isExist = false;
+                    for(var j=0; j<newHeadersArr.length;j++){
+                        var newHead = newHeadersArr[j];
+                        if(col.field == newHead.field){
+                            isExist = true;
+                            break;
+                        }
+                    }
+                    if(!isExist){
+                        newHeadersArr.push(col);
+                    }
+                }
+            }
+
+            for(var i=0;i<colHeadersArr.length;i++){
+                var colHeadItem = colHeadersArr[i];
+                var data = new Object();
+                data.id = colHeadItem.id;
+                data.title = colHeadItem.title;
+                data.field = colHeadItem.id;
+                newHeadersArr.push(data);
+            }
+
+            var param = new Object();
+            param.col = JSON.stringify(newHeadersArr);
+            //console.log("col:::"+param.col);
+            param.templateName = reportName;
+            /*param.custZQ = custZQ;
+            param.custGZ = custGZ;*/
+            param.custType = custType;
+
+            /*param.isQf = isQf;
+            param.isHy = isHy;
+            param.isFiveg = isFiveg;
+            param.isFivegb = isFivegb;
+            param.isFivegtc = isFivegtc;
+            param.isQzxsp = isQzxsp;
+            param.isQzsl = isQzsl;
+            param.isSfllb = isSfllb;
+            param.isQzxq = isQzxq;*/
+
+            //获取条件复选框
+            /*var elements = $('[lay-filter="optionFilter"]');
+            elements.each(function() {
+                var camelCaseId = toCamelCase(this.id);
+                // 对每个元素进行操作
+                if(this.checked){
+                    param[camelCaseId]= '1';
+                }else{
+                    param[camelCaseId] = '0';
+                }
+            });*/
+
+            /*var whereMap = new Map();
+            var strWhere ="";
+            var tjElements = $('[lay-filter="tjFilter"]');
+            tjElements.each(function() {
+
+                var tjCheckValue = $('input[name="'+this.name+'"]:checked').val() || null;
+                if(tjCheckValue != null){
+                    whereMap.set(this.id, this.name+" = '"+tjCheckValue+"'");
+                }
+            });
+
+            console.log(whereMap);
+            const whereMapToArray = Array.from(whereMap);
+            console.log(whereMapToArray);
+            const whereJson = JSON.stringify(whereMapToArray);
+            console.log(whereJson);*/
+            //条件
+            whereJson = $('#tjDiv').html();
+
+            var whereArr = new Array();
+            var tjElements = $('[lay-filter="tjFilter"]');
+            tjElements.each(function() {
+                var tjCheckValue = $('input[name="'+this.name+'"]:checked').val() || null;
+                //console.log("tjCheckValue: "+tjCheckValue);
+                if(tjCheckValue != null){
+                    var data = new Object();
+                    data.id = this.id;
+                    data.name = this.name;
+                    data.isCheck = tjCheckValue;
+                    whereArr.push(data);
+                }
+            });
+
+            //去重
+            // 存储已出现的id
+            var existingIds = [];
+            // 去重后的结果数组
+            var uniqueWhereArr = [];
+
+            $.each(whereArr, function(index, obj) {
+                // 检查当前对象的id是否已存在
+                if ($.inArray(obj.id, existingIds) === -1) {
+                    existingIds.push(obj.id);
+                    uniqueWhereArr.push(obj);
+                }
+            });
+
+            //console.log("uniqueWhereArr: "+JSON.stringify(uniqueWhereArr));
+
+
+            var roleType = $('input[name="roleType"]:checked').val();
+            var indexType = $('input[name="indexType"]:checked').val();
+
+            var reportClassify = "";
+            $('input[lay-filter="optionClassifys"]').each(function() {
+                if(this.checked){
+                    if(reportClassify == ""){
+                        reportClassify = this.id;
+                    }else{
+                        reportClassify = reportClassify +";"+ this.id;
+                    }
+                }
+            });
+
+            var isNonNtandValue = $('input[name="isNonNtand"]:checked').val();
+
+            param.dateType = dateType;
+            param.startDate = startDate;
+            param.endDate = endDate;
+            param.quota = colHeadersArr;
+            param.dimension = JSON.stringify(rowHeadersArr);
+            param.whereStr = whereJson;
+            param.whereCheck = JSON.stringify(uniqueWhereArr);
+            param.roleType = roleType;
+            param.indexType = indexType;
+            param.reportClassify = reportClassify;
+            param.isNonNtand = isNonNtandValue;
+
+            let loading = layer.load();
+            $.ajax({
+                url: MODULE_PATH + 'saveTemplate',
+                data: JSON.stringify(param),
+                dataType: 'json',
+                contentType: 'application/json',
+                type: 'post',
+                success: function (result) {
+                    layer.close(loading);
+                    if (result.retCode == '0') {
+                        layer.alert("保存模板成功！");
+                        var templateId = result.templateId;
+                        return;
+                    } else {
+                        layer.alert(result.retMsg);
+                        return;
+                    }
+                }
+            })
+
+        });
+
+        /**
+         * 导出报表
+         */
+        form.on('submit(report-export)', function (data) {
+            /*if(!reportId){
+                layer.alert("请先保存报表！");
+                return;
+            } else {
+                downloadFile();
+            }*/
+
+            var reportName = $("#reportName").val();
+            if(reportName == ""){
+                layer.alert("报表名称不能为空");
+                return false;
+            }
+
+            //数据周期
+            const dateType = document.querySelector('input[name="dateType"]:checked')?.value;
+
+            //分析角色
+            const roleType = document.querySelector('input[name="roleType"]:checked')?.value;
+
+            //指标类型
+            const indexType = document.querySelector('input[name="indexType"]:checked')?.value;
+            if(indexType == "details"){ //明细
+                layer.alert("暂不支持明细报表导出！");
+                return ;
+            }
+
+            if(colHeaders == "" || colHeaders === null){
+                layer.alert("请至少选择一项作为指标！");
+                return;
+            }
+
+            if(rowHeaders == "" || rowHeaders === null){
+                layer.alert("请至少选择一项作为维度！");
+                return;
+            }
+
+            //2025-11-19 下一级维度
+            var xyjwdValue = "";
+            if ($('#xyjwd').is(':checked')) {
+                xyjwdValue = $('#xyjwd').val();
+            }
+
+            var newHeadersArr = new Array();
+
+            var firstLevel = "";
+            if(rowHeadersArr.length > 0){
+
+                for(var i=0;i<rowHeadersArr.length;i++){
+                    var rowHead = rowHeadersArr[i];
+                    var col = new Object();
+                    col.id = "wd_"+rowHead.id
+                    if(i == 0){
+                        firstLevel = rowHead.level;
+                    } else {
+                        if(firstLevel != rowHead.level){
+                            layer.alert("请选择同一层级维度！");
+                            return;
+                        }
+                    }
+
+                    //2025-11-19
+                    if(xyjwdValue =="1"){
+                        if(rowHead.columnName == "hxLatnName"){ //地市
+                            col.title = "分局";
+                            col.field = "hxAreaName";
+                        }else if(rowHead.columnName == "hxAreaName"){//区县
+                            col.title = "网格";
+                            col.field = "xHx5BpName";
+                        }else if(rowHead.columnName == "xHx5BpName"){//网格
+                            col.title = "网格";
+                            col.field = "xHx5BpName";
+                            //col.fixed = "left";
+                        }else if(rowHead.id == "selAllQuanQu"){
+                            col.title = "全区";
+                            col.field = "selAllQuanQu";
+                            //col.fixed = "left";
+                        }else if(rowHead.id == "selAllDiShi"){
+                            col.title = "地市";
+                            col.field = "hxLatnName";
+                            //col.fixed = "left";
+                        }else if(rowHead.id == "selAllQuXian"){
+                            col.title = "区县";
+                            col.field = "hxAreaName";
+                            //col.fixed = "left";
+                        }else if(rowHead.id == "selAllWangGe"){
+                            col.title = "网格";
+                            col.field = "xHx5BpName";
+                            //col.fixed = "left";
+                        }else{
+                            col.title = rowHead.title;
+                            col.field = rowHead.columnName;
+                            //col.fixed = "left";
+                        }
+                    }else{
+                        if(rowHead.columnName == "hxLatnName"){
+                            col.title = "地州";
+                            col.field = "hxLatnName";
+                        }else if(rowHead.columnName == "hxAreaName"){
+                            col.title = "分局";
+                            col.field = "hxAreaName";
+                        }else if(rowHead.columnName == "hxRegionName"){
+                            col.title = "支局";
+                            col.field = "hxRegionName";
+                        }else if(rowHead.columnName == "xHx5BpName"){
+                            col.title = "网格";
+                            col.field = "xHx5BpName";
+                        }else if(rowHead.id == "selAllQuanQu"){
+                            col.title = "全区";
+                            col.field = "selAllQuanQu";
+                        }else if(rowHead.id == "selAllDiShi"){
+                            col.title = "地市";
+                            col.field = "hxLatnName";
+                        }else if(rowHead.id == "selAllQuXian"){
+                            col.title = "区县";
+                            col.field = "hxAreaName";
+                        }else if(rowHead.id == "selAllWangGe"){
+                            col.title = "网格";
+                            col.field = "xHx5BpName";
+                        }else{
+                            col.title = rowHead.title;
+                            col.field = rowHead.columnName;
+                        }
+                    }
+
+                    var isExist = false;
+                    for(var j=0; j<newHeadersArr.length;j++){
+                        var newHead = newHeadersArr[j];
+                        if(col.field == newHead.field){
+                            isExist = true;
+                            break;
+                        }
+                    }
+                    if(!isExist){
+                        col.align = "center";
+                        newHeadersArr.push(col);
+                    }
+                }
+            }
+
+
+            for(var i=0;i<colHeadersArr.length;i++){
+                var colHeadItem = colHeadersArr[i];
+                var data = new Object();
+                data.id = colHeadItem.id;
+                data.title = colHeadItem.title;
+                data.field = colHeadItem.columnName;
+                data.align = "center";
+                //2025-11-25
+                data.isFiveInten = colHeadItem.isFiveInten;
+                newHeadersArr.push(data);
+            }
+
+            let cols = new Array();
+            cols.push(newHeadersArr);
+
+            /*var custZQ = zhengqi.checked ? '1' : '0';
+            var custGZ = gongzhong.checked ? '1' : '0';*/
+            var custType = $("#custType").val();
+
+
+            var whereMap = new Map();
+            var strWhere ="";
+            var tjElements = $('[lay-filter="tjFilter"]');
+            tjElements.each(function() {
+
+                var tjCheckValue = $('input[name="'+this.name+'"]:checked').val() || null;
+                if(tjCheckValue != null){
+                    whereMap.set(this.id, this.name+" = '"+tjCheckValue+"'");
+                }
+            });
+
+            //console.log(whereMap);
+            const whereMapToArray = Array.from(whereMap);
+            //console.log(whereMapToArray);
+            const whereJson = JSON.stringify(whereMapToArray);
+            //console.log(whereJson);
+
+            var startDate = $("#startDate").val();
+            var endDate = $("#endDate").val();
+
+            var isNonNtandValue = $('input[name="isNonNtand"]:checked').val();
+
+            var param = new Object();
+            param.dateType = dateType;
+            param.roleType = roleType;
+            param.indexType = indexType;
+            param.indexInfo = JSON.stringify(newHeadersArr);
+            param.dimensionInfo = JSON.stringify(rowHeadersArr);
+            /*param.custZq = custZQ;
+            param.custGz = custGZ;*/
+            param.custType = custType;
+            param.whereInfo = whereJson;
+            param.reportName = reportName;
+            param.startDate = startDate;
+            param.endDate = endDate;
+            param.isNonNtand = isNonNtandValue;
+            param.xyjwd = xyjwdValue;
+
+            let loading = layer.load();
+            $.ajax({
+                url: MODULE_PATH + 'fileDownload',
+                data: JSON.stringify(param),
+                dataType: 'json',
+                contentType: 'application/json',
+                type: 'post',
+                success: function (result) {
+                    layer.close(loading);
+                    if (result.retCode == '0') {
+                        var filePath = result.filePath;
+                        var fileName = result.fileName;
+
+                        var link = document.createElement('a');
+                        link.href = filePath;
+                        link.download = fileName; // 设置下载的文件名
+                        link.click();
+                        // 释放URL对象
+                        window.URL.revokeObjectURL(link.href);
+
+                        return;
+                    } else {
+                        layer.alert("导出报表失败！");
+                        return;
+                    }
+                }
+            })
+
+
+        });
+
+
+        /**
+         * 自动化报表
+         */
+        form.on('submit(auto-report)', function (data) {
+
+            if(colHeaders == "" || colHeaders === null){
+                layer.alert("请至少选择一项作为指标！");
+                return;
+            }
+
+            if(rowHeaders == "" || rowHeaders === null){
+                layer.alert("请至少选择一项作为维度！");
+                return;
+            }
+
+            // 基础弹出层
+            layer.open({
+                type: 2, // 0-4 分别代表不同类型的层
+                title: '自动化报表',
+                //content: autoContent,
+                content: '/autoData/report/reportAutoContent',
+                area: ['600px', '650px'], // 宽高
+                offset: 'auto', // 位置
+                btn: ['确定', '取消'], // 按钮
+                yes: function(index, layero){
+
+                    var iframe = layero.find('iframe')[0];
+                    var autoReportName = iframe.contentWindow.document.getElementById('autoReportName').value;
+
+                    if(autoReportName ==""){
+                        layer.alert("请输入报表名称！");
+                        return false;
+                    }
+
+                    var pushObjectId = iframe.contentWindow.document.getElementById('pushObjectId').value;
+                    if(pushObjectId ==""){
+                        layer.alert("请选择推送对象");
+                        return false;
+                    }
+
+                    //数据周期
+                    const dateType = document.querySelector('input[name="dateType"]:checked')?.value;
+
+                    //分析角色
+                    const roleType = document.querySelector('input[name="roleType"]:checked')?.value;
+
+                    //指标类型
+                    const indexType = document.querySelector('input[name="indexType"]:checked')?.value;
+                    if(indexType =="details"){ //明细
+                        layer.alert("暂不支持明细报表生成！");
+                        return;
+                    }
+
+
+                    //执行周期
+                    var sendCycle = iframe.contentWindow.document.querySelector('input[id="sendCycle"]:checked').value;
+                    //日
+                    var selSendMonth = iframe.contentWindow.document.getElementById('selSendMonth').value;
+                    //小时
+                    var selSendHour = iframe.contentWindow.document.getElementById('selSendHour').value;
+                    //分钟
+                    var selSendMinute = iframe.contentWindow.document.getElementById('selSendMinute').value;
+                    var sendTime = selSendHour+":"+selSendMinute;
+
+                    //推送周期 为每日
+                    if(sendCycle =="daily"){
+                        selSendMonth = "";
+                    }
+
+                    //推送领导ID
+                    var pushLeaderId = iframe.contentWindow.document.getElementById('pushLeaderId').value;
+
+                    //2025-11-19 下一级维度
+                    var xyjwdValue = "";
+                    if ($('#xyjwd').is(':checked')) {
+                        xyjwdValue = $('#xyjwd').val();
+                    }
+
+                    var newHeadersArr = new Array();
+
+                    var firstLevel = "";
+                    if(rowHeadersArr.length > 0){
+
+                        for(var i=0;i<rowHeadersArr.length;i++){
+                            var rowHead = rowHeadersArr[i];
+                            var col = new Object();
+                            col.id = "wd_"+rowHead.id
+                            if(i == 0){
+                                firstLevel = rowHead.level;
+                            } else {
+                                if(firstLevel != rowHead.level){
+                                    layer.alert("请选择同一层级维度！");
+                                    return;
+                                }
+                            }
+
+                            //2025-11-19
+                            if(xyjwdValue =="1"){
+                                if(rowHead.columnName == "hxLatnName"){ //地市
+                                    col.title = "分局";
+                                    col.field = "hxAreaName";
+                                }else if(rowHead.columnName == "hxAreaName"){//区县
+                                    col.title = "网格";
+                                    col.field = "xHx5BpName";
+                                }else if(rowHead.columnName == "xHx5BpName"){//网格
+                                    col.title = "网格";
+                                    col.field = "xHx5BpName";
+                                    //col.fixed = "left";
+                                }else if(rowHead.id == "selAllQuanQu"){
+                                    col.title = "全区";
+                                    col.field = "selAllQuanQu";
+                                    //col.fixed = "left";
+                                }else if(rowHead.id == "selAllDiShi"){
+                                    col.title = "地市";
+                                    col.field = "hxLatnName";
+                                    //col.fixed = "left";
+                                }else if(rowHead.id == "selAllQuXian"){
+                                    col.title = "区县";
+                                    col.field = "hxAreaName";
+                                    //col.fixed = "left";
+                                }else if(rowHead.id == "selAllWangGe"){
+                                    col.title = "网格";
+                                    col.field = "xHx5BpName";
+                                    //col.fixed = "left";
+                                }else{
+                                    col.title = rowHead.title;
+                                    col.field = rowHead.columnName;
+                                    //col.fixed = "left";
+                                }
+                            }else{
+                                if(rowHead.columnName == "hxLatnName"){
+                                    col.title = "地州";
+                                    col.field = "hxLatnName";
+                                }else if(rowHead.columnName == "hxAreaName"){
+                                    col.title = "分局";
+                                    col.field = "hxAreaName";
+                                }else if(rowHead.columnName == "hxRegionName"){
+                                    col.title = "支局";
+                                    col.field = "hxRegionName";
+                                }else if(rowHead.columnName == "xHx5BpName"){
+                                    col.title = "网格";
+                                    col.field = "xHx5BpName";
+                                }else if(rowHead.id == "selAllQuanQu"){
+                                    col.title = "全区";
+                                    col.field = "selAllQuanQu";
+                                }else if(rowHead.id == "selAllDiShi"){
+                                    col.title = "地市";
+                                    col.field = "hxLatnName";
+                                }else if(rowHead.id == "selAllQuXian"){
+                                    col.title = "区县";
+                                    col.field = "hxAreaName";
+                                }else if(rowHead.id == "selAllWangGe"){
+                                    col.title = "网格";
+                                    col.field = "xHx5BpName";
+                                }else{
+                                    col.title = rowHead.title;
+                                    col.field = rowHead.columnName;
+                                }
+                            }
+
+                            var isExist = false;
+                            for(var j=0; j<newHeadersArr.length;j++){
+                                var newHead = newHeadersArr[j];
+                                if(col.field == newHead.field){
+                                    isExist = true;
+                                    break;
+                                }
+                            }
+                            if(!isExist){
+                                col.align = "center";
+                                newHeadersArr.push(col);
+                            }
+                        }
+                    }
+
+
+                    for(var i=0;i<colHeadersArr.length;i++){
+                        var colHeadItem = colHeadersArr[i];
+                        var data = new Object();
+                        data.id = colHeadItem.id;
+                        data.title = colHeadItem.title;
+                        data.field = colHeadItem.columnName;
+                        data.align = "center";
+                        //2025-11-25
+                        data.isFiveInten = colHeadItem.isFiveInten;
+                        newHeadersArr.push(data);
+                    }
+
+                    let cols = new Array();
+                    cols.push(newHeadersArr);
+
+                    /*var custZQ = zhengqi.checked ? '1' : '0';
+                    var custGZ = gongzhong.checked ? '1' : '0';*/
+                    var custType = $("#custType").val();
+
+
+                    var whereMap = new Map();
+                    var strWhere ="";
+                    var tjElements = $('[lay-filter="tjFilter"]');
+                    tjElements.each(function() {
+
+                        var tjCheckValue = $('input[name="'+this.name+'"]:checked').val() || null;
+                        if(tjCheckValue != null){
+                            whereMap.set(this.id, this.name+" = '"+tjCheckValue+"'");
+                        }
+                    });
+
+                    //console.log(whereMap);
+                    const whereMapToArray = Array.from(whereMap);
+                    //console.log(whereMapToArray);
+                    const whereJson = JSON.stringify(whereMapToArray);
+                    //console.log(whereJson);
+
+                    var isNonNtandValue = $('input[name="isNonNtand"]:checked').val();
+
+                    var param = new Object();
+                    param.dateType = dateType;
+                    param.roleType = roleType;
+                    param.indexType = indexType;
+                    param.indexInfo = JSON.stringify(newHeadersArr);
+                    param.dimensionInfo = JSON.stringify(rowHeadersArr);
+                    /*param.custZq = custZQ;
+                    param.custGz = custGZ;*/
+                    param.custType = custType;
+
+                    param.whereInfo = whereJson;
+                    param.reportName = autoReportName;
+                    param.sendCycle = sendCycle;
+                    param.sendMonth = selSendMonth;
+                    param.sendTime = sendTime;
+                    param.pushObjectId = pushObjectId;
+                    param.pushLeaderId = pushLeaderId;
+                    param.isNonNtand = isNonNtandValue;
+                    param.xyjwd = xyjwdValue;
+
+                    //console.log(param);
+
+                    let loading = layer.load();
+                    $.ajax({
+                        url: MODULE_PATH + 'autoCreateReport',
+                        data: JSON.stringify(param),
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        type: 'post',
+                        success: function (result) {
+                            layer.close(loading);
+                            if (result.retCode == '0') {
+                                layer.alert("保存自动报表成功！");
+                                layer.close(index);
+                                return;
+                            } else {
+                                layer.alert(result.retMsg);
+                                return;
+                            }
+                        }
+                    })
+
+                },
+                btn2: function(index, layero){
+                    layer.close(index);
+
+                }
+            });
+        });
+
+
+        /**
+         * 选择全部地市
+         */
+        form.on('submit(sel-all-latn)', function (data) {
+
+            //获取推送对象下拉框
+            $.ajax({
+                url: '/autoData/report/getAllLatnInfo',
+                dataType: 'json',
+                contentType: 'application/json',
+                type: 'post',
+                success: function (result) {
+                    if(result.retCode == "0"){
+                        var retLatnData = result.retData;
+                        if (Array.isArray(retLatnData)) {
+
+                            //清空维度文件框中的内容
+                            $('#row-zone').empty();
+                            rowHeaders = [];
+                            rowHeadersArr = [];
+
+                            // 遍历JSONArray
+                            $.each(retLatnData, function(retIndex, item) {
+
+                                var id = item.id;
+                                var addId = "selRow_"+id;
+                                var title = item.title;
+                                row = true;
+                                //const index = rowHeaders.indexOf(id);
+                                const index = rowHeaders.indexOf(addId);
+                                if (index !== -1) {
+                                    layer.msg("已存在，请重新选择", {icon:5});
+                                    return ;
+                                }else{
+                                    //rowHeaders.push(id);
+                                    rowHeaders.push(addId);
+                                    rowHeadersArr.push(item);
+                                }
+
+                                // 创建表头项
+                                const headerItem = document.createElement('div');
+                                headerItem.className = 'selected-header-item';
+                                headerItem.setAttribute('data-field', id);
+                                //headerItem.id = id;
+                                headerItem.id = addId;
+
+                                headerItem.innerHTML = '<span>'+title+'</span><span class="remove-btn">&times;</span>';
+
+                                // 添加删除按钮事件
+                                headerItem.querySelector('.remove-btn').addEventListener('click', function(event) {
+                                    // const parentId = parseInt(event.target.parentElement.id);
+                                    const parentId = event.target.parentElement.id;
+                                    var removeHead = document.getElementById(parentId);
+                                    const index = rowHeaders.indexOf(parentId);
+                                    if (index !== -1) {
+                                        rowHeaders.splice(index, 1);
+                                        rowHeadersArr.splice(index, 1);
+                                        rowZone.removeChild(removeHead);
+                                    }
+                                });
+
+                                rowZone.appendChild(headerItem);
+
+                            });
+                        }
+                    }else{
+                        layer.alert(result.retMsg);
+                    }
+                }
+            })
+
+        });
+
+
+        /**
+         * 返回
+         */
+        form.on('submit(report-return)', function (data) {
+            window.location.href = MODULE_PATH + 'myTemplate';
+        });
+
+        function downloadFile() {
+            const link = document.createElement('a');
+            link.href = MODULE_PATH + "downloadReport?reportId=" + reportId;
+            // link.download = 'ppt_convert_config.txt';
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        /**
+         * 获取维度树数据
+         * @returns {*[]}
+         */
+        function getDimensionData() {
+            var data = [];
+
+            var isNonStandValue = $('input[name="isNonNtand"]:checked').val();
+
+            $.ajax({
+                url: MODULE_PATH +  "dimensionTreeload?isNonStand="+isNonStandValue,
+                type: "post",
+                async:false,
+                success: function(resut){
+                    data = JSON.parse(resut);
+                }
+            });
+            return data;
+        }
+
+        /**
+         * 字符串转驼峰命名
+         * @param str
+         * @returns {*}
+         */
+        function toCamelCase(str) {
+            return str.replace(/_([a-zA-Z0-9])/g, function(match, char) {
+                return char.toUpperCase();
+            });
+        }
+
+
+        // 监听数据周期单选按钮的选中事件
+        form.on('radio(dateTypeRadio)', function(data){
+            if(selDateTypeValue != data.value){
+                selDateTypeValue = data.value;
+                checkTableName ="";
+
+                //取消分类复选框选中状态
+                $('input[lay-filter="optionClassifys"]').each(function() {
+                    $(this).prop('checked', false); // 使用 jQuery 取消选中每一个复选框
+                    $(this).prop('disabled', true);
+                });
+                form.render('checkbox');
+
+                //清空指标树的内容
+                quotaData = [];
+                optionInst.reload({
+                    data: quotaData // 清空节点
+                });
+
+                //清空指标文件框中的内容
+                $("#col-zone").empty();
+                colHeaders = [];
+                colHeadersArr = [];
+
+                //清空条件
+                $('#tjDiv').html("");
+
+                //清空维度文件框中的内容
+                $('#row-zone').empty();
+                rowHeaders = [];
+                rowHeadersArr = [];
+
+                //清空列表数据
+                table.render({
+                    elem: '#report-table',
+                    data: []
+                });
+
+                $("#startDate").val('');
+                $("#endDate").val('');
+                //初始化时间
+                if(data.value == "day"){ //日
+                    laydate.render({
+                        elem: '#startDate', //指定元素
+                        type: 'date',
+                        format: 'yyyy-MM-dd',
+                        max: -1,
+                        lang:'cn'
+                    });
+
+                    laydate.render({
+                        elem: '#endDate', //指定元素
+                        type: 'date',
+                        format: 'yyyy-MM-dd',
+                        max: -1,
+                        lang:'cn'
+                    });
+                }else{ //月
+                    laydate.render({
+                        elem: '#startDate', //指定元素
+                        type: 'month',
+                        format: 'yyyy-MM',
+                        max: -1,
+                        lang:'cn'
+
+                    });
+
+                    laydate.render({
+                        elem: '#endDate', //指定元素
+                        type: 'month',
+                        format: 'yyyy-MM',
+                        max: -1,
+                        lang:'cn'
+
+                    });
+                }
+
+                $("#startDate").val('');
+                $("#endDate").val('');
+
+                //设置指标搜索框为空
+                $("#quotaSearch").val("");
+
+                //设置维度搜索框为空
+                $("#dimensionSearch").val("");
+
+                //设置查询时间的名称
+                if(data.value == "day"){ //日
+                    $("#startDateLabel").text("开始时间：");
+                    $("#endDateLabel").text("结束时间：");
+                }else{ //月
+                    $("#startDateLabel").text("开始日期：");
+                    $("#endDateLabel").text("结束日期：");
+                }
+
+                //清空报表名称中的值
+                $("#reportName").val("");
+
+                //设置客户复选框不选中
+                $("input[type='checkbox']").prop("checked", false);
+
+                //校验那些分类可用
+                var checkdateType = data.value;
+                var checkRoleType = $("input[id='roleType']:checked").val();
+                var checkIndexType = $("input[id='indexType']:checked").val();
+
+                setClassState(checkdateType,checkRoleType,checkIndexType);
+
+            }
+        });
+
+
+        // 监听分析角色单选按钮的选中事件
+        form.on('radio(roleTypeRadio)', function(data){
+            if(selRoleTypeValue != data.value){
+                selRoleTypeValue = data.value;
+                checkTableName ="";
+
+                //取消分类复选框选中状态
+                $('input[lay-filter="optionClassifys"]').each(function() {
+                    $(this).prop('checked', false); // 使用 jQuery 取消选中每一个复选框
+                    $(this).prop('disabled', true);
+                });
+                form.render('checkbox');
+
+                //清空指标树的内容
+                if(optionInst != null || optionInst != undefined){
+                    quotaData = [];
+                    optionInst.reload({
+                        data: quotaData // 清空节点
+                    });
+                }
+
+                //清空指标文件框中的内容
+                $("#col-zone").empty();
+                colHeaders = [];
+                colHeadersArr = [];
+
+                //清空条件
+                $('#tjDiv').html("");
+
+                //清空维度文件框中的内容
+                $('#row-zone').empty();
+                rowHeaders = [];
+                rowHeadersArr = [];
+
+                //清空列表数据
+                table.render({
+                    elem: '#report-table',
+                    data: []
+                });
+
+                $("#startDate").val('');
+                $("#endDate").val('');
+
+                //设置指标搜索框为空
+                $("#quotaSearch").val("");
+
+                //设置维度搜索框为空
+                $("#dimensionSearch").val("");
+
+                //清空报表名称中的值
+                $("#reportName").val("");
+
+                //设置客户复选框不选中
+                $("input[type='checkbox']").prop("checked", false);
+
+                //校验那些分类可用
+                var checkdateType = $("input[name='dateType']:checked").val();
+                var checkRoleType = data.value;
+                var checkIndexType = $("input[id='indexType']:checked").val();
+
+                setClassState(checkdateType,checkRoleType,checkIndexType);
+
+                //选中下一级度
+                $('#xyjwd').prop('checked', true);
+
+            }
+        });
+
+
+        // 监听指标类型单选按钮的选中事件
+        form.on('radio(indexTypeRadio)', function(data){
+
+            if(data.value == "count"){ //统计
+                // 设置导出按钮可用
+                $('#exportReport').prop('disabled', false);
+                // 添加 Layui 禁用样式（更美观）
+                $('#exportReport').removeClass('layui-disabled');
+                $('#exportReport').show();
+
+                // 设置自动化报表按钮可用
+                $('#autoReportBtn').prop('disabled', false);
+                $('#autoReportBtn').removeClass('layui-disabled');
+                $('#autoReportBtn').show();
+
+            }else{ //明细
+                // 设置导出按钮不可用
+                $('#exportReport').prop('disabled', true);
+                // 添加 Layui 禁用样式（更美观）
+                $('#exportReport').addClass('layui-disabled');
+                $('#exportReport').hide();
+
+                // 设置自动化报表按钮不可用
+                $('#autoReportBtn').prop('disabled', true);
+                $('#autoReportBtn').addClass('layui-disabled');
+                $('#autoReportBtn').hide();
+            }
+
+            if(selIndexTypeValue != data.value){
+                selIndexTypeValue = data.value;
+                checkTableName ="";
+
+                //取消分类复选框选中状态
+                $('input[lay-filter="optionClassifys"]').each(function() {
+                    $(this).prop('checked', false); // 使用 jQuery 取消选中每一个复选框
+                    $(this).prop('disabled', true);
+                });
+                form.render('checkbox');
+
+                //清空指标树的内容
+                if(optionInst != null || optionInst != undefined){
+                    quotaData = [];
+                    optionInst.reload({
+                        data: quotaData // 清空节点
+                    });
+                }
+
+                //清空指标文件框中的内容
+                $("#col-zone").empty();
+                colHeaders = [];
+                colHeadersArr = [];
+
+                //清空条件
+                $('#tjDiv').html("");
+
+                //清空维度文件框中的内容
+                $('#row-zone').empty();
+                rowHeaders = [];
+                rowHeadersArr = [];
+
+                //清空列表数据
+                table.render({
+                    elem: '#report-table',
+                    data: []
+                });
+
+                $("#startDate").val('');
+                $("#endDate").val('');
+
+                //设置指标搜索框为空
+                $("#quotaSearch").val("");
+
+                //设置维度搜索框为空
+                $("#dimensionSearch").val("");
+
+                //清空报表名称中的值
+                $("#reportName").val("");
+
+                //设置客户复选框不选中
+                $("input[type='checkbox']").prop("checked", false);
+
+                //校验那些分类可用
+                var checkdateType = $("input[name='dateType']:checked").val();
+                var checkRoleType = $("input[id='roleType']:checked").val();
+                var checkIndexType = data.value;
+
+                setClassState(checkdateType,checkRoleType,checkIndexType);
+
+                //选中下一级度
+                $('#xyjwd').prop('checked', true);
+
+            }
+        });
+
+
+        //标准非标准单选按钮的选中事件
+        form.on('radio(isNonNtandFilter)', function(data){
+            if(selIsNonNtandFilterValue != data.value){
+                selIsNonNtandFilterValue = data.value;
+                //重新加载维度树
+                dimensionData = getDimensionData();
+                // 重新渲染树
+                dimensionInst.reload({
+                    data: dimensionData
+                });
+
+                //清空维度文件框中的内容
+                $('#row-zone').empty();
+                rowHeaders = [];
+                rowHeadersArr = [];
+
+                //清空指标文件框中的内容
+                /*$("#col-zone").empty();
+                colHeaders = [];
+                colHeadersArr = [];
+
+                checkTableName ="";*/
+
+            }
+        })
+
+
+        /**
+         * 根据 数据周期，分析角色，指标类型 设置分类的状态
+         * @param checkdateType
+         * @param checkRoleType
+         * @param checkIndexType
+         */
+        function setClassState(checkdateType,checkRoleType,checkIndexType){
+            $.ajax({
+                url: MODULE_PATH +  "getClassByWhere",
+                type: "post",
+                //async:false,
+                data: {checkdateType:checkdateType,checkRoleType:checkRoleType,checkIndexType:checkIndexType},
+                success: function(result){
+                    if (result.retCode == "0"){
+                        var classIds = result.classIds;
+                        var classIdsArr = classIds.split(";");
+                        $('input[lay-filter="optionClassifys"]').each(function() {
+                            var classObj = $(this);
+                            var classId = this.id;
+                            $.each(classIdsArr, function(index, value) {
+                                if(classId == value){
+                                    classObj.prop('disabled', false);
+                                }
+                            });
+                        });
+
+                        form.render('checkbox');
+                    }
+                }
+            });
+        }
+
+
+        /**
+         * 指标树搜索
+         */
+        form.on('submit(query-quota-but)', function (){
+            var keyword = $('#quotaSearch').val().trim();
+            // 清除之前的高亮
+            $('.layui-tree-txt').removeClass('quotaHighlight');
+
+            if (!keyword) return;
+
+            // 复制数据避免修改原数据
+            var copyData = JSON.parse(JSON.stringify(quotaData));
+            searchNode(copyData,keyword);
+
+
+            // 重新渲染树
+            optionInst.reload({
+                data: copyData
+            });
+
+            // 高亮显示匹配的节点
+            setTimeout(function() {
+                $('.layui-tree-txt').each(function() {
+                    var text = $(this).text().toLowerCase();
+                    if (text.indexOf(keyword) !== -1) {
+                        $(this).addClass('quotaHighlight');
+
+                        // 滚动到第一个匹配的节点
+                        var firstHighlight = $('.quotaHighlight').first();
+                        if (firstHighlight.length) {
+                            $('.layui-tree').scrollTop(firstHighlight.offset().top - $('.layui-tree').offset().top - 50);
+                        }
+                    }
+                });
+            }, 0);
+
+        });
+
+
+        /**
+         * 维度树搜索
+         */
+        form.on('submit(query-dimension-but)', function (){
+            var keyword = $('#dimensionSearch').val().trim();
+            // 清除之前的高亮
+            $('.layui-tree-txt').removeClass('dimensionHighlight');
+
+            if (!keyword) return;
+
+            // 复制数据避免修改原数据
+            var copyData = JSON.parse(JSON.stringify(dimensionData));
+            searchNode(copyData,keyword);
+
+
+            // 重新渲染树
+            dimensionInst.reload({
+                data: copyData
+            });
+
+            // 高亮显示匹配的节点
+            setTimeout(function() {
+                $('.layui-tree-txt').each(function() {
+                    var text = $(this).text().toLowerCase();
+                    if (text.indexOf(keyword) !== -1) {
+                        $(this).addClass('dimensionHighlight');
+
+                        // 滚动到第一个匹配的节点
+                        var firstHighlight = $('.dimensionHighlight').first();
+                        if (firstHighlight.length) {
+                            $('.layui-tree').scrollTop(firstHighlight.offset().top - $('.layui-tree').offset().top - 50);
+                        }
+                    }
+                });
+            }, 0);
+
+        });
+
+        // 递归搜索树节点
+        function searchNode(nodes,keyword) {
+            /*var hasMatch = false;
+
+            nodes.forEach(function(node) {
+                // 检查当前节点是否匹配
+                var isMatch = node.title.toLowerCase().indexOf(keyword) !== -1;
+
+                // 递归搜索子节点
+                if (node.children && node.children.length > 0) {
+                    var childHasMatch = searchNode(node.children,keyword);
+                    hasMatch = hasMatch || childHasMatch;
+                }
+
+                // 如果当前节点匹配或子节点有匹配，展开节点
+                if (isMatch || (node.children && node.children.length > 0 && hasMatch)) {
+                    node.spread = true;
+                    hasMatch = true;
+                } else {
+                    node.spread = false;
+                }
+            });
+
+            return hasMatch;*/
+
+            var hasMatch = false;
+
+            nodes.forEach(function(node) {
+                // 检查当前节点是否匹配
+                var isMatch = node.title.toLowerCase().indexOf(keyword) !== -1;
+                var currentHasMatch = isMatch; // 当前节点自己的匹配状态
+
+                // 递归搜索子节点
+                if (node.children && node.children.length > 0) {
+                    var childHasMatch = searchNode(node.children, keyword);
+                    currentHasMatch = currentHasMatch || childHasMatch; // 合并子节点匹配状态
+                }
+
+                // 仅当当前节点匹配或子节点有匹配时才展开
+                node.spread = currentHasMatch; // 直接使用当前节点的匹配状态
+
+                // 累加整个数组的匹配状态
+                hasMatch = hasMatch || currentHasMatch;
+            });
+
+            return hasMatch;
+
+        }
+
+
+        /**
+         * 维度全区点击事件
+         */
+        form.on('submit(sel-all-quanqu)', function (data) {
+
+            //清空维度文件框中的内容
+            $('#row-zone').empty();
+            rowHeaders = [];
+            rowHeadersArr = [];
+            rowZone.replaceChildren();
+
+            var item = new Object()
+            var id = "selAllQuanQu";
+            var addId = "selRow_"+id;
+            var title = "全区";
+
+            item.id = id;
+            item.title = title;
+            item.columnName = id;
+
+            rowHeaders.push(addId);
+            rowHeadersArr.push(item);
+
+            // 创建表头项
+            const headerItem = document.createElement('div');
+            headerItem.className = 'selected-header-item';
+            headerItem.setAttribute('data-field', id);
+            //headerItem.id = id;
+            headerItem.id = addId;
+
+            headerItem.innerHTML = '<span>'+title+'</span><span class="remove-btn">&times;</span>';
+
+            // 添加删除按钮事件
+            headerItem.querySelector('.remove-btn').addEventListener('click', function(event) {
+                // const parentId = parseInt(event.target.parentElement.id);
+                const parentId = event.target.parentElement.id;
+                var removeHead = document.getElementById(parentId);
+                const index = rowHeaders.indexOf(parentId);
+                if (index !== -1) {
+                    rowHeaders.splice(index, 1);
+                    rowHeadersArr.splice(index, 1);
+                    rowZone.removeChild(removeHead);
+                }
+            });
+
+            rowZone.appendChild(headerItem);
+
+        });
+
+
+        /**
+         * 维度地市点击事件
+         */
+        form.on('submit(sel-all-dishi)', function (data) {
+
+            //清空维度文件框中的内容
+            $('#row-zone').empty();
+            rowHeaders = [];
+            rowHeadersArr = [];
+            rowZone.replaceChildren();
+
+            var item = new Object()
+            var id = "selAllDiShi";
+            var addId = "selRow_"+id;
+            var title = "地市";
+
+            item.id = id;
+            item.title = title;
+            item.columnName = id;
+
+            rowHeaders.push(addId);
+            rowHeadersArr.push(item);
+
+            // 创建表头项
+            const headerItem = document.createElement('div');
+            headerItem.className = 'selected-header-item';
+            headerItem.setAttribute('data-field', id);
+            //headerItem.id = id;
+            headerItem.id = addId;
+
+            headerItem.innerHTML = '<span>'+title+'</span><span class="remove-btn">&times;</span>';
+
+            // 添加删除按钮事件
+            headerItem.querySelector('.remove-btn').addEventListener('click', function(event) {
+                // const parentId = parseInt(event.target.parentElement.id);
+                const parentId = event.target.parentElement.id;
+                var removeHead = document.getElementById(parentId);
+                const index = rowHeaders.indexOf(parentId);
+                if (index !== -1) {
+                    rowHeaders.splice(index, 1);
+                    rowHeadersArr.splice(index, 1);
+                    rowZone.removeChild(removeHead);
+                }
+            });
+
+            rowZone.appendChild(headerItem);
+
+        });
+
+
+        /**
+         * 维度区县点击事件
+         */
+        form.on('submit(sel-all-quxian)', function (data) {
+
+            //清空维度文件框中的内容
+            $('#row-zone').empty();
+            rowHeaders = [];
+            rowHeadersArr = [];
+            rowZone.replaceChildren();
+
+            var item = new Object()
+            var id = "selAllQuXian";
+            var addId = "selRow_"+id;
+            var title = "区县";
+
+            item.id = id;
+            item.title = title;
+            item.columnName = id;
+
+            rowHeaders.push(addId);
+            rowHeadersArr.push(item);
+
+            // 创建表头项
+            const headerItem = document.createElement('div');
+            headerItem.className = 'selected-header-item';
+            headerItem.setAttribute('data-field', id);
+            //headerItem.id = id;
+            headerItem.id = addId;
+
+            headerItem.innerHTML = '<span>'+title+'</span><span class="remove-btn">&times;</span>';
+
+            // 添加删除按钮事件
+            headerItem.querySelector('.remove-btn').addEventListener('click', function(event) {
+                // const parentId = parseInt(event.target.parentElement.id);
+                const parentId = event.target.parentElement.id;
+                var removeHead = document.getElementById(parentId);
+                const index = rowHeaders.indexOf(parentId);
+                if (index !== -1) {
+                    rowHeaders.splice(index, 1);
+                    rowHeadersArr.splice(index, 1);
+                    rowZone.removeChild(removeHead);
+                }
+            });
+
+            rowZone.appendChild(headerItem);
+
+        });
+
+
+        /**
+         * 维度网格点击事件
+         */
+        form.on('submit(sel-all-wangge)', function (data) {
+
+            //清空维度文件框中的内容
+            $('#row-zone').empty();
+            rowHeaders = [];
+            rowHeadersArr = [];
+            rowZone.replaceChildren();
+
+            var item = new Object()
+            var id = "selAllWangGe";
+            var addId = "selRow_"+id;
+            var title = "网格";
+
+            item.id = id;
+            item.title = title;
+            item.columnName = id;
+
+            rowHeaders.push(addId);
+            rowHeadersArr.push(item);
+
+            // 创建表头项
+            const headerItem = document.createElement('div');
+            headerItem.className = 'selected-header-item';
+            headerItem.setAttribute('data-field', id);
+            //headerItem.id = id;
+            headerItem.id = addId;
+
+            headerItem.innerHTML = '<span>'+title+'</span><span class="remove-btn">&times;</span>';
+
+            // 添加删除按钮事件
+            headerItem.querySelector('.remove-btn').addEventListener('click', function(event) {
+                // const parentId = parseInt(event.target.parentElement.id);
+                const parentId = event.target.parentElement.id;
+                var removeHead = document.getElementById(parentId);
+                const index = rowHeaders.indexOf(parentId);
+                if (index !== -1) {
+                    rowHeaders.splice(index, 1);
+                    rowHeadersArr.splice(index, 1);
+                    rowZone.removeChild(removeHead);
+                }
+            });
+
+            rowZone.appendChild(headerItem);
+
+        });
+
+        /**
+         * 一键清除指标
+         */
+        form.on('submit(clear-col-zone)', function (data) {
+            //清空指标文件框中的内容
+            $("#col-zone").empty();
+            colHeaders = [];
+            colHeadersArr = [];
+
+            $("#endDate").val("");
+            $("#endDate").attr("disabled",false);
+
+            //清空条件
+            $('#tjDiv').html("");
+
+            checkTableName ="";
+        })
+
+        /**
+         * 一键清除维度
+         */
+        form.on('submit(clear-row-zone)', function (data) {
+            //清空维度文件框中的内容
+            $('#row-zone').empty();
+            rowHeaders = [];
+            rowHeadersArr = [];
+        })
+
+        // 定义获取当前日期时间的函数
+        function getCurrentDateTime() {
+            var now = new Date();
+            // 获取年、月、日
+            var year = now.getFullYear();
+            var month = String(now.getMonth() + 1).padStart(2, '0'); // 月份从0开始，需加1
+            var day = String(now.getDate()).padStart(2, '0');
+
+            // 获取时、分、秒
+            var hours = String(now.getHours()).padStart(2, '0');
+            var minutes = String(now.getMinutes()).padStart(2, '0');
+            var seconds = String(now.getSeconds()).padStart(2, '0');
+
+            // 拼接成指定格式
+            return `${year}${month}${day}${hours}${minutes}${seconds}`;
+        }
+
+
+    });
+
+</script>
+</html>

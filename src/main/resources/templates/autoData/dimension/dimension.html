@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('维度管理')"/>
+
+    <style>
+        .tree-item-clicked > .layui-tree-entry .layui-tree-txt {
+            background: #04a8f0 !important;
+            padding-left: 5px;
+            padding-right: 5px;
+            color: #FFFFFF;
+        }
+        .layui-tree-line .layui-tree-entry:hover .layui-tree-txt {
+            background: #e6f7ff;
+        }
+
+        /* 高亮样式 */
+        .search-highlight {
+            font-weight: bold;
+            background-color: #fffbe6;
+            padding: 0 4px;
+            border-radius: 3px;
+        }
+
+        .quotaHighlight {
+            color: #1e90ff;
+            font-weight: bold;
+        }
+
+        .dimensionHighlight {
+            color: #1e90ff;
+            font-weight: bold;
+        }
+
+    </style>
+
+</head>
+<body class="pear-container">
+<div class="layui-card">
+    <div class="layui-card-body">
+
+            <div class="layui-form-item">
+
+                <label class="layui-form-label">维度名称:</label>
+                <div class="layui-input-inline">
+                    <input  class="layui-input"  name="dimensionName" id="dimensionName" placeholder="" type="text">
+                </div>
+
+                <button class="pear-btn pear-btn-md pear-btn-primary" lay-filter="file-query" onclick="queryTreeData()">
+                    <i class="layui-icon layui-icon-search"></i>
+                    查询
+                </button>
+                <button class="pear-btn pear-btn-md" type="reset">
+                    <i class="layui-icon layui-icon-refresh"></i>
+                    重置
+                </button>
+            </div>
+
+    </div>
+</div>
+
+<div style="display: flex;">
+    <div class="layui-card" style="border: 0px solid blueviolet;width: 30%;">
+        <div style="padding-top: 20px; margin-left: 20px;">
+            <button class="pear-btn pear-btn-primary pear-btn-md " lay-event="add" onclick="add()"><i class="pear-icon pear-icon-add"></i>
+                新增
+            </button>
+
+            <button class="pear-btn pear-btn-primary pear-btn-md" lay-event="dateExport" onclick="edit()"><i class="pear-icon pear-icon-edit"></i>
+                修改
+            </button>
+
+            <button class="pear-btn pear-btn-md" lay-event="remove" onclick="remove()"><i class="layui-icon layui-icon-delete"></i>
+                删除
+            </button>
+        </div>
+
+        <div id="card-body-div" style="margin-bottom: 10px;margin-left: 10px;">
+            <form class="layui-form">
+                <div class="layui-form-item" style="margin-top: 20px;margin-left: 20px;">
+                    <input name="isNonStand" title="标准维度" type="radio" value="0" checked lay-filter="isNonStandFilter">
+                    <input name="isNonStand" title="非标准维度" type="radio" value="1" lay-filter="isNonStandFilter">
+                </div>
+            </form>
+
+            <div class="layui-card-body layui-card-body-opt" style="height: 90%;overflow: auto;" id="dimensionDiv">
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!--内容DIV-->
+    <div class="layui-card" id="dimensionContentDiv" style="border: 0px solid blueviolet;width: 70%;margin-left: 10px;">
+        <form class="layui-form">
+        <div class="main-container">
+
+            <div class="layui-form-item">
+                <label class="layui-form-label" style="white-space: nowrap;padding-left: 1px;"><span style="color:red;">*</span>父维度ID</label>
+                <div class="layui-input-block">
+                    <input autocomplete="off" class="layui-input" lay-verify="required" name="parentIdContent" id="parentIdContent" placeholder=""
+                           type="text" readonly>
+
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label" style="white-space: nowrap;padding-left: 1px;"><span style="color:red;">*</span>父维度名称</label>
+                <div class="layui-input-block">
+                    <input autocomplete="off" class="layui-input" lay-verify="required" name="parentNameContent" id="parentNameContent" placeholder=""
+                           type="text" readonly>
+
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span style="color:red;">*</span>维度ID</label>
+                <div class="layui-input-block">
+                    <input autocomplete="off" class="layui-input" lay-verify="required" name="dimensionIdContent" id="dimensionIdContent" placeholder=""
+                           type="text" readonly>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span style="color:red;">*</span>维度名称</label>
+                <div class="layui-input-block">
+                    <input autocomplete="off" class="layui-input" lay-verify="required" name="dimensionNameContent" id="dimensionNameContent" placeholder=""
+                           type="text" readonly>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span style="color:red;">*</span>区域</label>
+                <div class="layui-input-block">
+                    <input autocomplete="off" class="layui-input" lay-verify="required" name="fieldContent" id="fieldContent" placeholder=""
+                           type="text" readonly>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span style="color:red;">*</span>排序</label>
+                <div class="layui-input-block">
+                    <input autocomplete="off" class="layui-input" lay-verify="required" name="sortIdContent" id="sortIdContent" placeholder=""
+                           type="text" readonly>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label" style="white-space: nowrap;"><span style="color:red;">*</span>标准维度</label>
+                <div class="layui-input-block">
+                    <input name="isNonStandContent" title="是" type="radio" value="0" lay-filter="isNonStandFilter"  disabled>
+                    <input name="isNonStandContent" title="否" type="radio" value="1" lay-filter="isNonStandFilter"  disabled>
+                </div>
+            </div>
+
+        </div>
+        </form>
+    </div>
+</div>
+
+</body>
+
+
+<th:block th:include="include :: footer"/>
+<script>
+    layui.use(['tree','table', 'form', 'jquery', 'popup', 'common','soulTable'], function () {
+        var tree = layui.tree;
+        let table = layui.table;
+        let form = layui.form;
+        let $ = layui.jquery;
+        let popup = layui.popup;
+        let common = layui.common;
+        let soulTable = layui.soulTable;
+
+        var selTreeDataId ="";
+        var selTreeDataName ="";
+
+        //获取页面高度
+        var pageHeight = $(document).height();
+        $('#card-body-div').height(pageHeight-210);
+        $('#dimensionContentDiv').height(pageHeight-125);
+
+        let MODULE_PATH = "/autoData/dimension/";
+
+
+        // 加载维度树数据
+        var dimensionData = getDimensionData();
+        var dimensionTree = tree.render({
+            elem: '#dimensionDiv',
+            data: dimensionData,
+            id: 'dimension',  // 定义索引
+            onlyIconControl: true,  // 仅允许通过图标展开
+            // showCheckbox: true,  // 是否显示复选框
+            //isJump: true,  // 是否允许点击节点时弹出新窗口跳转
+            async: true,  // 开启异步加载模式
+            click: function(obj){
+
+                selTreeDataId = obj.data.id;
+                selTreeDataName = obj.data.title;
+
+                // 移除所有选中样式
+                var nodes = document.querySelectorAll('.tree-item-clicked');
+                for (var i = 0; i < nodes.length; i++) {
+                    nodes[i].classList.remove('tree-item-clicked');
+                }
+
+                // 添加当前选中样式
+                obj.elem[0].classList.add('tree-item-clicked');
+
+                //根据ID获取信息
+                $.ajax({
+                    url: '/autoData/dimension/getDimensionInfo',
+                    data: obj.data.id,
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    type: 'post',
+                    success: function (result) {
+                        var reportDimension = result.reportDimension;
+                        var parentReportDimension = result.parentReportDimension;
+                        var areaName = result.areaName;
+
+                        $("#parentIdContent").val(parentReportDimension.dimensionId);
+                        $("#parentNameContent").val(parentReportDimension.dimensionName);
+                        $("#dimensionIdContent").val(reportDimension.dimensionId);
+                        $("#dimensionNameContent").val(reportDimension.dimensionName);
+                        $("#fieldContent").val(areaName);
+                        $("#sortIdContent").val(reportDimension.sortId);
+                        $('input[name="isNonStandContent"][value="' + reportDimension.isNonStand + '"]').prop('checked', true);
+                        form.render('radio');
+
+                    }
+                })
+            },
+            onExpand: function(obj) {
+                console.log(obj)
+            }
+        });
+
+
+
+        /**
+         * 获取维度树数据
+         */
+        function getDimensionData(){
+            var isNonStandChk = $('input[name="isNonStand"]:checked').val();
+
+            var data = [];
+            $.ajax({
+                url: MODULE_PATH +  "dimensionTreeload",
+                type: "post",
+                async:false,
+                data:{isNonStand:isNonStandChk},
+                success: function(resut){
+                    data = JSON.parse(resut);
+                }
+            });
+            return data;
+        }
+
+        var selIsNonStandValue ="";
+        // 监听单选按钮选中事件
+        form.on('radio(isNonStandFilter)', function(data){
+            if(selIsNonStandValue != data.value){
+                selIsNonStandValue = data.value;
+                selTreeDataId = "";
+
+                let loading = layer.load();
+                // 加载维度树数据
+                var dimensionNewData = getDimensionData();
+
+                tree.reload('dimension', {
+                    data: dimensionNewData
+                });
+
+                layer.close(loading);
+            }
+        })
+
+
+        /**
+         * 新增
+         */
+        window.add = function(){
+            if(selTreeDataId ==""){
+                layer.msg("请选择维度", {icon: 2, time: 2000});
+                return false;
+            }
+
+            var selIsNonStand = $('input[name="isNonStand"]:checked').val();
+
+            layer.open({
+                type: 2,
+                title: '新增',
+                shade: 0.1,
+                area: ['550px', '500px'],
+                content: MODULE_PATH + 'toAdd?dimensionId='+selTreeDataId+"&dimensionName="+selTreeDataName+"&isNonStand="+selIsNonStand
+            });
+
+        }
+
+        /**
+         * 删除
+         */
+        window.remove = function(){
+            if(selTreeDataId ==""){
+                layer.msg("请选择维度", {icon: 2, time: 2000});
+                return false;
+            }
+
+            layer.confirm('确定要删除选中的维度', {icon: 3, title: '提示'}, function (index) {
+                let loading = layer.load();
+                $.ajax({
+                    url: MODULE_PATH + "remove/" + selTreeDataId,
+                    dataType: 'json',
+                    type: 'delete',
+                    success: function (result) {
+                        selTreeDataId ="";
+                        layer.close(loading);
+                        if (result.retCode =='0') {
+                            selTreeDataId =""
+
+                            popup.success(result.retMsg, function () {
+                                // 加载维度树数据
+                                var dimensionNewData = getDimensionData();
+
+                                tree.reload('dimension', {
+                                    data: dimensionNewData
+                                });
+
+                                $("#parentNameContent").val("");
+                                $("#dimensionNameContent").val("");
+                                $("#fieldContent").val("");
+                                $("#sortIdContent").val("");
+
+                            });
+                        } else {
+                            popup.failure(result.retMsg);
+                        }
+                    }
+                })
+            })
+
+        }
+
+
+        /**
+         * 修改
+         */
+        window.edit = function(){
+            if(selTreeDataId ==""){
+                layer.msg("请选择要修改的维度", {icon: 2, time: 2000});
+                return false;
+            }
+
+            layer.open({
+                type: 2,
+                title: '修改',
+                shade: 0.1,
+                area: ['550px', '500px'],
+                content: MODULE_PATH + 'toEdit?dimensionId='+selTreeDataId
+            });
+
+        }
+
+        window.getTreeData = function(data){
+
+            selTreeDataId ="";
+
+            // 加载维度树数据
+            var dimensionNewData = getDimensionData();
+
+            tree.reload('dimension', {
+                data: dimensionNewData
+            });
+        }
+
+        /**
+         * 查询
+         */
+        window.queryTreeData = function(){
+            var keyword = $('#dimensionName').val().trim();
+            // 清除之前的高亮
+            $('.layui-tree-txt').removeClass('dimensionHighlight');
+
+            if (!keyword) return;
+
+            // 复制数据避免修改原数据
+            var dimensionNewData = getDimensionData();
+            var copyData = JSON.parse(JSON.stringify(dimensionNewData));
+            searchNode(copyData,keyword);
+
+
+            // 重新渲染树
+            dimensionTree.reload({
+                data: copyData
+            });
+
+            // 高亮显示匹配的节点
+            setTimeout(function() {
+                $('.layui-tree-txt').each(function() {
+                    var text = $(this).text().toLowerCase();
+                    if (text.indexOf(keyword) !== -1) {
+                        $(this).addClass('dimensionHighlight');
+
+                        // 滚动到第一个匹配的节点
+                        var firstHighlight = $('.dimensionHighlight').first();
+                        if (firstHighlight.length) {
+                            $('.layui-tree').scrollTop(firstHighlight.offset().top - $('.layui-tree').offset().top - 50);
+                        }
+                    }
+                });
+            }, 0);
+        }
+
+        // 递归搜索树节点
+        function searchNode(nodes,keyword) {
+            var hasMatch = false;
+
+            nodes.forEach(function(node) {
+                // 检查当前节点是否匹配
+                var isMatch = node.title.toLowerCase().indexOf(keyword) !== -1;
+                var currentHasMatch = isMatch; // 当前节点自己的匹配状态
+
+                // 递归搜索子节点
+                if (node.children && node.children.length > 0) {
+                    var childHasMatch = searchNode(node.children, keyword);
+                    currentHasMatch = currentHasMatch || childHasMatch; // 合并子节点匹配状态
+                }
+
+                // 仅当当前节点匹配或子节点有匹配时才展开
+                node.spread = currentHasMatch; // 直接使用当前节点的匹配状态
+
+                // 累加整个数组的匹配状态
+                hasMatch = hasMatch || currentHasMatch;
+            });
+
+            return hasMatch;
+        }
+
+
+
+    })
+</script>
+</html>

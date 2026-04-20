@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <th:block th:include="include :: header('推送至领导')"/>
+
+</head>
+<body>
+<div style="display: flex;justify-content: center;">
+   <div>
+       <div style="display: flex;margin-top: 20px;margin-left: 15px;">
+           <div style="font-size: 16px;height: 30px;line-height: 30px;">审批结果：</div>
+           <div style="height: 30px;line-height: 30px;">
+               <input type="radio" id="applyResult" name="applyResult" value="1" style="width: 16px;height: 16px;margin-left: 10px;" checked>
+               <label style="font-size: 16px;">通过</label>
+               <input type="radio" id="applyResult" name="applyResult" value="2" style="width: 16px;height: 16px;margin-left: 30px;">
+               <label style="font-size: 16px;">不通过</label>
+           </div>
+
+       </div>
+
+       <div style="display: flex;margin-top: 20px;margin-left: 15px;">
+           <div style="font-size: 15px;height: 30px;line-height: 30px;margin-top: 5px;">审批意见：</div>
+           <textarea class="layui-textarea"  id="applyOpinion" name="applyOpinion" style="width: 400px; height: 150px;">
+
+        </textarea>
+       </div>
+   </div>
+
+</div>
+
+</body>
+
+<th:block th:include="include :: footer"/>
+<script>
+    layui.use(['tree', 'layer','form','laydate','table','popup'], function(){
+        var tree = layui.tree;
+        var layer = layui.layer;
+        var form = layui.form;
+        var laydate = layui.laydate;
+        let table = layui.table;
+        let popup = layui.popup;
+        form.render('radio');
+        form.render('checkbox');
+        var $ = layui.$;
+
+
+    });
+
+</script>
+</html>

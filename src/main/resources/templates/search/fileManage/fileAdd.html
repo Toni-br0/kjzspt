@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('文件上传')"/>
+
+    <style>
+        /* 为选中的节点添加自定义样式 */
+        /*.layui-tree .layui-tree-set {
+            background-color: #f0f0f0; !* 背景色 *!
+            color: yellow; !* 文字颜色 *!
+        }*/
+
+        .layui-tree-set-active > .layui-tree-entry .layui-tree-main {
+            background: #EEE9E9;
+        }
+
+
+    </style>
+</head>
+<body>
+<form action="javascript:void(0);" class="layui-form">
+    <div class="mainBox">
+        <div class="main-container">
+
+            <div style="margin-bottom: 10px;">
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="white-space: nowrap;">文件类型：</label>
+                    <div class="layui-input-block">
+                        <div style="width: 100%;height: 220px;overflow: auto">
+                            <div id="treeDiv"></div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="layui-upload">
+                <button class="pear-btn pear-btn-primary" style="width: 100%;" id="testList" type="button">
+                    <i class="layui-icon layui-icon-upload"></i>
+                    文件上传
+                </button>
+                <div class="layui-upload-list">
+                    <table class="layui-table">
+                        <thead>
+                        <tr>
+                            <th>文件名</th>
+                            <th>大小</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody id="demoList"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="bottom">
+        <div class="button-container" style="right: 45%;">
+            <button class="pear-btn pear-btn-primary pear-btn-sm" id="testListAction" type="submit">
+                <i class="layui-icon layui-icon-ok"></i>
+                提交
+            </button>
+            <!--<button class="pear-btn pear-btn-sm" type="reset">
+                <i class="layui-icon layui-icon-refresh"></i>
+                重置
+            </button>-->
+        </div>
+    </div>
+</form>
+<th:block th:include="include :: footer"/>
+<script>
+
+    var treeSelValue = "";
+    var treeSelName = "";
+
+    layui.use(['form', 'jquery', 'upload', 'layer','tree'], function () {
+        let upload = layui.upload;
+        let $ = layui.jquery;
+        let layer = layui.layer;
+        var form = layui.form;
+        var tree = layui.tree;
+
+        // 初始化树形组件
+        tree.render({
+            elem: '#treeDiv' // 指向树形组件的容器
+            ,data: getData() // 树形组件的数据
+            ,onlyIconControl: true
+            //,showCheckbox: true
+            ,checkType: "radio"
+            ,click: function(obj){ // 点击节点时的回调
+                //console.log(obj.data); // 输出当前点击的节点数据
+                //$("#test-id").val(obj.data.value); // 将节点的值存储到隐藏域
+                // 点击高亮
+                $(".layui-tree-set").removeClass('layui-tree-set-active');
+                obj.elem.addClass('layui-tree-set-active');
+
+                treeSelValue = obj.data.id;
+                treeSelName = obj.data.title;
+
+            }
+        });
+
+
+        function getData() {
+            var data = [];
+            $.ajax({
+                url: "/search/fileManage/treeload",    //后台数据请求地址
+                type: "post",
+                async:false,
+                success: function(resut){
+
+                    data = JSON.parse(resut);
+                }
+            });
+            return data;
+
+
+        }
+
+
+        let layerIndex;
+        var fileSuccess =0;
+        var fileFail =0;
+
+        let demoListView = $('#demoList')
+            , uploadListIns = upload.render({
+            elem: '#testList'
+            , url: '/search/fileManage/uploadFile'
+            , accept: 'file'
+            , method: 'post'
+            , multiple: true
+            , auto: false
+            , exts: 'docx|doc|pdf|xlsx|xls|txt|jpg|png|gif|jpeg'
+            , bindAction: '#testListAction'
+            , choose: function (obj) {
+
+                fileSuccess =0; //文件上传成功数
+                fileFail =0; //文件上传失败数
+
+                let files = this.files = obj.pushFile();
+                obj.preview(function (index, file) {
+                    let tr = $(['<tr id="upload-' + index + '">'
+                        , '<td>' + file.name + '</td>'
+                        , '<td>' + (file.size / 1024).toFixed(1) + 'kb</td>'
+                        , '<td>'
+                        , '<button class="pear-btn pear-btn-xs demo-reload layui-hide">重传</button>'
+                        , '&nbsp;'
+                        , '<button class="pear-btn pear-btn-xs layui-btn-danger demo-delete">删除</button>'
+                        , '</td>'
+                        , '</tr>'].join(''));
+
+                    tr.find('.demo-reload').on('click', function () {
+                        obj.upload(index, file);
+                    });
+
+                    tr.find('.demo-delete').on('click', function () {
+                        delete files[index];
+                        tr.remove();
+                        uploadListIns.config.elem.next()[0].value = ''; //清空 input file 值，以免删除后出现同名文件不可选
+                    });
+                    demoListView.append(tr);
+                });
+            }
+            , done: function (res, index, upload) {
+                if (res.success){
+                    fileSuccess++;
+                }else{
+                    fileFail++;
+                }
+
+                /*if (res.success) {
+                    let tr = demoListView.find('tr#upload-' + index)
+                        , tds = tr.children();
+                    tds.eq(2).html('&nbsp;<button class="layui-btn layui-btn-xs">完成</button>'); //清空操作
+                    return delete this.files[index];
+                }
+                this.error(index, upload);*/
+            }
+            , error: function (index) {
+                let tr = demoListView.find('tr#upload-' + index)
+                    , tds = tr.children();
+                tds.eq(2).find('.demo-reload').removeClass('layui-hide');
+            }
+            , allDone: function (res) {
+                layer.close(layerIndex);
+                var total = fileSuccess + fileFail;
+                var msg ="上传数："+total+"</br>成功数："+fileSuccess+"</br>失败数："+fileFail;
+
+                layer.msg(msg, {icon: 1, time: 3000}, function () {
+                    parent.layer.close(parent.layer.getFrameIndex(window.name));
+                    parent.layui.table.reload("file-table");
+                })
+            },
+            before: function (obj) {
+
+                if(treeSelValue ==""){
+                    layer.alert('请选择文件分类', {icon: 2});
+                    return false;
+                }
+                this.data ={fileClassifyCode:treeSelValue,fileClassifyName:treeSelName};
+                layerIndex = layer.load();
+            }
+        });
+    })
+</script>
+<script>
+</script>
+</body>
+</html>

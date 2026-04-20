@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('对象批量导入')"/>
+</head>
+<body>
+<form action="javascript:void(0);" class="layui-form">
+
+    <input autocomplete="off" class="layui-input" lay-verify="required" name="roleId" id="roleId" placeholder=""
+           type="hidden" th:value="${roleId}" readonly>
+
+    <div class="mainBox">
+        <div class="main-container">
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">模板下载：</label>
+                <div class="layui-input-block">
+                    <a class="pear-btn pear-btn-primary pear-btn-sm" href="/im/pushRoleManage/downloadModelFile" download="对象批量导入模板">
+                        对象批量导入模板.xlsx
+                    </a>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span style="color:red;">*</span>所属角色：</label>
+                <div class="layui-input-block">
+                    <input autocomplete="off" class="layui-input" lay-verify="required" name="roleName" id="roleName" placeholder=""
+                           type="text" th:value="${roleName}" readonly>
+                </div>
+            </div>
+
+            <div class="layui-upload">
+                <button class="pear-btn pear-btn-primary" style="width: 100%;" id="testList" type="button">
+                    <i class="layui-icon layui-icon-upload"></i>
+                    文件上传
+                </button>
+                <div class="layui-upload-list">
+                    <table class="layui-table">
+                        <thead>
+                        <tr>
+                            <th>文件名</th>
+                            <th>大小</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody id="demoList"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="bottom">
+        <div class="button-container" style="right: 45%;">
+            <button class="pear-btn pear-btn-primary pear-btn-sm" id="testListAction" type="submit">
+                <i class="layui-icon layui-icon-ok"></i>
+                提交
+            </button>
+            <!--<button class="pear-btn pear-btn-sm" type="reset">
+                <i class="layui-icon layui-icon-refresh"></i>
+                重置
+            </button>-->
+        </div>
+    </div>
+</form>
+<th:block th:include="include :: footer"/>
+
+<script th:src="@{/pagejs/im/pushRoleManage/batchImport.js}" type="text/javascript"></script>
+
+<script>
+</script>
+</body>
+</html>

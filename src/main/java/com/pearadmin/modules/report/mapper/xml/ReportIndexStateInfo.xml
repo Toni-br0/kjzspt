@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.pearadmin.modules.report.mapper.ReportIndexStateInfoMapper">
+
+
+    <select id="selIndexStateList" resultType="com.pearadmin.modules.report.domain.ReportIndexStateInfo" parameterType="com.pearadmin.modules.report.domain.ReportIndexStateInfo">
+        select risi.*
+         from report_index_state_info risi
+        where 1=1
+        <if test="reportIndexStateInfo.indexName != null and reportIndexStateInfo.indexName != ''">
+            and risi.index_name like "%"#{reportIndexStateInfo.indexName}"%"
+
+        </if>
+        <if test="reportIndexStateInfo.indexField != null and reportIndexStateInfo.indexField != ''">
+            and risi.index_field like "%"#{reportIndexStateInfo.indexField}"%"
+        </if>
+
+        <if test="reportIndexStateInfo.classifyName != null and reportIndexStateInfo.classifyName != ''">
+            and risi.classify_name like "%"#{reportIndexStateInfo.classifyName}"%"
+        </if>
+
+        <if test="reportIndexStateInfo.belongTable != null and reportIndexStateInfo.belongTable != ''">
+            and risi.belong_table like "%"#{reportIndexStateInfo.belongTable}"%"
+        </if>
+
+        order by risi.create_time desc
+
+    </select>
+
+
+
+
+</mapper>

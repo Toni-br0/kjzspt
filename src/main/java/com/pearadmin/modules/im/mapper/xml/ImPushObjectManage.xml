@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.pearadmin.modules.im.mapper.ImPushObjectManageMapper">
+
+    <select id="selectListByList" resultType="com.pearadmin.modules.im.domain.ImPushObjectManage">
+        select * from im_push_object_manage where manage_id in
+        <foreach item="id" collection="list" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <!-- 批量插入并返回主键（MySQL） -->
+    <insert id="batchInsertWithId" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="manageId">
+        INSERT INTO im_push_object_manage
+        (push_object_type, push_object_id, push_object_name,create_time,object_area)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.pushObjectType}, #{item.pushObjectId}, #{item.pushObjectName},#{item.createTime},#{item.objectArea})
+        </foreach>
+    </insert>
+
+
+    <select id="selectListByWhere" resultType="com.pearadmin.modules.im.domain.ImPushObjectManage">
+        select ipom.*,su.real_name create_user_name
+        from im_push_object_manage ipom
+        left join sys_user su on ipom.create_user_id = su.user_id
+        where 1=1
+            <if test="imPushObjectManage.objectAreaId != null and imPushObjectManage.objectAreaId != ''">
+                and ipom.object_area_id = #{imPushObjectManage.objectAreaId}
+            </if>
+
+            <if test="imPushObjectManage.pushObjectType != null and imPushObjectManage.pushObjectType != ''">
+                and ipom.push_object_type = #{imPushObjectManage.pushObjectType}
+            </if>
+
+            <if test="imPushObjectManage.pushObjectId != null and imPushObjectManage.pushObjectId != ''">
+                and ipom.push_object_id = #{imPushObjectManage.pushObjectId}
+            </if>
+
+            <if test="imPushObjectManage.pushObjectName != null and imPushObjectManage.pushObjectName != ''">
+                and ipom.push_object_name like concat('%',#{imPushObjectManage.pushObjectName},'%')
+            </if>
+
+            <if test="imPushObjectManage.classType != null and imPushObjectManage.classType != ''">
+                and ipom.class_type = #{imPushObjectManage.classType}
+            </if>
+
+            <if test="imPushObjectManage.bindState != null and imPushObjectManage.bindState != ''">
+                and ipom.bind_state = #{imPushObjectManage.bindState}
+            </if>
+
+
+          order by ipom.create_time desc
+    </select>
+
+
+    <update id="updateAreaNameById">
+        update im_push_object_manage set object_area = #{orgName} where object_area_id = #{orgId}
+    </update>
+
+</mapper>

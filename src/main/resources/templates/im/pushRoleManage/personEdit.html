@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('文件推送管理新增')"/>
+
+    <style>
+
+        .custom-tree-select {
+            position: relative;
+            display: inline-block;
+        }
+
+        .custom-tree-select-content {
+            display: none;
+            position: absolute;
+            background-color: #fff;
+            min-width: 250px;
+            border: 1px solid #e6e6e6;
+            box-shadow: 0 2px 4px rgba(0,0,0,.12);
+            z-index: 9999;
+            border-radius: 2px;
+        }
+
+        .custom-tree-select-header {
+            padding: 10px;
+            background: #f8f8f8;
+            border-bottom: 1px solid #e6e6e6;
+        }
+
+        .custom-tree-select-tabs {
+            display: flex;
+            border-bottom: 1px solid #e6e6e6;
+            width: 404px;
+        }
+
+        .custom-tree-select-tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            background: #f8f8f8;
+            border-right: 1px solid #e6e6e6;
+            transition: all 0.3s;
+        }
+
+        .custom-tree-select-tab:last-child {
+            border-right: none;
+        }
+
+        .custom-tree-select-tab:hover {
+            background: #f2f2f2;
+        }
+
+        .custom-tree-select-tab.active {
+            background: #fff;
+            border-bottom: 1px solid #fff;
+            margin-bottom: -1px;
+            color: #009688;
+            font-weight: bold;
+        }
+
+        .custom-tree-select-body {
+            padding: 10px;
+            max-height: 240px;
+            overflow-y: auto;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .tree-input-wrapper {
+            position: relative;
+            width: 405px;
+        }
+
+        .tree-input {
+            width: 100%;
+            padding-right: 30px;
+            cursor: pointer;
+            background-color: #fff;
+        }
+
+        .tree-input-clear {
+            position: absolute;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #ccc;
+            cursor: pointer;
+            display: none;
+        }
+
+        .tree-input-clear:hover {
+            color: #999;
+        }
+
+        .tree-input-arrow {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            pointer-events: none;
+        }
+
+        .custom-tree-item {
+            padding: 5px 0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .custom-tree-item:hover {
+            background-color: #f8f8f8;
+        }
+
+        .custom-tree-item.selected {
+            color: #009688;
+            background-color: #f2f2f2;
+        }
+
+        .tree-checkbox {
+            margin-right: 8px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 6px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 25px 20px;
+        }
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        .toolbar .layui-input {
+            flex: 1;
+        }
+        .toolbar .layui-btn {
+            flex-shrink: 0;
+        }
+        .match-count {
+            margin-left: 10px;
+            font-size: 13px;
+            color: #5FB878;
+            background: #f1f9f1;
+            padding: 5px 12px;
+            border-radius: 30px;
+            display: inline-block;
+            white-space: nowrap;
+        }
+        .tree-wrapper {
+            border: 1px solid #e6e6e6;
+            border-radius: 4px;
+            padding: 10px 5px 10px 15px;
+            max-height: 500px;
+            overflow-y: auto;
+            background-color: #fefefe;
+        }
+
+        .node-highlight {
+            color: #1e88e5 !important;          /* 文字颜色 */
+            font-weight: bold;
+            /* 或添加背景色 */
+            /*background-color: #1e88e5;*/
+        }
+
+
+
+    </style>
+
+</head>
+<body>
+
+<!--加载动画-->
+<div class="loading" style="display: none" id="loadDiv">
+    <span class="top"></span>
+    <span class="bottom"></span>
+</div>
+
+
+    <div class="mainBox">
+        <div class="main-container">
+            <div class="main-container">
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red;">*</span>所属角色：</label>
+                    <div class="layui-input-block">
+                        <input autocomplete="off" class="layui-input" lay-verify="required" name="roleName" id="roleName" placeholder=""
+                               type="text" th:value="${imPushRolePersonManage.roleName}" readonly>
+                    </div>
+                </div>
+
+                <!--<div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red;">*</span>推送人ID：</label>
+                    <div class="layui-input-block">
+                        <input autocomplete="off" class="layui-input" lay-verify="required" name="personId" id="personId" placeholder=""
+                               type="text" >
+                    </div>
+
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width: 100px;"><span style="color:red;">*</span>推送人名称：</label>
+                    <div class="layui-input-block" style="margin-left: 130px;">
+                        <input autocomplete="off" class="layui-input" lay-verify="required" name="personName" id="personName" placeholder=""
+                               type="text" >
+                    </div>
+
+                </div>-->
+
+                <div style="display: flex;margin-top: 20px;margin-left: 20px;">
+                    <div style="font-size: 15px;height: 30px;line-height: 30px;margin-top: 5px;"><span style="color:red;">*</span>推送对象：</div>
+                    <!--<div id="pushObjectSel" class="xm-select-demo" style="width: 400px;z-index: 99999;"></div>
+                    <input class="layui-input" lay-verify="required" name="pushObjectId" id="pushObjectId" type="hidden" />-->
+                    <input class="layui-input" lay-verify="required" name="personId" id="personId" type="hidden" th:value="${imPushRolePersonManage.personId}"/>
+                    <input class="layui-input" lay-verify="required" name="personName" id="personName" type="hidden" th:value="${imPushRolePersonManage.personName}"/>
+                    <div class="tree-input-wrapper" style="margin-left: 10px;width: 420px;">
+                        <input type="text"
+                               class="layui-input tree-input"
+                               placeholder="请选择"
+                               readonly
+                               lay-verify="required"
+                               id="treeInput"
+                               th:value="${imPushRolePersonManage.personName}"
+                        >
+                        <span class="layui-icon tree-input-clear" id="clearBtn">清除</span>
+
+                        <div class="custom-tree-select-content" id="treeSelectContent">
+                            <div class="custom-tree-select-tabs">
+                                <div class="custom-tree-select-tab active" data-tab="tab1">选择推送人员</div>
+                                <!--<div class="custom-tree-select-tab" data-tab="tab2">组织维度</div>-->
+                            </div>
+
+                            <div class="custom-tree-select-body">
+                                <!-- 第一个页签内容 -->
+                                <div class="tab-content active" id="tab1">
+                                    <!--<div id="zzwdTree" name="zzwdTree"></div>-->
+                                    <!--<ul class="dtree" data-id="0" id="zzwdTree" name="zzwdTree"></ul>-->
+                                    <div>
+                                        <input type="text" id="bqfzTreeSearchText" name ="bqfzTreeSearchText" style="width: 48.5%;height: 20px;margin-left: 5px;"/>
+                                        <!--<button style="font-size: 13px;margin-left: 5px;" lay-filter="query-dimension-but" lay-submit="" type="submit">查询</button>-->
+                                        <button onclick="bqfzTreeSearch()" style="width: 30px;height: 25px;border: none;background-color: #FFFFFF;">
+                                            <i class="layui-icon layui-icon-search"></i>
+                                        </button>
+                                    </div>
+                                    <ul class="dtree" data-id="0" id="bqfzTree" name="bqfzTree"></ul>
+                                </div>
+                            </div>
+
+                            <div class="custom-tree-select-header">
+                                <button class="layui-btn layui-btn-sm layui-btn-primary" id="cancelBtn">取消</button>
+                                <button class="layui-btn layui-btn-sm" id="confirmBtn">确定</button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+                <form class="layui-form">
+
+                    <input id="roleId" name="roleId" type="hidden" th:value="${imPushRolePersonManage.roleId}">
+                    <input id="manageId" name="manageId" type="hidden" th:value="${imPushRolePersonManage.manageId}">
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">本地网ID：</label>
+                    <div class="layui-input-block">
+                        <input autocomplete="off" class="layui-input"  name="hxLatnId" id="hxLatnId" placeholder=""
+                               type="text" th:value="${imPushRolePersonManage.hxLatnId}">
+                    </div>
+
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width: 100px;">本地网名称：</label>
+                    <div class="layui-input-block" style="margin-left: 130px;">
+                        <input autocomplete="off" class="layui-input"  name="hxLatnName" id="hxLatnName" placeholder=""
+                               type="text" th:value="${imPushRolePersonManage.hxLatnName}">
+                    </div>
+
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">县分ID：</label>
+                    <div class="layui-input-block" >
+                        <input autocomplete="off" class="layui-input"  name="hxAreaId" id="hxAreaId" placeholder=""
+                               type="text" th:value="${imPushRolePersonManage.hxAreaId}">
+                    </div>
+
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" >县分名称：</label>
+                    <div class="layui-input-block" >
+                        <input autocomplete="off" class="layui-input"  name="hxAreaName" id="hxAreaName" placeholder=""
+                               type="text" th:value="${imPushRolePersonManage.hxAreaName}">
+                    </div>
+
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" >支局ID：</label>
+                    <div class="layui-input-block" >
+                        <input autocomplete="off" class="layui-input"  name="hxRegionId" id="hxRegionId" placeholder=""
+                               type="text" th:value="${imPushRolePersonManage.hxRegionId}">
+                    </div>
+
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" >支局名称：</label>
+                    <div class="layui-input-block" >
+                        <input autocomplete="off" class="layui-input"  name="hxRegionName" id="hxRegionName" placeholder=""
+                               type="text" th:value="${imPushRolePersonManage.hxRegionName}">
+                    </div>
+
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" >网格ID：</label>
+                    <div class="layui-input-block" >
+                        <input autocomplete="off" class="layui-input"  name="xHx5BpId" id="xHx5BpId" placeholder=""
+                               type="text" th:value="${imPushRolePersonManage.xHx5BpId}">
+                    </div>
+
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" >网格名称：</label>
+                    <div class="layui-input-block">
+                        <input autocomplete="off" class="layui-input"  name="xHx5BpName" id="xHx5BpName" placeholder=""
+                               type="text" th:value="${imPushRolePersonManage.xHx5BpName}">
+                    </div>
+
+                </div>
+
+                <div class="layui-form-item" style="margin-top:50px; display: flex; justify-content: center; align-items: center;">
+
+                    <!--<button id="btnSubmit" class="pear-btn pear-btn-primary pear-btn-sm" lay-filter="user-save" lay-submit="" type="submit">
+                        &lt;!&ndash;<i class="layui-icon layui-icon-ok"></i>&ndash;&gt;
+                        <i class="layui-icon layui-icon-refresh"></i>
+                        提交
+                    </button>-->
+
+                    <button id="btnSubmit" class="pear-btn pear-btn-sm" lay-filter="user-save" lay-submit="" type="submit">
+                        <!--<i class="layui-icon layui-icon-ok"></i>-->
+                        <i class="layui-icon layui-icon-ok"></i>
+                        提交
+                    </button>
+
+                    &nbsp;&nbsp;
+                    <button id="btnReset" class="pear-btn pear-btn-sm" type="reset">
+                        <i class="layui-icon layui-icon-refresh"></i>
+                        重置
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!--<div class="bottom">
+        <div class="button-container" >
+            <button class="pear-btn pear-btn-primary pear-btn-sm" lay-filter="user-save" lay-submit="" type="submit">
+                <i class="layui-icon layui-icon-ok"></i>
+                提交
+            </button>
+            <button class="pear-btn pear-btn-sm" type="reset">
+                <i class="layui-icon layui-icon-refresh"></i>
+                重置
+            </button>
+        </div>
+    </div>-->
+</form>
+<th:block th:include="include :: footer"/>
+<script th:src="@{/pagejs/im/pushRoleManage/personEdit.js}" type="text/javascript"></script>
+
+<script>
+</script>
+</body>
+</html>

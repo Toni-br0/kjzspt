@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.pearadmin.modules.report.mapper.ReportIndexWarningMapper">
+
+    <select id="getReportIndexWarningList" resultType="com.pearadmin.modules.report.domain.ReportIndexWarning">
+        select riw.*, s.real_name,ri.index_name,ipom.push_object_name push_object_name,s3.real_name appr_person_name
+        from report_index_warning riw
+        left join sys_user s on s.user_id =riw.create_user_id
+        left join report_index ri on ri.index_id = riw.warning_index_id
+        left join im_push_object_manage ipom on ipom.manage_id = riw.push_object_id
+        left join sys_user s3 on s3.user_id = riw.appr_person_id
+        where 1=1
+
+        <if test="loginUserId != null and loginUserId != ''">
+            and riw.create_user_id = #{loginUserId}
+        </if>
+
+        <if test="reportIndexWarning.indexName != null and reportIndexWarning.indexName != ''">
+            and ri.index_name like concat('%',#{reportIndexWarning.indexName},'%')
+        </if>
+
+        <if test="reportIndexWarning.warningName != null and reportIndexWarning.warningName != ''">
+            and riw.warning_name like concat('%',#{reportIndexWarning.warningName},'%')
+        </if>
+
+        <if test="reportIndexWarning.localCity != null and reportIndexWarning.localCity != ''">
+            and riw.local_city =#{reportIndexWarning.localCity}
+        </if>
+
+        <if test="reportIndexWarning.execPeriod != null and reportIndexWarning.execPeriod != ''">
+            and riw.exec_period =#{reportIndexWarning.execPeriod}
+        </if>
+
+        order by riw.create_time desc,riw.appr_time asc
+
+    </select>
+
+
+    <select id="getListByTime" resultType="com.pearadmin.modules.report.domain.ReportIndexWarning">
+        <![CDATA[
+        select t.* from report_index_warning t
+        where
+            STR_TO_DATE(t.exec_time , '%H:%i') <= #{endTime}
+          and STR_TO_DATE(t.exec_time , '%H:%i') > #{startTime}
+          and t.exec_state = '0'
+          ORDER BY FIELD(t.warning_level,'urgent','ordinary','alarm')
+        ]]>
+
+    </select>
+
+
+    <select id="getReportIndexWarningApprovList" resultType="com.pearadmin.modules.report.domain.ReportIndexWarning">
+
+        select riw.*, s.real_name,ri.index_name,ipom.push_object_name push_object_name,s3.real_name appr_person_name from report_index_warning riw
+        left join sys_user s on s.user_id =riw.create_user_id
+        left join report_index ri on ri.index_id = riw.warning_index_id
+        left join im_push_object_manage ipom on ipom.manage_id = riw.push_object_id
+        left join sys_user s3 on s3.user_id = riw.appr_person_id
+        where 1=1 and riw.push_other_object_id !='' and riw.push_other_object_id is not null
+
+        <if test="loginUserId != null and loginUserId != ''">
+            and riw.create_user_id = #{loginUserId}
+        </if>
+
+        <if test="reportIndexWarning.indexName != null and reportIndexWarning.indexName != ''">
+            and ri.index_name like concat('%',#{reportIndexWarning.indexName},'%')
+        </if>
+
+        <if test="reportIndexWarning.localCity != null and reportIndexWarning.localCity != ''">
+            and riw.local_city =#{reportIndexWarning.localCity}
+        </if>
+
+        <if test="reportIndexWarning.execPeriod != null and reportIndexWarning.execPeriod != ''">
+            and riw.exec_period =#{reportIndexWarning.execPeriod}
+        </if>
+
+        order by riw.create_time desc,riw.appr_time asc
+
+
+    </select>
+
+
+    <select id="selApprStateByList" resultType="com.pearadmin.modules.report.domain.ReportIndexWarning">
+
+        select riw.* from report_index_warning riw
+        where 1=1 and riw.appr_state !='0' and riw.warning_id in
+        <foreach collection="warningIdList" item="warningId" open="(" close=")" separator=",">
+            #{warningId}
+        </foreach>
+
+    </select>
+
+    <update id="updateApplyResult">
+        update report_index_warning
+        set appr_state = #{applyResult},apply_opinion = #{applyOpinion},appr_person_id = #{userId},appr_time = NOW()
+        where warning_id in
+        <foreach collection="warningIdList" item="warningId" open="(" close=")" separator=",">
+            #{warningId}
+        </foreach>
+    </update>
+
+
+</mapper>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.pearadmin.modules.report.mapper.ReportPustLeaderApprovalMapper">
+
+    <delete id="delByAutoCreateId" parameterType="integer">
+        delete from report_pust_leader_approval where auto_create_id in
+        <foreach collection="createIdList" item="createId" open="(" separator="," close=")">
+            #{createId}
+        </foreach>
+    </delete>
+
+
+    <select id="selPustLeaderApprovalList" parameterType="com.pearadmin.modules.report.domain.ReportPustLeaderApproval" resultType="com.pearadmin.modules.report.domain.ReportPustLeaderApproval">
+        select rpla.*,su.real_name apply_person_name,su2.real_name appro_person_name
+        from report_pust_leader_approval rpla
+        left join sys_user su on su.user_id  = rpla.apply_person_id
+        left join sys_user su2 on su2.user_id = rpla.appro_person_id
+        where 1=1
+        <if test="reportPustLeaderApproval.reportName != null and reportPustLeaderApproval.reportName != ''">
+            and rpla.report_name like concat('%',#{reportPustLeaderApproval.reportName},'%')
+        </if>
+
+        <if test="reportPustLeaderApproval.applyPersonName != null and reportPustLeaderApproval.applyPersonName != ''">
+            and su.real_name like concat('%',#{reportPustLeaderApproval.applyPersonName},'%')
+        </if>
+
+        order by rpla.create_time desc
+
+    </select>
+
+
+</mapper>

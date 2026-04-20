@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('报表详情')"/>
+
+    <style>
+        /* 高亮样式 */
+        .search-highlight {
+            font-weight: bold;
+            background-color: #fffbe6;
+            padding: 0 4px;
+            border-radius: 3px;
+        }
+
+        .quotaHighlight {
+            color: #1e90ff;
+            font-weight: bold;
+        }
+
+        .dimensionHighlight {
+            color: #1e90ff;
+            font-weight: bold;
+        }
+    </style>
+
+</head>
+<body class="pear-container">
+<div class="layui-row layui-col-space10">
+    <div class="layui-col-md3">
+        <div class="layui-card">
+            <div class="layui-card-body" style="border-radius: 1px;">
+                <div class="layui-card nav click-but">
+                    <div class="panel-box">
+
+                        <input id="currArea" name="currArea" type="hidden" th:value="${currArea}">
+
+                        <div class="layui-card-header layui-card-header-opt" >分类</div>
+                        <div style="border-bottom: #F0F0F0 dashed 1px;"></div>
+                        <div class="layui-card-body layui-card-body-opt" style="height: 80px;padding: 5px 5px;" >
+                            <div class="layui-form" id="classify">
+                                <!--<input type="checkbox" id="yd"  value="yd" title="移动" lay-skin="primary" lay-filter="optionFilter">
+                                <input type="checkbox" id="kd" value="kd" title="宽带" lay-skin="primary" lay-filter="optionFilter">
+                                <input type="checkbox" id="itv" value="itv" title="ITV" lay-skin="primary" lay-filter="optionFilter">
+                                <input type="checkbox" id="zj" value="zj" title="智家" lay-skin="primary" lay-filter="optionFilter">-->
+
+                                <input lay-skin="primary" name="hobby" th:each="reportClassify:${reportClassifys}"
+                                       th:title="${reportClassify.classifyName}" th:value="${reportClassify.classifyId}" th:id="${reportClassify.classifyId}"
+                                       type="checkbox" lay-filter="optionClassifys">
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-box">
+                        <div class="layui-card-header layui-card-header-opt"  style="margin-bottom: 10px;">
+                            指标
+                            <input type="text" id="quotaSearch" name ="quotaSearch" style="width: 60%;height: 20px;margin-left: 5px;"/>
+                            <!--<button style="font-size: 13px;margin-left: 5px;" lay-filter="query-quota-but" lay-submit="" type="submit" >查询</button>-->
+                            <button lay-filter="query-quota-but" lay-submit style="width: 30px;height: 25px;border: none;background-color: #FFFFFF;">
+                                <i class="layui-icon layui-icon-search"></i>
+                            </button>
+                        </div>
+                        <div style="border-bottom: #F0F0F0 dashed 1px;"></div>
+                        <div class="layui-card-body layui-card-body-opt" id="quota"></div>
+                    </div>
+                    <div class="panel-box">
+                        <div style="border: solid 0px blue;width: 100%;height: 25px;display: flex;margin-bottom: 15px;">
+                            <div style="display: flex;">
+                                <button style="font-size: 13px;" lay-filter="sel-all-quanqu" lay-submit="" type="submit" id="btnQq">&nbsp;全区&nbsp; </button>
+                                <button style="font-size: 13px;margin-left: 10px;" lay-filter="sel-all-dishi" lay-submit="" type="submit" id="btnDs"> &nbsp;地市&nbsp; </button>
+                                <button style="font-size: 13px;margin-left: 10px;" lay-filter="sel-all-quxian" lay-submit="" type="submit" id="btnQx"> &nbsp;区县&nbsp; </button>
+                                <button style="font-size: 13px;margin-left: 10px;" lay-filter="sel-all-wangge" lay-submit="" type="submit" id="btnWg"> &nbsp;网格&nbsp; </button>
+                            </div>
+                            <div style="display: flex;"></div>
+                        </div>
+
+                        <div class="layui-form" style="margin-top: 0px;display: flex;">
+                            <div style="display: flex;">
+                                <input type="radio" id="isNonNtand" name="isNonNtand" value="0" title="标准维度" lay-filter="isNonNtandFilter" checked>
+                            </div>
+                            <div style="display: none;" id="isNonNtandDiv">
+                                <input type="radio" id="isNonNtand" name="isNonNtand" value="1" title="非标准维度" lay-filter="isNonNtandFilter">
+                            </div>
+
+                        </div>
+
+                        <div class="layui-card-header layui-card-header-opt"  style="margin-bottom: 10px;">
+                            维度
+                            <input type="text" id="dimensionSearch" name ="dimensionSearch" style="width: 60%;height: 20px;margin-left: 5px;"/>
+                            <!--<button style="font-size: 13px;margin-left: 5px;" lay-filter="query-dimension-but" lay-submit="" type="submit">查询</button>-->
+                            <button lay-filter="query-dimension-but" lay-submit style="width: 30px;height: 25px;border: none;background-color: #FFFFFF;">
+                                <i class="layui-icon layui-icon-search"></i>
+                            </button>
+                        </div>
+                        <div style="border-bottom: #F0F0F0 dashed 1px;"></div>
+                        <div class="layui-card-body layui-card-body-opt"id="dimension"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-col-md9">
+        <div class="layui-card">
+            <div class="layui-card-body">
+                <div class="layui-form-item">
+
+                    <label class="layui-form-label">报表名称：</label>
+                    <div class="layui-input-inline" style="width: 46%;">
+                        <input id="reportName" name="reportName" type="text"  lay-verify="required" placeholder="请输入报表名称" autocomplete="off" class="layui-input">
+                    </div>
+
+                    <!--<label class="layui-form-label">客户：</label>
+                    <div class="layui-input-inline">
+                        <div class="layui-form" style="margin-top: 0px;">
+                            <input type="checkbox" id="zhengqi" name="custType" value="zhengqi" title="政企">
+                            <input type="checkbox" id="gongzhong" name="custType" value="gongzhong" title="公众">
+                        </div>
+                    </div>-->
+                    <label class="layui-form-label">客户类型：</label>
+                    <div class="layui-input-inline">
+
+                        <div class="layui-form" style="margin-top: 0px;">
+                            <select name="custType" id="custType" lay-filter="custTypeSel">
+                                <option value=""></option>
+                                <option th:each="khlx:${zzqsKhlxs}" th:text="${khlx.dataLabel}" th:value="${khlx.dataValue}"></option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">数据周期：</label>
+                    <div class="layui-input-inline" style="width: 18%; border: #e03e2d solid 0px;">
+                        <div class="layui-form" style="margin-top: 0px;">
+                            <input type="radio" id="day" name="dateType" value="day" title="日"  lay-filter="dateTypeRadio">
+                            <input type="radio" id="month" name="dateType" value="month" title="月" lay-filter="dateTypeRadio">
+                        </div>
+                    </div>
+
+                    <label class="layui-form-label">分析角色：</label>
+                    <div class="layui-input-inline" style="width: 30%;border: #e03e2d solid 0px;">
+                        <div class="layui-form" style="margin-top: 0px;">
+                            <input type="radio" id="roleType" name="roleType" value="customer" title="客户" checked lay-filter="roleTypeRadio">
+                            <input type="radio" id="roleType" name="roleType" value="user" title="用户" lay-filter="roleTypeRadio">
+                            <input type="radio" id="roleType" name="roleType" value="account" title="账户" lay-filter="roleTypeRadio">
+                        </div>
+                    </div>
+
+                    <label class="layui-form-label">指标类型：</label>
+                    <div class="layui-input-inline" style="width: 10%;border: #e03e2d solid 0px;">
+                        <div class="layui-form" style="margin-top: 0px;">
+                            <input type="radio" id="indexType" name="indexType" value="count" title="统计" checked lay-filter="indexTypeRadio">
+                            <!--<input type="radio" id="indexType" name="indexType" value="details" title="明细" lay-filter="indexTypeRadio">-->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <div style="display: flex;">
+                        <label class="layui-form-label">指标：</label>
+                        <div class="layui-input-inline" style="width: 70%;overflow: auto;">
+                            <div id="col-zone" class="selected-zone"></div>
+                        </div>
+                        <div class="layui-input-inline" style="width: 20%;display: flex;">
+                            <button lay-filter="clear-col-zone" lay-submit style="height: 35px;width: 50px;">
+                                <!--<i class="layui-icon layui-icon-clear"></i>-->
+                                清除
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <div style="display: flex;">
+                        <label class="layui-form-label">维度：</label>
+                        <div class="layui-input-inline" style="width: 70%;overflow: auto;">
+                            <div id="row-zone" class="selected-zone"></div>
+                        </div>
+                        <div class="layui-input-inline" style="width: 20%;display: flex;">
+                            <button lay-filter="clear-row-zone" lay-submit style="height: 35px;width: 50px;">
+                                <!--<i class="layui-icon layui-icon-clear"></i>-->
+                                清除
+                            </button>
+
+                            <form class="layui-form">
+                                <div style="border: red dashed 0px;margin-left: 15px;margin-top: -15px;">
+                                    <input type="checkbox" id="xyjwd" name="xyjwd" value="1"
+                                           title="下一级维度" lay-skin="primary" lay-filter="xyjwdFilter">
+                                </div>
+
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">条件：</label>
+                    <div id="tjDiv" class="layui-input-inline" style="width: 90%;text-align: left;display: flex;justify-content: left;
+                         flex-wrap: wrap;">
+
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="layui-form-item" style="margin-bottom: 0px;">
+                    <label class="layui-form-label">开始日期：</label>
+                    <div class="layui-input-inline" style="width: 10%;border: #e03e2d solid 0px;">
+                        <input type="text" class="layui-input" id="startDate" name="startDate" readonly>
+                    </div>
+                    <label class="layui-form-label">结束日期：</label>
+                    <div class="layui-input-inline" style="width: 10%;border: #e03e2d solid 0px;">
+                        <input type="text" class="layui-input" id="endDate" name="endDate" readonly>
+                    </div>
+
+                    <button class="pear-btn pear-btn-md pear-btn-primary" lay-filter="report-search" lay-submit="" type="submit">
+                        <!--<i class="layui-icon layui-icon-search"></i>-->
+                        查询报表
+                    </button>
+                    <button class="pear-btn pear-btn-md pear-btn-primary" lay-filter="report-reset" lay-submit="" type="submit">
+                        <!--<i class="layui-icon layui-icon-refresh"></i>-->
+                        重置
+                    </button>
+                    <button class="pear-btn pear-btn-md pear-btn-primary" lay-filter="report-save" lay-submit="" type="submit">
+                        <!--<i class="layui-icon layui-icon-add-circle"></i>-->
+                        保存报表
+                    </button>
+                    <button id="exportReport" class="pear-btn pear-btn-md pear-btn-primary" lay-filter="report-export" lay-submit="" type="submit">
+                        <!--<i class="layui-icon layui-icon-export"></i>-->
+                        导出报表
+                    </button>
+                    <button id="autoReportBtn" class="pear-btn pear-btn-md pear-btn-primary" lay-filter="auto-report" lay-submit="" type="submit">
+                        <!--<i class="layui-icon layui-icon-add-circle"></i>-->
+                        自动化报表
+                    </button>
+                    <!--<button class="pear-btn pear-btn-md pear-btn-primary" lay-filter="template-save" lay-submit="" type="submit">
+                        <i class="layui-icon layui-icon-add-circle"></i>
+                        保存模板
+                    </button>-->
+                    <button class="pear-btn pear-btn-md pear-btn-primary" lay-filter="report-return" lay-submit="" type="submit">
+                        <!--<i class="layui-icon layui-icon-return"></i>-->
+                        返回
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="layui-card">
+            <div id="card-body-div" class="layui-card-body" style="background-color: #FFFFFF;">
+                <table id="report-table" lay-filter="report-table"></table>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+
+<th:block th:include="include :: footer"/>
+<script th:src="@{/pagejs/autoData/reportView.js}" type="text/javascript"></script>
+</html>

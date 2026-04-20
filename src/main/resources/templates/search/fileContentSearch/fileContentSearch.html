@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('文件搜索')"/>
+
+    <script th:src="@{/search/js/base64.js}"></script>
+    <!--<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/js-base64@3.6.0/base64.min.js"></script>-->
+
+</head>
+<body class="pear-container" >
+<div class="layui-card">
+    <div class="layui-card-body">
+        <form action="" class="layui-form">
+            <div class="layui-form-item">
+
+                <label class="layui-form-label">文件类型：</label>
+                <div class="layui-input-inline" style="width: 250px;">
+                    <!--<input class="layui-input" name="fileClassifyName" id="fileClassifyName" placeholder="" type="text">-->
+                    <ul class="dtree" data-id="0" id="fileClassifyName" name="fileClassifyName"></ul>
+
+                </div>
+                <label class="layui-form-label">文件内容：</label>
+                <div class="layui-input-inline">
+                    <input class="layui-input" name="fileContent" id="fileContent" placeholder="" type="text">
+                </div>
+                <button class="pear-btn pear-btn-md pear-btn-primary" lay-filter="file-query" lay-submit>
+                    <i class="layui-icon layui-icon-search"></i>
+                    查询
+                </button>
+                <!--<button class="pear-btn pear-btn-md" type="reset">
+                    <i class="layui-icon layui-icon-refresh"></i>
+                    重置
+                </button>-->
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="layui-card">
+    <div id="card-body-div" class="layui-card-body" style="background-color: #FFFFFF;">
+        <table id="file-table" lay-filter="file-table"></table>
+    </div>
+</div>
+
+</body>
+
+<script id="role-bar" type="text/html">
+
+    <!--<a class="pear-btn pear-btn-primary pear-btn-sm" href="/search/fileManage/downloadFile?fileName={{d.fileName}}" download="{{d.fileName}}">
+        <i class="pear-icon pear-icon-direction-down"></i>
+    </a>-->
+    <a class="pear-btn pear-btn-primary pear-btn-sm" href="/search/fileManage/downloadFile?fileId={{d.fileId}}" download="{{d.fileName}}">
+        <i class="pear-icon pear-icon-direction-down"></i>
+    </a>
+    <!--<button class="pear-btn pear-btn-danger pear-btn-sm" lay-event="download"> <i class="pear-icon pear-icon-direction-down"></i>
+    </button>-->
+    <button class="pear-btn pear-btn-danger pear-btn-sm" lay-event="fileView">
+        <i class="pear-icon pear-icon-electronics"></i>
+    </button>
+</script>
+
+<script id="file-image" type="text/html">
+    <a href="javascript:void(0);" class="pear-text">查看</a>
+</script>
+
+<script id="file-createTime" type="text/html">
+    {{layui.util.toDateString(d.createTime,  'yyyy-MM-dd HH:mm:ss')}}
+</script>
+
+
+
+
+<th:block th:include="include :: footer"/>
+<script>
+
+    layui.use(['table', 'form', 'jquery', 'popup', 'common','util','dtree'], function () {
+        let table = layui.table;
+        let form = layui.form;
+        let $ = layui.jquery;
+        let popup = layui.popup;
+        let common = layui.common;
+        let util = layui.util;
+        let dtree = layui.dtree;
+
+        let MODULEMANAGE_PATH = "/search/fileContentSearch/";
+
+        dtree.renderSelect({
+            elem: "#fileClassifyName",
+            url: "/search/fileClassify/queryTree",
+            method: 'get',
+            selectInputName: {nodeId: "classifyId", context: "classifyName"},
+            skin: "layui",
+            dataFormat: "list",
+            response: {treeId: "classifyId", parentId: "parentId", title: "classifyName"},
+            selectInitVal: "1"
+        });
+
+        //获取页面高度
+        var pageHeight = $(document).height();
+        $('#card-body-div').height(pageHeight-148);
+
+        let cols = [
+            [
+                {title: '文件ID', field: 'fileId', align: 'center', width: 0,hide: true},
+                {title: '文件名称', field: 'fileName', align: 'center', templet: function (d){return d.fileName},width: 280},
+                {title: '文件大小', field: 'fileSize', align: 'center',width: 120},
+                {title: '文件类型', field: 'fileType', align: 'center', width: 120},
+                {title: '文件分类', field: 'fileClassifyName', align: 'center', width: 150},
+                {title: '上传人', field: 'createBy', align: 'center', width: 100},
+                {title: '创建时间', field: 'createTime', align: 'center', width: 180,templet: '#file-createTime'},
+                {title: '文件路径', field: 'filePath', align: 'center',width: 0,hide: true},
+                {title: '搜索结果', field: 'result', align: 'center', templet: function (d){return d.result}},
+                {title: '操作', toolbar: '#role-bar', align: 'center', width: 120}
+            ]
+        ]
+
+
+
+        table.render({
+            elem: '#file-table',
+            url: MODULEMANAGE_PATH + 'searchTable',
+            page: true,
+            cols: cols,
+            skin: 'line',
+            //height: 'full-148',
+            //where : whereData,
+            defaultToolbar: [{
+                title: '刷新',
+                layEvent: 'refresh',
+                icon: 'layui-icon-refresh',
+            }, 'filter', 'print', 'exports']
+        });
+
+        table.on('tool(file-table)', function (obj) {
+            if (obj.event === 'remove') {
+                window.remove(obj);
+            } else if (obj.event === 'file-image') {
+                window.show(obj);
+            }else if (obj.event === 'download') {
+                window.download(obj);
+            }else if (obj.event === 'fileView') {
+                window.fileView(obj);
+            }
+        });
+
+        table.on('toolbar(file-table)', function (obj) {
+            if (obj.event === 'add') {
+                window.add();
+            } else if (obj.event === 'refresh') {
+                window.refresh();
+            } else if (obj.event === 'batchRemove') {
+                window.batchRemove(obj);
+            }else if (obj.event === 'download') {
+                window.download(obj);
+            }else if (obj.event === 'fileView') {
+                window.fileView(obj);
+            }
+        });
+
+        form.on('submit(file-query)', function (data) {
+
+            var fileContent = $("#fileContent").val();
+            var fileClassifyName = $('input[name="classifyName"]').val();
+            var whereData = {"fileClassifyName":fileClassifyName,"fileContent":fileContent};
+
+            table.reload('file-table', {where: whereData})
+            return false;
+        });
+
+        window.add = function () {
+            layer.open({
+                type: 2,
+                title: '文件上传',
+                shade: 0.1,
+                area: ['600px', '600px'],
+                content: MODULEMANAGE_PATH + 'toFileAdd'
+            });
+        }
+
+        window.fileView = function (obj) {
+            let loading = layer.load();
+
+            var paramObj = {
+                fileId: obj.data['fileId']
+            };
+            var param = JSON.stringify(paramObj);
+
+            $.ajax({
+                url: MODULEMANAGE_PATH + "fileView",
+                dataType: 'json',
+                contentType: 'application/json',
+                data: param,
+                type: 'post',
+                success: function (result) {
+                    layer.close(loading);
+                    if (result.retCode == "0") {
+
+                        var pageWidth = $(document).width();
+                        pageWidth = (pageWidth-100)+"px";
+
+                        var pageHeight1 = $(document).height();
+                        pageHeight1 = (pageHeight1-30)+"px";
+
+                        layer.open({
+                            type: 2,
+                            title: '文件预览',
+                            shade: 0.3,
+                            btn: ['关 闭'],
+                            btnAlign:"c",
+                            area: [pageWidth, pageHeight1],
+                            content: result.retMsg
+                        });
+
+                        //window.open(result.retMsg);
+
+                    } else {
+                        popup.failure("预览失败，请联系管理员");
+                    }
+                }
+            })
+        }
+
+
+        window.refresh = function () {
+            table.reload('file-table');
+        }
+
+        window.download = function (obj) {
+            var modelId = obj.data['modelId'];
+            var modelName = obj.data['modelName'];
+            //window.open("/ppt/model/downloadFile2?fileName="+modelName+"&type=soure");
+            window.location.href = MODULEMANAGE_PATH+"downloadFile3?fileName="+modelName+"&type=soure";
+            return ;
+        }
+
+    })
+</script>
+</html>

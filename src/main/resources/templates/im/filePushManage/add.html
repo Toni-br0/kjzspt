@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('文件推送管理新增')"/>
+</head>
+<body>
+
+<!--加载动画-->
+<div class="loading" style="display: none" id="loadDiv">
+    <span class="top"></span>
+    <span class="bottom"></span>
+</div>
+
+<form class="layui-form">
+    <div class="mainBox">
+        <div class="main-container">
+            <div class="main-container">
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red;">*</span>模板:</label>
+                    <div class="layui-input-block">
+                        <div id="modelSel" class="xm-select-demo"></div>
+                        <input class="layui-input" lay-verify="required" name="modelId" id="modelId" type="hidden" />
+                        <input class="layui-input" lay-verify="required" name="modelName" id="modelName" type="hidden" />
+                    </div>
+                </div>
+
+                <!--<div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red;">*</span>模板</label>
+                    <div class="layui-input-block">
+                        <ul class="dtree" data-id="0" id="selectModel" name="modelId"></ul>
+                    </div>
+
+                </div>-->
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red;">*</span>推送对象:</label>
+                    <div class="layui-input-block">
+                        <!--<textarea class="layui-textarea" name="pushObject" id="pushObject" lay-verify="required"></textarea>-->
+
+                        <div id="pushObjectSel" class="xm-select-demo"></div>
+                        <input class="layui-input" lay-verify="required" name="pushObjectId" id="pushObjectId" type="hidden" />
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><!--<span style="color:red;">*</span>-->推送至领导:</label>
+                    <div class="layui-input-block">
+                        <!--<textarea class="layui-textarea" name="pushObject" id="pushObject" lay-verify="required"></textarea>-->
+
+                        <div id="pushObjectLeaderSel" class="xm-select-demo"></div>
+                        <input class="layui-input"  name="pushObjectLeaderId" id="pushObjectLeaderId" type="hidden" />
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">文字信息:</label>
+                    <div class="layui-input-block">
+                        <textarea class="layui-textarea" name="pustTxtMsg" id="pustTxtMsg"></textarea>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width: 100px;"><span style="color:red;">*</span>自动推送:</label>
+                    <div class="layui-input-block">
+                        <input name="isAutoPush" title="否" type="radio" value="0" checked lay-filter="isAutoPush">
+                        <input name="isAutoPush" title="是" type="radio" value="1" lay-filter="isAutoPush">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width: 100px;"><span style="color:red;">*</span>推送文字信息:</label>
+                    <div class="layui-input-block">
+                        <input name="isPushTxtMsg" title="否" type="radio" value="0" checked lay-filter="isPushTxtMsg">
+                        <input name="isPushTxtMsg" title="是" type="radio" value="1" lay-filter="isPushTxtMsg">
+                    </div>
+                </div>
+
+
+                <div class="layui-form-item" style="margin-top:50px; display: flex; justify-content: center; align-items: center;">
+
+                    <!--<button id="btnSubmit" class="pear-btn pear-btn-primary pear-btn-sm" lay-filter="user-save" lay-submit="" type="submit">
+                        &lt;!&ndash;<i class="layui-icon layui-icon-ok"></i>&ndash;&gt;
+                        <i class="layui-icon layui-icon-refresh"></i>
+                        提交
+                    </button>-->
+
+                    <button id="btnSubmit" class="pear-btn pear-btn-sm" lay-filter="user-save" lay-submit="" type="submit">
+                        <!--<i class="layui-icon layui-icon-ok"></i>-->
+                        <i class="layui-icon layui-icon-ok"></i>
+                        提交
+                    </button>
+
+                    &nbsp;&nbsp;
+                    <!--<button id="btnReset" class="pear-btn pear-btn-sm" type="reset">
+                        <i class="layui-icon layui-icon-refresh"></i>
+                        重置
+                    </button>-->
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!--<div class="bottom">
+        <div class="button-container" >
+            <button class="pear-btn pear-btn-primary pear-btn-sm" lay-filter="user-save" lay-submit="" type="submit">
+                <i class="layui-icon layui-icon-ok"></i>
+                提交
+            </button>
+            <button class="pear-btn pear-btn-sm" type="reset">
+                <i class="layui-icon layui-icon-refresh"></i>
+                重置
+            </button>
+        </div>
+    </div>-->
+</form>
+<th:block th:include="include :: footer"/>
+<script>
+
+    layui.use(['form', 'jquery', 'dtree'], function () {
+
+        let form = layui.form;
+        let $ = layui.jquery;
+        let dtree = layui.dtree;
+        var layer = layui.layer;
+
+        //获取模板下拉树
+        $.ajax({
+            url: '/im/filePushManage/getModelSelect',
+            dataType: 'json',
+            contentType: 'application/json',
+            type: 'get',
+            success: function (result) {
+
+                var demo1 = xmSelect.render({
+                    el: '#modelSel',
+                    theme: {
+                        color: '#287ED8',
+                    },
+                    toolbar: {
+                        show: true,
+                        showIcon: false,
+                    },
+                    filterable: true,
+                    paging: true,
+                    pageSize: 5,
+                    layVerify: 'required',
+                    radio: true,
+                    on: function(data){
+                        //arr:  当前多选已选中的数据
+                        var arr = data.arr;
+
+                        var dataLength = arr.length;
+                        if(dataLength >0) {
+                            var modelIds = "";
+                            var modelName ="";
+                            for (var i = 0; i < dataLength; i++) {
+                                var selData = arr[i];
+                                if(i !=0){
+                                    modelIds +=","+selData.value;
+                                    modelName +=","+selData.modelName;
+                                }else{
+                                    modelIds +=selData.value;
+                                    modelName +=selData.modelName;
+                                }
+                            }
+
+                            //console.log("modelIds: "+modelIds);
+                            $("#modelId").val(modelIds);
+                            $("#modelName").val(modelName);
+                        }
+                    },
+                    /*data: [
+                        {name: '张三', value: 1, selected: true},
+                        {name: '李四', value: 2, selected: true},
+                        {name: '王五', value: 3},
+                        {name: '赵六', value: 4},
+                        {name: '苹果', value: 5},
+                        {name: '香蕉', value: 6},
+                        {name: '凤梨', value: 7},
+                        {name: '葡萄', value: 8},
+                        {name: '樱桃', value: 9},
+                        {name: '车厘子', value: 10},
+                        {name: '火龙果', value: 11},
+                    ]*/
+                    data: result
+                });
+            }
+        });
+
+        //获取推送对象下拉框
+        $.ajax({
+            url: '/im/pushObjectManage/getPushObjectManageSelect',
+            dataType: 'json',
+            contentType: 'application/json',
+            type: 'get',
+            success: function (result) {
+
+                var demo1 = xmSelect.render({
+                    el: '#pushObjectSel',
+                    theme: {
+                        color: '#287ED8',
+                    },
+                    toolbar: {
+                        show: true,
+                        showIcon: false,
+                    },
+                    filterable: true,
+                    paging: true,
+                    pageSize: 5,
+                    layVerify: 'required',
+                    /*radio: true,*/
+                    on: function(data){
+                        //arr:  当前多选已选中的数据
+                        var arr = data.arr;
+
+                        var dataLength = arr.length;
+                        if(dataLength >0) {
+                            var pushObjectIds = "";
+
+                            for (var i = 0; i < dataLength; i++) {
+                                var selData = arr[i];
+
+                                if(i!=0){
+                                    pushObjectIds = pushObjectIds +";"+selData.id;
+                                }else{
+                                    pushObjectIds = pushObjectIds +selData.id;
+                                }
+                            }
+
+                            //console.log("modelIds: "+modelIds);
+                            $("#pushObjectId").val(pushObjectIds);
+                            console.log("pushObjectIds: "+pushObjectIds);
+
+                        }
+                    },
+
+                    data: result
+                });
+            }
+        });
+
+
+        //获取推送领导对象下拉框
+        $.ajax({
+            url: '/im/pushObjectManage/getPushObjectManageSelect',
+            dataType: 'json',
+            contentType: 'application/json',
+            type: 'get',
+            success: function (result) {
+
+                var demo1 = xmSelect.render({
+                    el: '#pushObjectLeaderSel',
+                    theme: {
+                        color: '#287ED8',
+                    },
+                    toolbar: {
+                        show: true,
+                        showIcon: false,
+                    },
+                    filterable: true,
+                    paging: true,
+                    pageSize: 5,
+                    /*layVerify: 'required',*/
+                    /*radio: true,*/
+                    on: function(data){
+                        //arr:  当前多选已选中的数据
+                        var arr = data.arr;
+
+                        var dataLength = arr.length;
+                        if(dataLength >0) {
+                            var pushObjectLeaderIds = "";
+
+                            for (var i = 0; i < dataLength; i++) {
+                                var selData = arr[i];
+
+                                if(i!=0){
+                                    pushObjectLeaderIds = pushObjectLeaderIds +";"+selData.id;
+                                }else{
+                                    pushObjectLeaderIds = pushObjectLeaderIds +selData.id;
+                                }
+                            }
+
+                            //console.log("modelIds: "+modelIds);
+                            $("#pushObjectLeaderId").val(pushObjectLeaderIds);
+                            console.log("pushObjectLeaderId: "+pushObjectLeaderIds);
+
+                        }else{
+                            $("#pushObjectLeaderId").val("");
+                        }
+                    },
+
+                    data: result
+                });
+            }
+        });
+
+
+        //保存提交事件
+        form.on('submit(user-save)', function (data) {
+
+            var param = JSON.stringify(data.field);
+
+            //data.field.modelId = data.field.select;
+            console.log("param: "+param);
+
+            $("#loadDiv").show();
+            $("#btnSubmit").prop("disabled", true);
+            $("#btnReset").prop("disabled", true);
+
+            $.ajax({
+                url: '/im/filePushManage/save',
+                data: param,
+                dataType: 'json',
+                contentType: 'application/json',
+                type: 'post',
+                success: function (result) {
+
+                    $("#loadDiv").hide();
+                    $("#btnSubmit").prop("disabled", false);
+                    $("#btnReset").prop("disabled", false);
+
+                    if (result.success) {
+                        layer.msg(result.msg, {icon: 1, time: 2000}, function () {
+                            parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+                            parent.layui.table.reload("file-table");
+                        });
+                    } else {
+                        layer.msg(result.msg, {icon: 2, time: 2000});
+                    }
+                }
+            })
+            return false;
+        });
+    })
+
+
+
+</script>
+<script>
+</script>
+</body>
+</html>

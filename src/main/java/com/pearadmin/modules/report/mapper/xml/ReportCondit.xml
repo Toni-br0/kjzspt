@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.pearadmin.modules.report.mapper.ReportConditMapper">
+
+
+    <select id="selConditList" resultType="com.pearadmin.modules.report.domain.ReportCondit" parameterType="com.pearadmin.modules.report.domain.ReportCondit">
+        select
+        rc.*,su.real_name as real_name,ri.index_name  as index_name
+        from report_condit rc
+        LEFT JOIN sys_user su on rc.create_user_id = su.user_id
+        left join report_index ri on ri.index_id =rc.index_id
+        where
+        1=1
+        <if test="reportCondit.conditCode != null and reportCondit.conditCode != ''">
+            and rc.condit_code like "%"#{reportCondit.conditCode}"%"
+
+        </if>
+        <if test="reportCondit.conditName != null and reportCondit.conditName != ''">
+            and rc.condit_name like "%"#{reportCondit.conditName}"%"
+        </if>
+
+        order by rc.create_time desc
+
+    </select>
+
+    <select id="selConditCountByClassid" resultType="int">
+        select
+        count(*)
+        from report_condit rc
+        where
+        1=1
+
+        <if test="list.size()>0">
+            AND classify_id IN
+            <foreach collection="list" item="classifyId" open="(" separator="," close=")">
+                #{classifyId}
+            </foreach>
+        </if>
+
+    </select>
+
+
+    <select id="selConditNotConditCode" resultType="com.pearadmin.modules.report.domain.ReportCondit">
+        select
+         rc.*
+        from report_condit rc
+        where
+        rc.index_id = #{indexId}
+
+        <if test="conditCodeList.size()>0">
+            AND condit_code NOT IN
+            <foreach collection="conditCodeList" item="conditCode" open="(" separator="," close=")">
+                #{conditCode}
+            </foreach>
+        </if>
+
+    </select>
+
+
+</mapper>

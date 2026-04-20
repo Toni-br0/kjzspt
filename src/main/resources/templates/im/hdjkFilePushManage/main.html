@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('文件推送管理')"/>
+
+</head>
+<body class="pear-container" >
+<div class="layui-card">
+    <div class="layui-card-body">
+        <form action="" class="layui-form">
+            <div class="layui-form-item">
+
+                <label class="layui-form-label">模板名称：</label>
+                <div class="layui-input-inline">
+                    <input class="layui-input" name="modelName" placeholder="" type="text">
+                </div>
+                <label class="layui-form-label" style="white-space: nowrap;">推送文件名称：</label>
+                <div class="layui-input-inline">
+                    <input class="layui-input" name="sendFileName" placeholder="" type="text">
+                </div>
+                <label class="layui-form-label" style="white-space: nowrap;">运行状态：</label>
+                <div class="layui-input-inline">
+                    <select id="runState" name="runState">
+                        <option value="">全部</option>
+                        <option value="1">运行中</option>
+                        <option value="0">停止</option>
+                    </select>
+                </div>
+
+                <button class="pear-btn pear-btn-md pear-btn-primary" lay-filter="file-query" lay-submit>
+                    <i class="layui-icon layui-icon-search"></i>
+                    查询
+                </button>
+                <button class="pear-btn pear-btn-md" type="reset">
+                    <i class="layui-icon layui-icon-refresh"></i>
+                    重置
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="layui-card">
+    <div id="card-body-div" class="layui-card-body" style="background-color: #FFFFFF;">
+        <table id="file-table" lay-filter="file-table"></table>
+    </div>
+</div>
+
+</body>
+
+<script id="role-toolbar" type="text/html">
+    <button class="pear-btn pear-btn-primary pear-btn-md" lay-event="add">
+        <i class="layui-icon layui-icon-add-1"></i>
+        新增
+    </button>
+    <!--<button class="pear-btn pear-btn-primary pear-btn-md" lay-event="batchBinding">
+        <i class="layui-icon layui-icon-senior"></i>
+        绑定
+    </button>-->
+
+    <button class="pear-btn pear-btn-primary pear-btn-md" lay-event="batchPush">
+        <i class="layui-icon layui-icon-release"></i>
+        推送
+    </button>
+
+    <button class="pear-btn pear-btn-primary pear-btn-md" lay-event="batchLeaderPush">
+        <i class="layui-icon layui-icon-username"></i>
+        推送至领导
+    </button>
+
+    <button class="pear-btn pear-btn-md" lay-event="batchRemove">
+        <i class="layui-icon layui-icon-delete"></i>
+        删除
+    </button>
+</script>
+
+<script id="role-bar" type="text/html">
+
+    <a class="pear-btn pear-btn-primary pear-btn-sm" lay-event="fileView" title="预览">
+        <i class="pear-icon pear-icon-electronics"></i>
+    </a>
+
+    <!--<a id="downloadFile_{{d.manageId}}" class="pear-btn pear-btn-primary pear-btn-sm" lay-event="downloadFile"  download="{{d.fileName}}" title="下载">
+        <i class="pear-icon pear-icon-direction-down"></i>
+    </a>-->
+
+    <a class="pear-btn pear-btn-primary pear-btn-sm" title="下载" href="/im/hdjkFilePushManage/downloadFile?manageId={{d.manageId}}" download="{{d.fileName}}">
+        <i class="pear-icon pear-icon-direction-down"></i>
+    </a>
+
+    <!--<a class="pear-btn pear-btn-primary pear-btn-sm" lay-event="binding" title="一键绑定">
+        <i class="layui-icon layui-icon-senior"></i>
+    </a>-->
+
+    <a class="pear-btn pear-btn-primary pear-btn-sm" lay-event="push" title="推送">
+        <i class="layui-icon layui-icon-release"></i>
+    </a>
+
+    <a class="pear-btn pear-btn-primary pear-btn-sm" lay-event="pushLeader" title="推送至领导">
+        <i class="layui-icon layui-icon-username"></i>
+    </a>
+
+    <a class="pear-btn pear-btn-primary pear-btn-sm" lay-event="edit" title="修改">
+        <i class="layui-icon layui-icon-edit"></i>
+    </a>
+
+<!--    <a class="pear-btn pear-btn-primary pear-btn-sm" lay-event="upload" title="上传">
+        <i class="layui-icon layui-icon-upload"></i>
+    </a>-->
+
+    <button class="pear-btn pear-btn-danger pear-btn-sm" lay-event="remove">
+        <i class="layui-icon layui-icon-delete"></i>
+    </button>
+
+</script>
+
+<script id="file-image" type="text/html">
+    <a href="javascript:void(0);" class="pear-text">查看</a>
+</script>
+
+<script id="file-createTime" type="text/html">
+    {{layui.util.toDateString(d.fileCreatTime,  'yyyy-MM-dd HH:mm:ss')}}
+</script>
+
+<script id="file-pushTime" type="text/html">
+    {{layui.util.toDateString(d.filePushTime,  'yyyy-MM-dd HH:mm:ss')}}
+</script>
+
+<script id="file-push-leader-time" type="text/html">
+    {{layui.util.toDateString(d.filePushLeaderTime,  'yyyy-MM-dd HH:mm:ss')}}
+</script>
+
+<script id="is-auto-push" type="text/html">
+    {{#if (d.isAutoPush == '0') { }}
+    <span>否</span>
+    {{# }else if(d.isAutoPush == '1'){ }}
+    <span>是</span>
+    {{# } }}
+</script>
+
+<script id="is-push-img" type="text/html">
+    {{#if (d.isPushImg == '0') { }}
+    <span>否</span>
+    {{# }else if(d.isPushImg == '1'){ }}
+    <span>是</span>
+    {{# } }}
+</script>
+
+<script id="is-push-leader" type="text/html">
+    {{#if (d.isPushLeader == '1') { }}
+    <span>是</span>
+    {{# }else if(d.isPushLeader == '0'){ }}
+    <span>否</span>
+    {{# } }}
+</script>
+
+<script id="is-weekend-push" type="text/html">
+    {{#if (d.isWeekendPush == '1') { }}
+    <span>是</span>
+    {{# }else if(d.isWeekendPush == '0'){ }}
+    <span>否</span>
+    {{# } }}
+</script>
+
+<script id="run_state" type="text/html">
+    {{#if (d.runState == '1') { }}
+    <span>运行中</span>
+    {{# }else if(d.runState == '0'){ }}
+    <span>停止</span>
+    {{# } }}
+</script>
+
+<script id="exec-state" type="text/html">
+    {{#if (d.execState == '1') { }}
+    <span>执行中</span>
+    {{# }else if(d.execState == '0'){ }}
+    <span>未执行</span>
+    {{# } }}
+</script>
+
+<script id="model-type" type="text/html">
+    {{#if (d.modelType == '1') { }}
+    <span>日模板</span>
+    {{# }else if(d.modelType == '2'){ }}
+    <span>月模板</span>
+    {{# } }}
+</script>
+
+<script id="push_object_period" type="text/html">
+    {{#if (d.pushObjectPeriod == 'day') { }}
+    <span>每日</span>
+    {{# }else if(d.pushObjectPeriod == 'week'){ }}
+    <span>每周</span>
+    {{# }else if(d.pushObjectPeriod == 'month'){ }}
+    <span>每月</span>
+    {{# } }}
+</script>
+
+<script id="send-object-week" type="text/html">
+    {{#if (d.sendObjectWeek == 'MONDAY') { }}
+    <span>周一</span>
+    {{# }else if(d.sendObjectWeek == 'TUESDAY'){ }}
+    <span>周二</span>
+    {{# }else if(d.sendObjectWeek == 'WEDNESDAY'){ }}
+    <span>周三</span>
+    {{# }else if(d.sendObjectWeek == 'THURSDAY'){ }}
+    <span>周四</span>
+    {{# }else if(d.sendObjectWeek == 'FRIDAY'){ }}
+    <span>周五</span>
+    {{# }else if(d.sendObjectWeek == 'SATURDAY'){ }}
+    <span>周六</span>
+    {{# }else if(d.sendObjectWeek == 'SUNDAY'){ }}
+    <span>周天</span>
+    {{# } }}
+</script>
+
+<th:block th:include="include :: footer"/>
+<script>
+    layui.use(['table', 'form', 'jquery', 'popup', 'common'], function () {
+        let table = layui.table;
+        let form = layui.form;
+        let $ = layui.jquery;
+        let popup = layui.popup;
+        let common = layui.common;
+
+        let basePath = "/im/hdjkFilePushManage/";
+
+        var fileDataArr = []; // 初始化一个数组来存储选中的数据
+
+        //获取页面高度
+        var pageHeight = $(document).height();
+        $('#card-body-div').height(pageHeight-148);
+
+        let cols = [
+            [
+                {type: 'checkbox'},
+                {title: 'ID', field: 'manageId', hide: true},
+                {title: '模板ID', field: 'modelId', align: 'center', hide: true},
+                {title: '模板名称', field: 'modelName', align: 'center',width: 200},
+                {title: '推送文件名', field: 'sendFileName', align: 'center',width: 200},
+                {title: '模板类型', field: 'modelType', align: 'center',width: 90,templet: "#model-type"},
+                {title: '推送对象ID', field: 'pushObjectId', align: 'center', hide: true},
+                {title: '推送对象名称', field: 'pushObjectName', align: 'center',width: 180},
+                {title: '推送领导', field: 'isPushLeader', align: 'center',width: 90,templet: "#is-push-leader"},
+                {title: '推送领导ID', field: 'pushLeaderId', align: 'center', hide: true},
+                {title: '推送领导名称', field: 'pushLeaderName', align: 'center',width: 180},
+                {title: '文件推送周期', field: 'pushObjectPeriod', align: 'center',templet: "#push_object_period",width: 110},
+                {title: '执行日期', field: 'sendObjectDay', align: 'center',width: 90},
+                {title: '执行周', field: 'sendObjectWeek', align: 'center',width: 90,templet: "#send-object-week"},
+                {title: '执行时间', field: 'sendObjectTime', align: 'center',width: 90},
+                {title: '周末是否推送', field: 'isWeekendPush', align: 'center',width: 110,templet: "#is-weekend-push"},
+                {title: '文件生成时间', field: 'fileCreatTime', align: 'center',templet: "#file-createTime",width: 160,sort: true},
+                {title: '文件推送时间', field: 'filePushTime', align: 'center', templet: "#file-pushTime",width: 160,sort: true},
+                {title: '文件推送至领导时间', field: 'filePushLeaderTime', align: 'center', templet: "#file-push-leader-time",width: 170,sort: true},
+                {title: '文件路径', field: 'filePath', align: 'center', width: 180,hide: true},
+                {title: '图片路径', field: 'imgPath', align: 'center', width: 180,hide: true},
+                {title: '自动推送至对象', field: 'isAutoPush', align: 'center', width: 130,templet: "#is-auto-push"},
+                {title: '推送图片', field: 'isPushImg', align: 'center', width: 90,templet: "#is-push-img"},
+                {title: '运行状态', field: 'runState', align: 'center', width: 90,templet: "#run_state"},
+                {title: '执行状态', field: 'execState', align: 'center', width: 90,templet: "#exec-state", hide: true},
+                {title: '操作', toolbar: '#role-bar', align: 'center', width: 250, fixed: 'right'}
+            ]
+        ]
+
+        table.render({
+            elem: '#file-table',
+            url: basePath + 'filePushManageList',
+            page: true,
+            cols: cols,
+            skin: 'line',
+            //height: 'full-148',
+            toolbar: '#role-toolbar',
+            defaultToolbar: [{
+                title: '刷新',
+                layEvent: 'refresh',
+                icon: 'layui-icon-refresh',
+            }, 'filter', 'print', 'exports'],
+            done: function(res, curr, count){
+                // 监听复选框事件
+                table.on('checkbox(file-table)', function(obj){
+                    fileDataArr = [];
+                    var checkStatus = table.checkStatus('file-table'); // 获取选中行的状态和数据
+                    $.each(checkStatus.data, function(index, item){
+                        fileDataArr.push(item);
+                    });
+                    //console.log(data); // 输出所有选中行的数据数组
+                });
+
+            }
+        });
+
+        table.on('tool(file-table)', function (obj) {
+            if (obj.event === 'remove') {
+                window.remove(obj);
+            } else if (obj.event === 'file-image') {
+                window.show(obj);
+            }else if (obj.event === 'download') {
+                window.download(obj);
+            }else if (obj.event === 'edit') {
+                window.edit(obj);
+            }else if (obj.event === 'fileView') {
+                window.fileView(obj);
+            }else if (obj.event === 'downloadFile') {
+                window.downloadFile(obj);
+            }else if (obj.event === 'binding') {
+                window.binding(obj);
+            }else if (obj.event === 'batchBinding') {
+                window.batchBinding(obj);
+            }else if (obj.event === 'batchPush') {
+                window.batchPush(obj);
+            }else if (obj.event === 'batchLeaderPush') {
+                window.batchLeaderPush(obj);
+            }else if (obj.event === 'push') {
+                window.push(obj);
+            }else if (obj.event === 'pushLeader') {
+                window.pushLeader(obj);
+            }else if (obj.event === 'upload') {
+                window.upload(obj);
+            }
+        });
+
+        table.on('toolbar(file-table)', function (obj) {
+            if (obj.event === 'add') {
+                window.add();
+            } else if (obj.event === 'refresh') {
+                window.refresh();
+            } else if (obj.event === 'batchRemove') {
+                window.batchRemove(obj);
+            }else if (obj.event === 'download') {
+                window.download(obj);
+            }if (obj.event === 'remove') {
+                window.remove(obj);
+            }else if (obj.event === 'edit') {
+                window.edit(obj);
+            }else if (obj.event === 'fileView') {
+                window.fileView(obj);
+            }else if (obj.event === 'downloadFile') {
+                window.downloadFile(obj);
+            }else if (obj.event === 'binding') {
+                window.binding(obj);
+            }else if (obj.event === 'batchBinding') {
+                window.batchBinding(obj);
+            }else if (obj.event === 'batchPush') {
+                window.batchPush(obj);
+            }else if (obj.event === 'batchLeaderPush') {
+                window.batchLeaderPush(obj);
+            }else if (obj.event === 'push') {
+                window.push(obj);
+            }else if (obj.event === 'pushLeader') {
+                window.pushLeader(obj);
+            }else if (obj.event === 'upload') {
+                window.upload(obj);
+            }
+        });
+
+        form.on('submit(file-query)', function (data) {
+            table.reload('file-table', {where: data.field})
+            return false;
+        });
+
+        window.add = function () {
+            layer.open({
+                type: 2,
+                title: '新增',
+                shade: 0.1,
+                area: ['650px', '700px'],
+                content: basePath + 'add'
+            });
+        }
+
+        window.edit = function (obj) {
+            layer.open({
+                type: 2,
+                title: '修改',
+                shade: 0.1,
+                area: ['650px', '700px'],
+                content: basePath + 'edit?manageId=' + obj.data['manageId']
+            });
+        }
+
+        window.show = function (obj) {
+            layer.photos({
+                photos: {
+                    "title": "预览图片",
+                    "start": 0,
+                    "data": [
+                        {"src": "/system/file/download/" + obj.data.id}
+                    ]
+                }
+                , anim: 5
+            });
+        }
+
+        window.remove = function (obj) {
+            layer.confirm('确定要删除该记录', {icon: 3, title: '提示'}, function (index) {
+                layer.close(index);
+                let loading = layer.load();
+                $.ajax({
+                    url: basePath + "remove/" + obj.data['manageId'],
+                    dataType: 'json',
+                    type: 'delete',
+                    success: function (result) {
+                        layer.close(loading);
+                        if (result.success) {
+                            popup.success(result.msg, function () {
+                                obj.del();
+                            });
+                        } else {
+                            popup.failure(result.msg);
+                        }
+                    }
+                })
+            });
+        }
+
+        window.batchRemove = function (obj) {
+            let manageIds = common.checkField(obj, 'manageId');
+            if (common.isEmpty(manageIds)) {
+                popup.warning("未选中数据");
+                return false;
+            }
+            layer.confirm('确定要删除选中的记录', {icon: 3, title: '提示'}, function (index) {
+                layer.close(index);
+                let loading = layer.load();
+                $.ajax({
+                    url: basePath + "batchRemove/" + manageIds,
+                    dataType: 'json',
+                    type: 'delete',
+                    success: function (result) {
+                        layer.close(loading);
+                        if (result.success) {
+                            popup.success(result.msg, function () {
+                                table.reload('file-table');
+                            });
+                        } else {
+                            popup.failure(result.msg);
+                        }
+                    }
+                })
+            });
+        }
+
+        window.refresh = function () {
+            table.reload('file-table');
+        }
+
+        window.downloadFile = function (obj) {
+
+            /*var filePath = obj.data['filePath'];
+            if(filePath =="" || filePath == null || filePath == undefined){
+                popup.failure("文件未生成无法下载！");
+                return false;
+            }
+
+            var manageId = obj.data['manageId'];
+            var href = "/im/hdjkFilePushManage/downloadFile?manageId="+manageId;
+            $('#downloadFile_'+manageId).attr('href', href);
+            $('#downloadFile_'+manageId).trigger('click');*/
+        }
+
+        window.fileView = function (obj) {
+
+            //刷新表格内容
+            table.reload('file-table');
+
+            var filePath = obj.data['filePath'];
+            if(filePath =="" || filePath == null || filePath == undefined){
+                popup.failure("文件未生成无法预览！");
+                return false;
+            }
+
+            let loading = layer.load();
+            var paramObj = {
+                manageId: obj.data['manageId']
+            };
+            var param = JSON.stringify(paramObj);
+
+            $.ajax({
+                url: basePath + "fileView",
+                dataType: 'json',
+                contentType: 'application/json',
+                data: param,
+                type: 'post',
+                success: function (result) {
+                    layer.close(loading);
+                    if (result.retCode == "0") {
+
+                        var pageWidth = $(document).width();
+                        pageWidth = (pageWidth-100)+"px";
+
+                        var pageHeight1 = $(document).height();
+                        pageHeight1 = (pageHeight1-30)+"px";
+
+                        layer.open({
+                            type: 2,
+                            title: '文件预览',
+                            shade: 0.3,
+                            btn: ['关 闭'],
+                            btnAlign:"c",
+                            area: [pageWidth, pageHeight1],
+                            content: result.retMsg
+                        });
+
+                        //window.open(result.retMsg);
+
+                    } else {
+                        popup.failure("预览失败，请联系管理员");
+                    }
+                }
+                , error: function(xhr, status, error) {
+                    layer.close(loading);
+                    popup.failure("预览失败，请联系管理员");
+                }
+            })
+        }
+
+
+        //推送
+        window.push = function (obj) {
+
+            var isCreateTime =  checkFileCreateTime(obj.data['manageId'],"0","0");
+            if(!isCreateTime){
+                return false
+            }
+
+            layer.confirm('确定要执行推送操作？', {icon: 3, title: '提示'}, function (index) {
+
+                var filePushTime = obj.data['filePushTime'];
+                //推送时间不为空时
+                if(filePushTime !="" && filePushTime != null && filePushTime != undefined){
+                    layer.confirm('此文件已推送过，是否重复推送？', {icon: 3, title: '提示'}, function (index) {
+
+                        layer.close(index);
+                        let loading = layer.load();
+
+                        var paramObj = {
+                            manageId: obj.data['manageId']
+                        };
+                        var param = JSON.stringify(paramObj);
+
+                        $.ajax({
+                            url: basePath + "pushNew",
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: param,
+                            type: 'post',
+                            success: function (result) {
+                                layer.close(loading);
+                                if (result.retCode == "0") {
+                                    layer.msg(result.retMsg, {icon: 1, time: 3000}, function () {
+                                        table.reload('file-table');
+                                        parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+
+                                    });
+                                } else {
+                                    layer.msg(result.retMsg, {icon: 2, time: 3500});
+                                }
+                            }
+                            , error: function(xhr, status, error) {
+                                layer.close(loading);
+                                popup.failure("推送失败，请联系管理员");
+                            }
+                        })
+
+                    })
+                }else{//推送时间为空时
+                    layer.close(index);
+                    let loading = layer.load();
+
+                    var paramObj = {
+                        manageId: obj.data['manageId']
+                    };
+                    var param = JSON.stringify(paramObj);
+
+                    $.ajax({
+                        url: basePath + "pushNew",
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: param,
+                        type: 'post',
+                        success: function (result) {
+                            layer.close(loading);
+                            if (result.retCode == "0") {
+                                layer.msg(result.retMsg, {icon: 1, time: 3000}, function () {
+                                    table.reload('file-table');
+                                    parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+
+                                });
+                            } else {
+                                layer.msg(result.retMsg, {icon: 2, time: 3500});
+                            }
+                        }
+                        , error: function(xhr, status, error) {
+                            layer.close(loading);
+                            popup.failure("推送失败，请联系管理员");
+                        }
+                    })
+
+                }
+
+            });
+        }
+
+        //推送至领导
+        window.pushLeader = function (obj) {
+
+            //刷新表格内容
+            table.reload('file-table');
+
+            var isCreateTime =  checkFileCreateTime(obj.data['manageId'],"1","1");
+            if(!isCreateTime){
+                return false
+            }
+
+            layer.confirm('确定要执行推送至领导操作？', {icon: 3, title: '提示'}, function (index) {
+
+                var filePushTime = obj.data['filePushLeaderTime'];
+                //推送时间不为空时
+                if(filePushTime !="" && filePushTime != null && filePushTime != undefined){
+                    layer.confirm('此文件已推送过，是否重复推送？', {icon: 3, title: '提示'}, function (index) {
+
+                        layer.close(index);
+                        let loading = layer.load();
+
+                        var paramObj = {
+                            manageId: obj.data['manageId']
+                        };
+                        var param = JSON.stringify(paramObj);
+
+                        $.ajax({
+                            url: basePath + "pushLeaderNew",
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: param,
+                            type: 'post',
+                            success: function (result) {
+                                layer.close(loading);
+                                if (result.retCode == "0") {
+                                    layer.msg(result.retMsg, {icon: 1, time: 3000}, function () {
+                                        table.reload('file-table');
+                                        parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+
+                                    });
+                                } else {
+                                    layer.msg(result.retMsg, {icon: 2, time: 3500});
+                                }
+                            }
+                            , error: function(xhr, status, error) {
+                                layer.close(loading);
+                                popup.failure("推送失败，请联系管理员");
+                            }
+                        })
+
+                    })
+                }else{//推送时间为空时
+                    layer.close(index);
+                    let loading = layer.load();
+
+                    var paramObj = {
+                        manageId: obj.data['manageId']
+                    };
+                    var param = JSON.stringify(paramObj);
+
+                    $.ajax({
+                        url: basePath + "pushLeaderNew",
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: param,
+                        type: 'post',
+                        success: function (result) {
+                            layer.close(loading);
+                            if (result.retCode == "0") {
+                                layer.msg(result.retMsg, {icon: 1, time: 3000}, function () {
+                                    table.reload('file-table');
+                                    parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+
+                                });
+                            } else {
+                                layer.msg(result.retMsg, {icon: 2, time: 3500});
+                            }
+                        }
+                        , error: function(xhr, status, error) {
+                            layer.close(loading);
+                            popup.failure("推送失败，请联系管理员");
+                        }
+                    })
+
+                }
+
+            });
+        }
+
+
+
+        //批量推送
+        window.batchPush = function (obj) {
+
+            let manageIds = common.checkField(obj, 'manageId');
+            if (common.isEmpty(manageIds)) {
+                popup.warning("未选中推送的数据");
+                return false;
+            }
+
+            var isCreateTime =  checkFileCreateTime(manageIds,"0","0");
+            if(!isCreateTime){
+                return false;
+            }
+
+            var isFilePushTime = true;
+            $.each(fileDataArr, function(index, value) {
+
+                if(value.filePushTime !=null && value.filePushTime != "" && value.filePushTime != undefined){
+                    isFilePushTime = false;
+                    return false;
+                }
+            });
+
+
+            layer.confirm('确定要执行批量推送操作', {icon: 3, title: '提示'}, function (index) {
+
+                //推送时间不为空
+                if(!isFilePushTime){
+                    layer.confirm('选中的文件中有已推送的文件，确定要重复推送吗？', {icon: 3, title: '提示'}, function (index){
+                        layer.close(index);
+                        let loading = layer.load();
+
+                        var paramObj = {
+                            manageIds: manageIds
+                        };
+                        var param = JSON.stringify(paramObj);
+
+                        $.ajax({
+                            url: basePath + "batchPushNew",
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: param,
+                            type: 'post',
+                            success: function (result) {
+                                layer.close(loading);
+                                if (result.retCode == "0") {
+                                    layer.msg(result.retMsg, {icon: 1, time: 3000}, function () {
+                                        table.reload('file-table');
+                                        parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+                                    });
+                                } else {
+                                    layer.msg(result.retMsg, {icon: 2, time: 3500});
+                                }
+                            }
+                            , error: function(xhr, status, error) {
+                                layer.close(loading);
+                                popup.failure("推送失败，请联系管理员");
+                            }
+                        })
+                    })
+                }else { //推送时间为空
+                    layer.close(index);
+                    let loading = layer.load();
+
+                    var paramObj = {
+                        manageIds: manageIds
+                    };
+                    var param = JSON.stringify(paramObj);
+
+                    $.ajax({
+                        url: basePath + "batchPushNew",
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: param,
+                        type: 'post',
+                        success: function (result) {
+                            layer.close(loading);
+                            if (result.retCode == "0") {
+                                layer.msg(result.retMsg, {icon: 1, time: 3000}, function () {
+                                    table.reload('file-table');
+                                    parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+                                });
+                            } else {
+                                layer.msg(result.retMsg, {icon: 2, time: 3500});
+                            }
+                        }
+                        , error: function(xhr, status, error) {
+                            layer.close(loading);
+                            popup.failure("推送失败，请联系管理员");
+                        }
+                    })
+                }
+            });
+        }
+
+        //批量推送至领导
+        window.batchLeaderPush = function (obj) {
+
+            let manageIds = common.checkField(obj, 'manageId');
+            if (common.isEmpty(manageIds)) {
+                popup.warning("未选中推送的数据");
+                return false;
+            }
+
+            var isCreateTime =  checkFileCreateTime(manageIds,"1","1");
+            if(!isCreateTime){
+                return false;
+            }
+
+            var isFilePushTime = true;
+            $.each(fileDataArr, function(index, value) {
+
+                if(value.filePushLeaderTime !=null && value.filePushLeaderTime != "" && value.filePushLeaderTime != undefined){
+                    isFilePushTime = false;
+                    return false;
+                }
+            });
+
+            layer.confirm('确定要执行批量推送至领导操作', {icon: 3, title: '提示'}, function (index) {
+
+                //推送时间不为空
+                if(!isFilePushTime){
+                    layer.confirm('选中的文件中有已推送的文件，确定要重复推送吗？', {icon: 3, title: '提示'}, function (index){
+                        layer.close(index);
+                        let loading = layer.load();
+
+                        var paramObj = {
+                            manageIds: manageIds
+                        };
+                        var param = JSON.stringify(paramObj);
+
+                        $.ajax({
+                            url: basePath + "batchLeaderPushNew",
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: param,
+                            type: 'post',
+                            success: function (result) {
+                                layer.close(loading);
+                                if (result.retCode == "0") {
+                                    layer.msg(result.retMsg, {icon: 1, time: 3000}, function () {
+                                        table.reload('file-table');
+                                        parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+                                    });
+                                } else {
+                                    layer.msg(result.retMsg, {icon: 2, time: 3500});
+                                }
+                            }
+                            , error: function(xhr, status, error) {
+                                layer.close(loading);
+                                popup.failure("推送失败，请联系管理员");
+                            }
+                        })
+                    })
+                }else { //推送时间为空
+                    layer.close(index);
+                    let loading = layer.load();
+
+                    var paramObj = {
+                        manageIds: manageIds
+                    };
+                    var param = JSON.stringify(paramObj);
+
+                    $.ajax({
+                        url: basePath + "batchLeaderPushNew",
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: param,
+                        type: 'post',
+                        success: function (result) {
+                            layer.close(loading);
+                            if (result.retCode == "0") {
+                                layer.msg(result.retMsg, {icon: 1, time: 3000}, function () {
+                                    table.reload('file-table');
+                                    parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+                                });
+                            } else {
+                                layer.msg(result.retMsg, {icon: 2, time: 3500});
+                            }
+                        }
+                        , error: function(xhr, status, error) {
+                            layer.close(loading);
+                            popup.failure("推送失败，请联系管理员");
+                        }
+                    })
+                }
+            });
+        }
+
+        window.upload = function (obj) {
+            var manageId = obj.data['manageId'];
+
+            layer.open({
+                type: 2,
+                title: '文件上传',
+                shade: 0.1,
+                area: ['600px', '500px'],
+                content: basePath + 'upload/'+manageId
+            });
+        }
+
+        /**
+         * 校验文件生成时间
+         * @param manageIds
+         */
+        window.checkFileCreateTime = function (manageIds,isCheckLeader,isPushLeader){
+            var paramObj = {
+                manageIds: manageIds,
+                isCheckLeader:isCheckLeader,
+                isPushLeader:isPushLeader
+            };
+            var param = JSON.stringify(paramObj);
+            var isResult = false;
+            $.ajax({
+                url: basePath + "checkFileCreateTime",
+                dataType: 'json',
+                contentType: 'application/json',
+                data: param,
+                type: 'post',
+                async:false,
+                success: function (result) {
+                    if (result.retCode == "0") {
+                        isResult = true;
+                    }else{
+                        popup.failure(result.retMsg);
+                    }
+                }
+            })
+
+            return isResult;
+        }
+
+    })
+</script>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('自助取数维度修改')"/>
+</head>
+<body>
+
+<!--加载动画-->
+<div class="loading" style="display: none" id="loadDiv">
+    <span class="top"></span>
+    <span class="bottom"></span>
+</div>
+
+<form class="layui-form">
+    <div class="mainBox">
+        <div class="main-container">
+            <div class="main-container">
+
+                <!--<input  class="layui-input" lay-verify="required" name="dimensionId" id="dimensionId" placeholder=""
+                       type="hidden" th:value="${reportDimension.dimensionId}">-->
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="white-space: nowrap;padding-left: 1px;"><span style="color:red;">*</span>父维度名称</label>
+                    <div class="layui-input-block">
+                        <input autocomplete="off" class="layui-input" lay-verify="required" name="parentName" id="parentName" placeholder=""
+                               type="text" th:value="${parentReportDimension.dimensionName}" readonly>
+
+                        <input autocomplete="off" class="layui-input" lay-verify="required" name="parentId" id="parentId" placeholder=""
+                               type="hidden" th:value="${parentReportDimension.dimensionId}">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red;">*</span>维度Id</label>
+                    <div class="layui-input-block">
+                        <input autocomplete="off" class="layui-input" lay-verify="required" name="dimensionId" id="dimensionId" placeholder=""
+                               type="text" th:value="${reportDimension.dimensionId}">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red;">*</span>维度名称</label>
+                    <div class="layui-input-block">
+                        <input autocomplete="off" class="layui-input" lay-verify="required" name="dimensionName" id="dimensionName" placeholder=""
+                               type="text" th:value="${reportDimension.dimensionName}">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red;">*</span>区域</label>
+                    <div class="layui-input-block">
+                        <!--<select id="classifyId" name="classifyId" lay-verify="required" placeholder="所属分类">
+                            <option th:each="classify:${classifys}" th:text="${classify.classifyName}" th:value="${classify.classifyId}"></option>
+                        </select>-->
+
+                        <!--<input autocomplete="off" class="layui-input" lay-verify="required" name="field" id="field" placeholder=""
+                               type="text" th:value="${reportDimension.field}">-->
+
+                        <select id="field" name="field" lay-verify="required" placeholder="区域" lay-filter="fieldFilter">
+                            <option value="hx_latn_name">地市</option>
+                            <option value="hx_area_name">区县</option>
+                            <option value="x_hx5_bp_name">网络</option>
+                        </select>
+
+                        <input type="hidden" id="hidField" name="hidField" th:value="${reportDimension.field}">
+
+                    </div>
+                </div>
+
+                <!--<div class="layui-form-item">
+                    <label class="layui-form-label" style="white-space: nowrap;"><span style="color:red;">*</span>层级</label>
+                    <div class="layui-input-block">
+                        <input autocomplete="off" class="layui-input" lay-verify="required" name="level" id="level" placeholder=""
+                               type="number" th:value="${reportDimension.level}">
+                    </div>
+                </div>-->
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="white-space: nowrap;"><span style="color:red;">*</span>排序</label>
+                    <div class="layui-input-block">
+                        <input autocomplete="off" class="layui-input" lay-verify="required" name="sortId" id="sortId" placeholder=""
+                               type="number" th:value="${reportDimension.sortId}">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="white-space: nowrap;"><span style="color:red;">*</span>标准维度</label>
+                    <div class="layui-input-block">
+                        <input name="isNonStand" title="是" type="radio" value="0" lay-filter="isNonStandFilter" th:checked="${reportDimension.isNonStand eq '0'}" disabled>
+                        <input name="isNonStand" title="否" type="radio" value="1" lay-filter="isNonStandFilter" th:checked="${reportDimension.isNonStand eq '1'}" disabled>
+                    </div>
+                </div>
+
+                <div class="layui-form-item" style="margin-top:50px; display: flex; justify-content: center; align-items: center;">
+
+                    <!--<button id="btnSubmit" class="pear-btn pear-btn-primary pear-btn-sm" lay-filter="user-save" lay-submit="" type="submit">
+                        &lt;!&ndash;<i class="layui-icon layui-icon-ok"></i>&ndash;&gt;
+                        <i class="layui-icon layui-icon-refresh"></i>
+                        提交
+                    </button>-->
+
+                    <button id="btnSubmit" class="pear-btn pear-btn-sm" lay-filter="user-save" lay-submit="" type="submit">
+                        <!--<i class="layui-icon layui-icon-ok"></i>-->
+                        <i class="layui-icon layui-icon-ok"></i>
+                        提交
+                    </button>
+
+                    &nbsp;&nbsp;
+                    <button id="btnReset" class="pear-btn pear-btn-sm" type="reset">
+                        <i class="layui-icon layui-icon-refresh"></i>
+                        重置
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!--<div class="bottom">
+        <div class="button-container" >
+            <button class="pear-btn pear-btn-primary pear-btn-sm" lay-filter="user-save" lay-submit="" type="submit">
+                <i class="layui-icon layui-icon-ok"></i>
+                提交
+            </button>
+            <button class="pear-btn pear-btn-sm" type="reset">
+                <i class="layui-icon layui-icon-refresh"></i>
+                重置
+            </button>
+        </div>
+    </div>-->
+</form>
+<th:block th:include="include :: footer"/>
+<script>
+
+    layui.use(['form', 'jquery', 'dtree'], function () {
+
+        let form = layui.form;
+        let $ = layui.jquery;
+        let dtree = layui.dtree;
+        var layer = layui.layer;
+
+        var hidField = $("#hidField").val();
+        $('#field').val(hidField);
+        form.render('select');
+
+        //保存提交事件
+        form.on('submit(user-save)', function (data) {
+
+            var param = JSON.stringify(data.field);
+
+            //data.field.modelId = data.field.select;
+            console.log("param: "+param);
+
+            $("#loadDiv").show();
+            $("#btnSubmit").prop("disabled", true);
+            $("#btnReset").prop("disabled", true);
+
+            $.ajax({
+                url: '/autoData/dimension/updateDimensionInfo',
+                data: param,
+                dataType: 'json',
+                contentType: 'application/json',
+                type: 'post',
+                success: function (result) {
+
+                    $("#loadDiv").hide();
+                    $("#btnSubmit").prop("disabled", false);
+                    $("#btnReset").prop("disabled", false);
+                    console.log("result: "+JSON.stringify(result));
+                    if (result.retCode == "0") {
+                        layer.msg(result.retMsg, {icon: 1, time: 2000}, function () {
+                            parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+
+                            parent.getTreeData();
+
+                        });
+                    } else {
+                        layer.msg(result.retMsg, {icon: 2, time: 2000});
+                    }
+                }
+            })
+            return false;
+        });
+
+
+    })
+
+
+
+</script>
+<script>
+</script>
+</body>
+</html>

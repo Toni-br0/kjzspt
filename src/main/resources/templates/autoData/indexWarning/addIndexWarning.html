@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('新增指标预警配置')"/>
+</head>
+<body>
+
+<!--加载动画-->
+<div class="loading" style="display: none" id="loadDiv">
+    <span class="top"></span>
+    <span class="bottom"></span>
+</div>
+
+<form class="layui-form">
+    <div class="mainBox">
+        <div class="main-container">
+            <div class="main-container">
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red;">*</span>地市：</label>
+                    <div class="layui-input-block">
+                        <select name="localCity" id="localCity" lay-filter="localCitySelect" lay-verify="required">
+                            <option value="">请选择</option>
+                            <option th:each="ds:${dsList}" th:text="${ds.dataLabel}" th:value="${ds.dataValue}"></option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="white-space: nowrap;"><span style="color:red;">*</span>预警名称：</label>
+                    <div class="layui-input-block">
+
+                        <input autocomplete="off" class="layui-input" lay-verify="required" name="warningName" id="warningName" placeholder=""
+                               type="text">
+
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red;">*</span>分类：</label>
+                    <div class="layui-input-block">
+                        <select name="classifySelect" id="classifySelect" lay-filter="classifySelect" lay-verify="required">
+                            <option value="">请选择</option>
+                            <option th:each="ds:${classifyList}" th:text="${ds.classifyName}" th:value="${ds.classifyId}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red;">*</span>指标名称：</label>
+                    <div class="layui-input-block">
+                        <div id="indexNameSel" class="xm-select-demo"></div>
+                        <input class="layui-input" name="warningIndexId" id="warningIndexId" type="hidden" />
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="white-space: nowrap;"><span style="color:red;">*</span>指标标准值：</label>
+                    <div class="layui-input-block">
+
+                        <input autocomplete="off" class="layui-input" lay-verify="required" name="indexStanValue" id="indexStanValue" placeholder=""
+                               type="text">
+
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="white-space: nowrap;"><span style="color:red;">*</span>偏离范围：</label>
+                    <div class="layui-input-block">
+                        <input name="indexDeviRange" title="高于标准值" type="radio" value="above" checked lay-filter="indexDeviRangeFilter">
+                        <input name="indexDeviRange" title="低于标准值" type="radio" value="below" lay-filter="indexDeviRangeFilter">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="white-space: nowrap;"><span style="color:red;">*</span>推送对象：</label>
+                    <div class="layui-input-block">
+                        <input autocomplete="off" class="layui-input" lay-verify="required" name="pushObjectName" id="pushObjectName" placeholder=""
+                               type="text" th:value="${imPushObjectManage.pushObjectName}" readonly>
+                        <input autocomplete="off" class="layui-input" lay-verify="required" name="pushObjectId" id="pushObjectId" placeholder=""
+                               type="hidden" th:value="${imPushObjectManage.manageId}">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="white-space: nowrap;">推送其他对象：</label>
+                    <div class="layui-input-block">
+                        <div id="pushOtherObjectSel" class="xm-select-demo"></div>
+                        <input class="layui-input" name="pushOtherObjectId" id="pushOtherObjectId" type="hidden" />
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="white-space: nowrap;"><span style="color:red;">*</span>数据周期：</label>
+                    <div class="layui-input-block">
+                        <input name="dataPeriod" id="dataPeriod" title="月" type="radio" value="month" lay-filter="dataPeriodFilter">
+                        <!--<input name="execPeriod" id="execPeriod" title="周" type="radio" value="week" lay-filter="execPeriodFilter">-->
+                        <input name="dataPeriod" id="dataPeriod" title="日" type="radio" value="day" checked lay-filter="dataPeriodFilter">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="white-space: nowrap;"><span style="color:red;">*</span>执行周期：</label>
+                    <div class="layui-input-block">
+                        <input name="execPeriod" id="execPeriod" title="月" type="radio" value="month" lay-filter="execPeriodFilter">
+                        <!--<input name="execPeriod" id="execPeriod" title="周" type="radio" value="week" lay-filter="execPeriodFilter">-->
+                        <input name="execPeriod" id="execPeriod" title="日" type="radio" value="day" checked lay-filter="execPeriodFilter">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="white-space: nowrap;"><span style="color:red;">*</span>执行时间：</label>
+                    <div class="layui-input-block" style="display: flex;">
+                        <!--月-->
+                        <div id="selMonthDiv" style="display: none;">
+                            <select id="selMonth" style="width: 90px;height: 28px;border-color: #EEEEEE;">
+
+                            </select>
+                        </div>
+
+                        <!--周-->
+                        <div id="selWeekDiv" style="display: none;">
+                            <select id="selWeek" style="width: 90px;height: 28px;border-color: #EEEEEE;">
+                                <option value="MONDAY">周一</option>
+                                <option value="TUESDAY">周二</option>
+                                <option value="WEDNESDAY">周三</option>
+                                <option value="THURSDAY">周四</option>
+                                <option value="FRIDAY">周五</option>
+                                <option value="SATURDAY">周六</option>
+                                <option value="SUNDAY">周日</option>
+                            </select>
+                        </div>
+
+                        <!--小时-->
+                        <div style="margin-left: 20px;display: flex;" class="layui-input-inline">
+                            <select id="selHour" name="selHour" style="width: 90px;height: 28px;border-color: #EEEEEE;">
+                                <option value="00">0时</option>
+                                <option value="01">1时</option>
+                                <option value="02">2时</option>
+                                <option value="03">3时</option>
+                                <option value="04">4时</option>
+                                <option value="05">5时</option>
+                                <option value="06">6时</option>
+                                <option value="07">7时</option>
+                                <option value="08">8时</option>
+                                <option value="09">9时</option>
+                                <option value="10">10时</option>
+                                <option value="11">11时</option>
+                                <option value="12">12时</option>
+                                <option value="13">13时</option>
+                                <option value="14">14时</option>
+                                <option value="15">15时</option>
+                                <option value="16">16时</option>
+                                <option value="17">17时</option>
+                                <option value="18">18时</option>
+                                <option value="19">19时</option>
+                                <option value="20">20时</option>
+                                <option value="21">21时</option>
+                                <option value="22">22时</option>
+                                <option value="23">23时</option>
+                                <option value="24">24时</option>
+                            </select>
+                        </div>
+
+                        <!--分钟-->
+                        <div style="margin-left: 10px;display: flex;" class="layui-input-inline">
+                            <select class="form-control" id="selMinute" name="selMinute" style="width: 90px;height: 28px;;border-color: #EEEEEE;">
+                                <option value="00">0分</option>
+                                <option value="01">1分</option>
+                                <option value="02">2分</option>
+                                <option value="03">3分</option>
+                                <option value="04">4分</option>
+                                <option value="05">5分</option>
+                                <option value="06">6分</option>
+                                <option value="07">7分</option>
+                                <option value="08">8分</option>
+                                <option value="09">9分</option>
+                                <option value="10">10分</option>
+                                <option value="11">11分</option>
+                                <option value="12">12分</option>
+                                <option value="13">13分</option>
+                                <option value="14">14分</option>
+                                <option value="15">15分</option>
+                                <option value="16">16分</option>
+                                <option value="17">17分</option>
+                                <option value="18">18分</option>
+                                <option value="19">19分</option>
+                                <option value="20">20分</option>
+                                <option value="21">21分</option>
+                                <option value="22">22分</option>
+                                <option value="23">23分</option>
+                                <option value="24">24分</option>
+                                <option value="25">25分</option>
+                                <option value="26">26分</option>
+                                <option value="27">27分</option>
+                                <option value="28">28分</option>
+                                <option value="29">29分</option>
+                                <option value="30">30分</option>
+                                <option value="31">31分</option>
+                                <option value="32">32分</option>
+                                <option value="33">33分</option>
+                                <option value="34">34分</option>
+                                <option value="35">35分</option>
+                                <option value="36">36分</option>
+                                <option value="37">37分</option>
+                                <option value="38">38分</option>
+                                <option value="39">39分</option>
+                                <option value="40">40分</option>
+                                <option value="41">41分</option>
+                                <option value="42">42分</option>
+                                <option value="43">43分</option>
+                                <option value="44">44分</option>
+                                <option value="45">45分</option>
+                                <option value="46">46分</option>
+                                <option value="47">47分</option>
+                                <option value="48">48分</option>
+                                <option value="49">49分</option>
+                                <option value="50">50分</option>
+                                <option value="51">51分</option>
+                                <option value="52">52分</option>
+                                <option value="53">53分</option>
+                                <option value="54">54分</option>
+                                <option value="55">55分</option>
+                                <option value="56">56分</option>
+                                <option value="57">57分</option>
+                                <option value="58">58分</option>
+                                <option value="59">59分</option>
+                            </select>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="white-space: nowrap;"><span style="color:red;">*</span>预警级别：</label>
+                    <div class="layui-input-block">
+                        <input name="warningLevel" title="紧急" type="radio" value="urgent" lay-filter="warningLevelFilter">
+                        <input name="warningLevel" title="普通" type="radio" value="ordinary" checked lay-filter="warningLevelFilter">
+                        <input name="warningLevel" title="告警" type="radio" value="alarm" lay-filter="warningLevelFilter">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="white-space: nowrap;"><span style="color:red;">*</span>预警信息：</label>
+                    <div class="layui-input-block">
+                        <textarea class="layui-textarea code-show" id="warningMsg" name="warningMsg" lay-verify="required">关键指标：{zbmc} 当前值为：{dqz} {pllx} 阈值{zbbzz}，请关注
+                        </textarea>
+                    </div>
+                </div>
+
+                <div class="layui-form-item" style="margin-top:50px; display: flex; justify-content: center; align-items: center;">
+
+                    <!--<button id="btnSubmit" class="pear-btn pear-btn-primary pear-btn-sm" lay-filter="user-save" lay-submit="" type="submit">
+                        &lt;!&ndash;<i class="layui-icon layui-icon-ok"></i>&ndash;&gt;
+                        <i class="layui-icon layui-icon-refresh"></i>
+                        提交
+                    </button>-->
+
+                    <button id="btnSubmit" class="pear-btn pear-btn-sm" lay-filter="user-save" lay-submit="" type="submit">
+                        <!--<i class="layui-icon layui-icon-ok"></i>-->
+                        <i class="layui-icon layui-icon-ok"></i>
+                        提交
+                    </button>
+
+                    &nbsp;&nbsp;
+                    <button id="btnReset" class="pear-btn pear-btn-sm" type="reset">
+                        <i class="layui-icon layui-icon-refresh"></i>
+                        重置
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!--<div class="bottom">
+        <div class="button-container" >
+            <button class="pear-btn pear-btn-primary pear-btn-sm" lay-filter="user-save" lay-submit="" type="submit">
+                <i class="layui-icon layui-icon-ok"></i>
+                提交
+            </button>
+            <button class="pear-btn pear-btn-sm" type="reset">
+                <i class="layui-icon layui-icon-refresh"></i>
+                重置
+            </button>
+        </div>
+    </div>-->
+</form>
+<th:block th:include="include :: footer"/>
+<script>
+
+    layui.use(['form', 'jquery', 'dtree'], function () {
+
+        let form = layui.form;
+        let $ = layui.jquery;
+        let dtree = layui.dtree;
+        var layer = layui.layer;
+
+
+        //地市选中事件
+        form.on('select(localCitySelect)', function(data){
+            var localCityValue = data.value;
+
+            //获取推送对象下拉框
+            $.ajax({
+                url: '/autoData/indexWarning/getPushObjectSelectSel?localCity='+localCityValue,
+                dataType: 'json',
+                contentType: 'application/json',
+                type: 'get',
+                success: function (result) {
+
+                    var demo1 = xmSelect.render({
+                        el: '#pushOtherObjectSel',
+                        theme: {
+                            color: '#287ED8',
+                        },
+                        toolbar: {
+                            show: true,
+                            showIcon: false,
+                        },
+                        filterable: true,
+                        paging: true,
+                        pageSize: 5,
+                        /*layVerify: 'required',*/
+                        /*radio: true,*/
+                        on: function(data){
+                            //arr:  当前多选已选中的数据
+                            var arr = data.arr;
+
+                            var dataLength = arr.length;
+                            if(dataLength >0) {
+                                var pushOtherObjectIds = "";
+                                for (var i = 0; i < dataLength; i++) {
+                                    var selData = arr[i];
+
+                                    if(i!=0){
+                                        pushOtherObjectIds = pushOtherObjectIds +";"+selData.id;
+                                    }else{
+                                        pushOtherObjectIds = pushOtherObjectIds +selData.id;
+                                    }
+                                }
+
+                                //console.log("modelIds: "+modelIds);
+                                $("#pushOtherObjectId").val(pushOtherObjectIds);
+
+                                console.log("pushOtherObjectIds: "+pushOtherObjectIds);
+
+                            }else{
+                                $("#pushOtherObjectId").val("");
+                            }
+                        },
+
+                        data: result
+                    });
+                }
+            });
+
+        });
+
+
+        //分类选中事件
+        form.on('select(classifySelect)', function(data){
+            var classIdValue = data.value;
+
+            $.ajax({
+                url: '/autoData/indexWarning/getIndexSelect?classifyId='+classIdValue+"&warningIndexId=-1",
+                dataType: 'json',
+                contentType: 'application/json',
+                type: 'get',
+                success: function (result) {
+
+                    var demo1 = xmSelect.render({
+                        el: '#indexNameSel',
+                        theme: {
+                            color: '#287ED8',
+                        },
+                        toolbar: {
+                            show: true,
+                            showIcon: false,
+                        },
+                        filterable: true,
+                        paging: true,
+                        pageSize: 5,
+                        layVerify: 'required',
+                        radio: true,
+                        on: function(data){
+                            //arr:  当前多选已选中的数据
+                            var arr = data.arr;
+                            var dataLength = arr.length;
+                            if(dataLength >0) {
+                                var warningIndexId = arr[0].value;
+                                $("#warningIndexId").val(warningIndexId);
+                                console.log("warningIndexId: "+warningIndexId);
+
+                            }else{
+                                $("#warningIndexId").val("");
+                            }
+                        },
+
+                        data: result
+                    });
+                }
+            });
+
+        });
+
+
+        //执行周期单选事件
+        form.on('radio(execPeriodFilter)', function(data){
+            if(data.value =="month"){//月
+                initMonth();
+            }else if(data.value =="week"){//周
+                $("#selWeekDiv").show();
+                $("#selMonthDiv").hide();
+
+            }else if(data.value =="day"){//日
+                $("#selWeekDiv").hide();
+                $("#selMonthDiv").hide();
+            }
+        });
+
+        //初始化月
+        //initMonth();
+
+        //初始化时间选中
+        initSelTime();
+
+        //保存提交事件
+        form.on('submit(user-save)', function (data) {
+
+            if(data.field.execPeriod =="month"){ //月
+                var selMonthValue = $("#selMonth").val();
+                data.field.execDay = selMonthValue;
+                data.field.execWeek = "";
+            }else if(data.field.execPeriod =="week"){ //周
+                var selWeekValue = $("#selWeek").val();
+                data.field.execWeek = selWeekValue;
+                data.field.execDay = "";
+
+            }else{ //日
+                data.field.execDay = "";
+                data.field.execWeek = "";
+            }
+
+            var selHourValue = $("#selHour").val();
+            var selMinuteValue = $("#selMinute").val();
+            data.field.execTime = selHourValue+":"+selMinuteValue;
+
+            var classifyValue = $("#classifySelect").val();
+            data.field.indexClass = classifyValue;
+
+            var param = JSON.stringify(data.field);
+
+            //console.log("param: "+param);
+
+            $("#loadDiv").show();
+            $("#btnSubmit").prop("disabled", true);
+            $("#btnReset").prop("disabled", true);
+
+            $.ajax({
+                url: '/autoData/indexWarning/saveIndexWarning',
+                data: param,
+                dataType: 'json',
+                contentType: 'application/json',
+                type: 'post',
+                success: function (result) {
+
+                    $("#loadDiv").hide();
+                    $("#btnSubmit").prop("disabled", false);
+                    $("#btnReset").prop("disabled", false);
+                    console.log("result: "+JSON.stringify(result));
+                    if (result.retCode == "0") {
+                        layer.msg(result.retMsg, {icon: 1, time: 2000}, function () {
+                            parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+                            parent.layui.table.reload("file-table");
+                        });
+                    } else {
+                        layer.msg(result.retMsg, {icon: 2, time: 2000});
+                    }
+                }
+            })
+            return false;
+        });
+
+
+        //初始化月
+        function initMonth(){
+            var daysInMonth = getDaysInMonth();
+            // 获取下拉框元素
+            var $selMonth = $('#selMonth');
+            // 清空下拉框
+            $selMonth.empty();
+            // 添加天数选项
+            for (var i = 1; i <= daysInMonth; i++) {
+                // 创建option元素并添加到下拉框
+                if(i <10){
+                    $selMonth.append($('<option>', {
+                        value: '0'+i,
+                        text: i + '日'
+                    }));
+                }else{
+                    $selMonth.append($('<option>', {
+                        value: i,
+                        text: i + '日'
+                    }));
+                }
+
+            }
+
+            // 可选：设置当前日期为默认选中
+            var today = new Date();
+            var currentDay = today.getDate();
+            if(currentDay <10){
+                currentDay = "0"+currentDay;
+            }
+            $selMonth.val(currentDay);
+
+            form.render('select'); // 必须重新渲染
+
+            $("#selMonthDiv").show();
+            $("#selWeekDiv").hide();
+        }
+
+        //初始化选中时间
+        function initSelTime(){
+            // 获取下拉框元素
+            var $selHour = $('#selHour');
+            var $selMinute = $('#selMinute');
+
+            // 可选：设置当前日期为默认选中
+            var today = new Date();
+            var currentHours = today.getHours();
+            if(currentHours <10){
+                currentHours = "0"+currentHours;
+            }
+
+            var currentMinutes = today.getMinutes();
+            if(currentMinutes <10){
+                currentMinutes = "0"+currentMinutes;
+            }
+
+            $selHour.val(currentHours);
+            $selMinute.val(currentMinutes);
+
+            form.render('select'); // 必须重新渲染
+
+        }
+
+        // 获取当月天数
+        function getDaysInMonth() {
+            const date = new Date(); // 当前日期
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1; // 月份从0开始，需+1
+
+            // 下个月的第0天 = 当前月的最后一天
+            return new Date(year, month, 0).getDate();
+        }
+
+
+        //标准值只能输入数值型+%
+        //标准值只能输入数值型+%
+        $('#indexStanValue').on('input keypress paste', function(e) {
+            let $input = $(this);
+
+            // 延迟处理粘贴事件
+            if (e.type === 'paste') {
+                setTimeout(() => {
+                    filterInput($input);
+                }, 10);
+                return;
+            }
+
+            // input 和 keypress 直接处理
+            filterInput($input);
+        });
+
+        function filterInput($input) {
+            let value = $input.val();
+            let cursorPos = $input[0].selectionStart; // 保存光标位置
+
+            // 1. 只保留数字、小数点、%
+            let cleaned = value.replace(/[^0-9.%]/g, '');
+
+            // 2. 处理小数点：最多一个，不能在末尾（如果后面没数字）
+            let parts = cleaned.split('.');
+            if (parts.length > 2) {
+                // 多个小数点：只保留第一个
+                cleaned = parts[0] + '.' + parts.slice(1).join('');
+            }
+            // 保留小数点，但后续逻辑会处理格式
+
+            // 3. 处理 %：只能出现在末尾，且最多一个
+            let percentIndex = cleaned.lastIndexOf('%');
+            if (percentIndex > -1) {
+                // 如果有%，检查是否在末尾
+                if (percentIndex !== cleaned.length - 1) {
+                    // % 不在末尾：移除所有%并重新添加（如果需要）
+                    cleaned = cleaned.replace(/%/g, '');
+                } else {
+                    // % 在末尾：保留，但确保前面没有其他%
+                    let beforePercent = cleaned.slice(0, -1).replace(/%/g, '');
+                    cleaned = beforePercent + '%';
+                }
+            }
+
+            // 4. 重新组合：数字 + 可选小数点 + 可选%
+            // 允许的格式：^\d*\.?\d+%?$
+            let match = cleaned.match(/^(\d*\.?\d*)%?$/);
+            if (match) {
+                let numPart = match[1];
+                // 如果以小数点结尾，保留（允许用户继续输入）
+                if (cleaned.endsWith('.') && !cleaned.endsWith('%.') && !cleaned.includes('%')) {
+                    cleaned = numPart; // 保留小数点
+                } else {
+                    // 正常情况：数字部分 + 是否有%
+                    cleaned = numPart + (cleaned.includes('%') ? '%' : '');
+                }
+            } else {
+                // 不匹配，只保留数字和小数点，不加%
+                cleaned = cleaned.replace(/[^0-9.]/g, '').replace(/%/g, '');
+            }
+
+            // 5. 更新输入框
+            if (value !== cleaned) {
+                $input.val(cleaned);
+
+                // 尝试保持光标位置
+                let newLength = cleaned.length;
+                let adjustedPos = Math.min(cursorPos, newLength);
+                $input[0].setSelectionRange(adjustedPos, adjustedPos);
+            }
+        }
+
+    })
+
+
+
+</script>
+
+</body>
+</html>
